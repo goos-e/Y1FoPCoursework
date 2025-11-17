@@ -1,0 +1,4 @@
+report failed iterations of program ?
+--should probably git track it
+
+does report include evaluation ? or is report purely documentation purpose

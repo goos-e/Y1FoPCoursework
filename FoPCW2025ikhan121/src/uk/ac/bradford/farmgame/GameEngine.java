@@ -168,7 +168,14 @@ public class GameEngine {
      *
      */
     private void generateFarm() {
-        //YOUR CODE HERE
+        level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
+        
+        for (int i = 0; i < level.length; i++){
+            for (int j = 0; j < level[i].length;  j++){
+                level[i][j] = new Tile(TileType.STONE_GROUND);
+            }
+        }
+        
     }
     
     /**

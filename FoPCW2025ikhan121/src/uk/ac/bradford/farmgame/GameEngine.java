@@ -190,7 +190,35 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void betterMovePlayer(int direction) {
-        movePlayer(direction);                  //remove this line when you reach this task!
+        int currentX = player.getX();
+        int currentY = player.getY();
+        
+        switch(direction){
+            case 1:
+                // up
+                if(currentY>0){
+                    player.setPosition(currentX, currentY-1);
+                }
+                break;
+            case 2:
+                // right
+                if(currentX<LEVEL_WIDTH-1){
+                    player.setPosition(currentX+1, currentY);
+                }
+                break;
+            case 3:
+                // down
+                if(currentY<LEVEL_HEIGHT-1){
+                    player.setPosition(currentX, currentY+1);
+                }
+                break;
+            case 4:
+                // left
+                if(currentX>0){
+                    player.setPosition(currentX-1, currentY);
+                }
+                break;
+        }
     }
     
     /**

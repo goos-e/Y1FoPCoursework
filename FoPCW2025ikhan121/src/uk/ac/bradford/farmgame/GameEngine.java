@@ -114,10 +114,8 @@ public class GameEngine {
      *
      * This method should use fixed X and Y values for the player's position.
      */
-    private void createPlayer(int x, int y) {
-        player = new Player(x,y);
-        
-        // now creates player object using constructor and takes params x and y
+    private void createPlayer() {
+            player = new Player(0,0);
     }
     
     /**
@@ -133,7 +131,27 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void movePlayer(int direction) {
-        //YOUR CODE HERE
+        int currentX = player.getX();
+        int currentY = player.getY();
+        
+        switch(direction){
+            case 1:
+                // up
+                player.setPosition(currentX, currentY-1);
+                break;
+            case 2:
+                // right
+                player.setPosition(currentX+1, currentY);
+                break;
+            case 3:
+                // down
+                player.setPosition(currentX, currentY+1);
+                break;
+            case 4:
+                // left
+                player.setPosition(currentX-1, currentY);
+                break;
+        }
     }
 
     /**
@@ -308,7 +326,7 @@ public class GameEngine {
      */
     public void startGame() {
         generateEvenBetterFarm();
-        createPlayer(0, 0); // changed to take params x y
+        createPlayer(); 
         gui.updateDisplay(level, debris, player, pest);
     }
 }

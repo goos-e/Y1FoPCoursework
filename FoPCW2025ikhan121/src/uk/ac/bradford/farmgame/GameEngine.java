@@ -252,6 +252,9 @@ public class GameEngine {
                    i>=plotCornerX && i<plotCornerX+plotWidth){
                     level[i][j] = new Tile(TileType.DIRT);
                 }
+                else if(i==LEVEL_WIDTH/2 && j==LEVEL_HEIGHT/2){
+                    level[i][j] = new Tile(TileType.HOE_BOX);
+                }
                 else{
                     level[i][j] = new Tile(TileType.STONE_GROUND);
                 }

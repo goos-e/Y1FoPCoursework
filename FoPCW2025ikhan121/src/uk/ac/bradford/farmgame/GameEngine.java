@@ -115,7 +115,7 @@ public class GameEngine {
      * This method should use fixed X and Y values for the player's position.
      */
     private void createPlayer() {
-            player = new Player(0,0);
+            player = new Player(LEVEL_WIDTH/2-1,LEVEL_HEIGHT/2-1);
     }
     
     /**
@@ -235,7 +235,29 @@ public class GameEngine {
      * each time this method is called so it is different every time the game is started.
      */
     private void generateBetterFarm() {
-        generateFarm();                         //remove this line when you reach this task!
+        level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
+        
+        int plotWidth = rng.nextInt(6, 12);
+        int plotHeight = rng.nextInt(3, 6);
+        int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);
+        int plotCornerY = rng.nextInt(LEVEL_HEIGHT-plotHeight);
+        
+        // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
+        
+        for (int i = 0; i < level.length; i++){
+            for (int j = 0; j < level[i].length;  j++){
+                
+                level[i][j] = new Tile(TileType.STONE_GROUND);
+                
+                if(j>=plotCornerY && j<plotCornerY+plotHeight &&
+                   i>=plotCornerX && i<plotCornerX+plotWidth){
+                    level[i][j] = new Tile(TileType.DIRT);
+                }
+                else{
+                    level[i][j] = new Tile(TileType.STONE_GROUND);
+                }
+            }
+        }
     }
     
     /**

@@ -175,7 +175,6 @@ public class GameEngine {
                 level[i][j] = new Tile(TileType.STONE_GROUND);
             }
         }
-        
     }
     
     /**

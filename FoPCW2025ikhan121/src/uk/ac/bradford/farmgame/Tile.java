@@ -18,6 +18,13 @@ public class Tile {
     private TileType type;
     
     /**
+     * A flag  for the Tile object. This flag determines whether the Tile object 
+     * be collided with, or if entities can walk over it. Useful for TileTypes 
+     * which should prevent movement ie WALL, HOE_BOX etc.
+     */
+    private boolean collidable;
+    
+    /**
      * An enumeration type to restrict the type of Tile objects to one from a set
      * of fixed values. Each type has an associated graphic for drawing to the
      * screen which is set when the Tile object constructor is called.
@@ -30,11 +37,20 @@ public class Tile {
      * Constructor for creating Tile objects. You must pass one of the permitted
      * values from the TileType enumeration into this constructor when you call it,
      * for example by passing the value TileType.BACKGROUND between the brackets of the
-     * call to the constructor.
+     * call to the constructor. Attribute collidable defaults to false. 
      * @param t the type for this Tile object; a value from the TileType enumeration
      */
     public Tile(TileType t) {
         type = t;
+        collidable = false;
+    }
+    
+    /**
+     * Overloaded constructor to set attribute collidable
+     */
+    public Tile(TileType t, boolean c) {
+        type = t;
+        collidable = c;
     }
         
     /**
@@ -45,6 +61,14 @@ public class Tile {
      */
     public TileType getType() {
         return this.type;
+    }
+    
+    /**
+     * Get the flag for whether Tile object is collidable or not.  
+     * @return true if it IS collidable, false if NOT collidable
+     */
+    public boolean isCollidable(){
+        return this.collidable;
     }
     
 }

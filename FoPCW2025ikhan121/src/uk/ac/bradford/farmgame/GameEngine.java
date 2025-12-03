@@ -223,7 +223,7 @@ public class GameEngine {
         }
         
         if(isWithinLevel(nextX, nextY)){
-            updatePlayerItem(level[nextX][nextY]);
+            handlePlayerInteraction(level[nextX][nextY]);
         }
         
     }
@@ -463,4 +463,22 @@ public class GameEngine {
         }
     }
     
+    
+    /**
+     * Handles the interaction between the level array and the player, for example
+     * tilling the ground if the player is holding a hoe.
+     * @param tile the tile which the entity is attempting to interact with
+     */
+    private void handlePlayerInteraction(Tile tile){
+        
+        updatePlayerItem(tile);
+        
+        int holding = player.getHeldItem();
+        TileType t = tile.getType();
+        
+        if(holding == 1 && t == TileType.DIRT){
+            tile.setType(TileType.TILLED_DIRT);
+        }
+        
+    }
 }

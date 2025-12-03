@@ -192,32 +192,40 @@ public class GameEngine {
         int currentX = player.getX();
         int currentY = player.getY();
         
+        int nextX = 0;
+        int nextY = 0;
+        
         switch(direction){
             case 1:
                 // up
-                if(currentY>0){
-                    player.setPosition(currentX, currentY-1);
-                }
+                nextX = currentX;
+                nextY = currentY-1;
                 break;
             case 2:
                 // right
-                if(currentX<LEVEL_WIDTH-1){
-                    player.setPosition(currentX+1, currentY);
-                }
+                nextX = currentX+1;
+                nextY = currentY;
                 break;
             case 3:
                 // down
-                if(currentY<LEVEL_HEIGHT-1){
-                    player.setPosition(currentX, currentY+1);
-                }
+                nextX = currentX;
+                nextY = currentY+1;
                 break;
             case 4:
                 // left
-                if(currentX>0){
-                    player.setPosition(currentX-1, currentY);
-                }
+                nextX = currentX-1;
+                nextY = currentY;
                 break;
+        } 
+        
+        if(isValidPosition(nextX, nextY)){
+            player.setPosition(nextX, nextY);
         }
+        
+        if(isWithinLevel(nextX, nextY)){
+            updatePlayerItem(level[nextX][nextY]);
+        }
+        
     }
     
     /**
@@ -254,10 +262,10 @@ public class GameEngine {
                    i>=plotCornerX && i<plotCornerX+plotWidth){
                     level[i][j] = new Tile(TileType.DIRT);
                 }
-                else if(i-LEVEL_WIDTH/2>1 && j-LEVEL_HEIGHT/2>1 && 
-                        level[i][j].getType() != TileType.DIRT &&
-                        !hoeSpawned){
-                    level[i][j] = new Tile(TileType.HOE_BOX);
+                // this logic will need fixing, its quite bad
+                else if(!hoeSpawned && i==LEVEL_WIDTH/2-1+1 && 
+                        j==LEVEL_HEIGHT/2-1){
+                    level[i][j] = new Tile(TileType.HOE_BOX, true);
                     hoeSpawned=true;
                 }
                 else{
@@ -393,4 +401,66 @@ public class GameEngine {
         createPlayer(); 
         gui.updateDisplay(level, debris, player, pest);
     }
+    
+    /**
+     * 
+     * 
+     * @param x coordinate of  tile to check
+     * @param y coordinate of tile to check
+     * @return true if coordinates are valid for movement
+     */
+    private boolean isValidPosition(int x, int y){
+        
+        if(!isWithinLevel(x, y)){
+            return false;
+        }
+        else if( level[x][y].isCollidable() ){
+            return false;
+        }
+        else{
+            return true;
+        }
+        
+    }
+    /**
+     * Checks whether coordinate pair exists in the level array. 
+     * @param x coordinate of tile to check
+     * @param y coordinate of tile to check
+     * @return false if the tile coordinate exceeds the map boundaries defined by 
+     * LEVEL_HEIGHT and LEVEL_WIDTH, true if not.
+     */
+    private boolean isWithinLevel(int x, int y){
+        
+        if( x<0 || LEVEL_WIDTH-1<x || y<0 || LEVEL_HEIGHT-1<y){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    
+    /**
+     * Logic for deciding which item to set the player's holding attribute to,
+     * depending on what the TileType of the passed tile is, ie AXE_BOX, HOE_BOX
+     * etc.
+     * @param tile 
+     */
+    private void updatePlayerItem(Tile tile){
+        
+        TileType t = tile.getType();
+        
+        if(t == TileType.HOE_BOX){
+            player.setHeldItem(1);
+        }
+        else if(t == TileType.SEED_BOX){
+            player.setHeldItem(2);
+        }
+        else if(t == TileType.AXE_BOX){
+            player.setHeldItem(3);
+        }
+        else if(t == TileType.PICKAXE_BOX){
+            player.setHeldItem(4);
+        }
+    }
+    
 }

@@ -63,6 +63,10 @@ public class Tile {
         return this.type;
     }
     
+    public void setType(TileType t){
+        type = t;
+    }
+    
     /**
      * Get the flag for whether Tile object is collidable or not.  
      * @return true if it IS collidable, false if NOT collidable

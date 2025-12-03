@@ -237,9 +237,11 @@ public class GameEngine {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
         int plotWidth = rng.nextInt(6, 12);
-        int plotHeight = rng.nextInt(3, 6);
+        int plotHeight = rng.nextInt(3, 10);
         int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);
         int plotCornerY = rng.nextInt(LEVEL_HEIGHT-plotHeight);
+        
+        boolean hoeSpawned = false;
         
         // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
         
@@ -252,8 +254,11 @@ public class GameEngine {
                    i>=plotCornerX && i<plotCornerX+plotWidth){
                     level[i][j] = new Tile(TileType.DIRT);
                 }
-                else if(i==LEVEL_WIDTH/2 && j==LEVEL_HEIGHT/2){
+                else if(i-LEVEL_WIDTH/2>1 && j-LEVEL_HEIGHT/2>1 && 
+                        level[i][j].getType() != TileType.DIRT &&
+                        !hoeSpawned){
                     level[i][j] = new Tile(TileType.HOE_BOX);
+                    hoeSpawned=true;
                 }
                 else{
                     level[i][j] = new Tile(TileType.STONE_GROUND);

@@ -298,10 +298,11 @@ public class GameEngine {
         
         int houseWidth = rng.nextInt(5, 8);
         int houseHeight = rng.nextInt(3, 9);
-        int houseCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);   
-        int houseCornerY = rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT);
+        int houseCornerX = rng.nextInt(LEVEL_WIDTH-1-houseWidth);   
+        int houseCornerY = rng.nextInt(LEVEL_HEIGHT/2-1, LEVEL_HEIGHT-houseHeight);
         
-        // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
+        System.out.printf("FARMPLOT: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
+        System.out.printf("HOUSE: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", houseWidth, houseHeight, houseCornerX, houseCornerY);
 
         // default terrain generation: stone ground
         for (int i = 0; i < level.length; i++){ //cols (x)
@@ -317,10 +318,17 @@ public class GameEngine {
             }
         }
         
-        // house generation
+        // house floor generation
         for (int i = houseCornerX; i<houseCornerX+houseWidth; i++){
             for (int j = houseCornerY; j<houseCornerY+houseHeight; j++){
                 level[i][j] = new Tile(TileType.HOUSE_FLOOR);
+            }
+        }
+        
+        // house wall generation
+        for (int i = houseCornerX; i<houseCornerX+houseWidth; i++){
+            for (int j = houseCornerY; j<houseCornerY+houseHeight; j++){
+                level[i][houseCornerY] = new Tile(TileType.WALL, true);
             }
         }
         

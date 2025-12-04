@@ -248,8 +248,7 @@ public class GameEngine {
         int plotHeight = rng.nextInt(3, 10);
         int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);
         int plotCornerY = rng.nextInt(LEVEL_HEIGHT-plotHeight);
-        
-        boolean hoeSpawned = false;
+
         
         // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
         
@@ -260,16 +259,12 @@ public class GameEngine {
                 
                 if(j>=plotCornerY && j<plotCornerY+plotHeight &&
                    i>=plotCornerX && i<plotCornerX+plotWidth){
-                    level[i][j] = new Tile(TileType.DIRT);
+                    level[i][j].setType(TileType.DIRT);
                 }
                 // this logic will need fixing, its quite bad
-                else if(!hoeSpawned && i==LEVEL_WIDTH/2-1+1 && 
+                else if(i==LEVEL_WIDTH/2-1+1 && 
                         j==LEVEL_HEIGHT/2-1){
                     level[i][j] = new Tile(TileType.HOE_BOX, true);
-                    hoeSpawned=true;
-                }
-                else{
-                    level[i][j] = new Tile(TileType.STONE_GROUND);
                 }
             }
         }
@@ -403,7 +398,9 @@ public class GameEngine {
     }
     
     /**
-     * 
+     * Check if coordinate location on level is valid for entity to stand on by 
+     * checking if location exists on map, and if yes, is the tile at that location 
+     * collidable. 
      * 
      * @param x coordinate of  tile to check
      * @param y coordinate of tile to check

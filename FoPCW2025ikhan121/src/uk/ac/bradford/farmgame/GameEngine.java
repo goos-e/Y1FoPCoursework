@@ -244,6 +244,7 @@ public class GameEngine {
     private void generateBetterFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
+        // should make function for this + spawning
         int plotWidth = rng.nextInt(6, 12);
         int plotHeight = rng.nextInt(5, 12);
         int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);
@@ -289,6 +290,7 @@ public class GameEngine {
     private void generateEvenBetterFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
+        // should make function for this + spawning
         int plotWidth = rng.nextInt(5, 26);
         int plotHeight = rng.nextInt(3, LEVEL_HEIGHT/2);
         int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);   
@@ -517,8 +519,9 @@ public class GameEngine {
             tile.setType(TileType.TILLED_DIRT);
         }
         if(holding == 2 && t == TileType.TILLED_DIRT){
-            tile.setType(TileType.CROP);
-        }
-        
+            tile.setType(TileType.SOWED_DIRT);
+        }   
     }
+    
+    private void createFarm(){}
 }

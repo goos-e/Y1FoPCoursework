@@ -63,6 +63,13 @@ public class Tile {
         return this.type;
     }
     
+    /**
+     * Sets the type for this Tile object. The value will be one of those defined
+     * in the TileType enumeration in the Tile class, e.g. TileType.DIRT or
+     * TileType.WALL
+     * @param t the type to change this Tile object to; a value from the TileType
+     * enumeration
+     */
     public void setType(TileType t){
         type = t;
     }
@@ -73,6 +80,15 @@ public class Tile {
      */
     public boolean isCollidable(){
         return this.collidable;
+    }
+    
+    
+    /**
+     * Sets the collidable state of tile 
+     * @param c boolean flag for if tile is collidable; true if it is, false if not
+     */
+    public void setCollidable(boolean c){
+        collidable = c;
     }
     
 }

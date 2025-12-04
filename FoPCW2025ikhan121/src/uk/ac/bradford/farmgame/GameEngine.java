@@ -300,7 +300,7 @@ public class GameEngine {
         int houseWidth = rng.nextInt(3, 7);
         int houseHeight = rng.nextInt(3, 7);
         int houseCornerX = rng.nextInt(LEVEL_WIDTH-1-houseWidth);   
-        int houseCornerY = rng.nextInt(LEVEL_HEIGHT/2-1, LEVEL_HEIGHT-houseHeight);
+        int houseCornerY = rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-houseHeight);
         
         System.out.printf("FARMPLOT: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
         System.out.printf("HOUSE: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", houseWidth, houseHeight, houseCornerX, houseCornerY);
@@ -367,7 +367,15 @@ public class GameEngine {
      * whenever one or more crops are created.
      */
     public void growCrops() {
-        //YOUR CODE HERE
+        for (int i = 0; i<LEVEL_WIDTH; i++){
+            for (int j = 0; j<LEVEL_HEIGHT; j++){
+                Tile t = level[i][j];
+                
+                if (t.getType()==TileType.SOWED_DIRT){
+                    t.setType(TileType.CROP);
+                }
+            }
+        }
     }
     
     /**
@@ -428,6 +436,7 @@ public class GameEngine {
      * of crops.
      */
     private void triggerNight() {
+        growCrops();
         gui.doNight(this);
     }
     
@@ -550,7 +559,7 @@ public class GameEngine {
         }
         if(holding == 2 && t == TileType.TILLED_DIRT){
             tile.setType(TileType.SOWED_DIRT);
-        }   
+        }
         if(t==TileType.BED){
             triggerNight();
         }

@@ -293,7 +293,11 @@ public class GameEngine {
         int plotHeight = rng.nextInt(3, LEVEL_HEIGHT/2);
         int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);   
         int plotCornerY = rng.nextInt(LEVEL_HEIGHT/2-plotHeight);
-
+        
+        int houseWidth = rng.nextInt(5, 8);
+        int houseHeight = rng.nextInt(3, 9);
+        int houseCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);   
+        int houseCornerY = rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT);
         
         // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
 
@@ -308,6 +312,13 @@ public class GameEngine {
         for (int i = plotCornerX; i<plotCornerX+plotWidth; i++){
             for (int j = plotCornerY; j<plotCornerY+plotHeight; j++){
                 level[i][j] = new Tile(TileType.DIRT);
+            }
+        }
+        
+        // house generation
+        for (int i = houseCornerX; i<houseCornerX+houseWidth; i++){
+            for (int j = houseCornerY; j<houseCornerY+houseHeight; j++){
+                level[i][j] = new Tile(TileType.HOUSE_FLOOR);
             }
         }
         

@@ -291,21 +291,6 @@ public class GameEngine {
      */
     private void generateEvenBetterFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
-        
-        // should make function for this + spawning
-        int plotWidth = rng.nextInt(5, 26);
-        int plotHeight = rng.nextInt(3, LEVEL_HEIGHT/2);
-        int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);   
-        int plotCornerY = rng.nextInt(LEVEL_HEIGHT/2-plotHeight);
-        
-       
-        int houseWidth = rng.nextInt(3, 7);
-        int houseHeight = rng.nextInt(3, 7);
-        int houseCornerX = rng.nextInt(LEVEL_WIDTH-1-houseWidth);   
-        int houseCornerY = rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-houseHeight);
-        
-        System.out.printf("FARMPLOT: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
-        System.out.printf("HOUSE: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", houseWidth, houseHeight, houseCornerX, houseCornerY);
 
         // default terrain generation: stone ground
         for (int i = 0; i < level.length; i++){ //cols (x)
@@ -314,48 +299,15 @@ public class GameEngine {
             }
         }
         
-        // farm plot generation
-        for (int i = plotCornerX; i<plotCornerX+plotWidth; i++){
-            for (int j = plotCornerY; j<plotCornerY+plotHeight; j++){
-                level[i][j] = new Tile(TileType.DIRT);
-            }
-        }
+        fillTerrain(TileType.STONE_GROUND);
+        generateDirtPatch();
+        generateHouse();
         
-        // house floor generation
-        for (int i = houseCornerX; i<houseCornerX+houseWidth; i++){
-            for (int j = houseCornerY; j<houseCornerY+houseHeight; j++){
-                level[i][j] = new Tile(TileType.HOUSE_FLOOR);
-            }
-        }
-        
-        // house wall generation
-        for (int i = houseCornerX; i<houseCornerX+houseWidth; i++){
-            for (int j = houseCornerY; j<houseCornerY+houseHeight; j++){
-                
-                // 'door' - empty tile
-                level[houseCornerX+1][houseCornerY] = new Tile(TileType.HOUSE_FLOOR);
-                
-                // top and left wall
-                level[i][houseCornerY] = new Tile(TileType.WALL, true);
-                level[houseCornerX][j] = new Tile(TileType.WALL, true);
-                
-                // bottom and right wall
-                level[i][houseCornerY+houseHeight] = new Tile(TileType.WALL, true);
-                level[houseCornerX+houseWidth][j] = new Tile(TileType.WALL, true);
-                
-                // bottom right corner
-                level[houseCornerX+houseWidth][houseCornerY+houseHeight] = new Tile(TileType.WALL, true);
-            }
-        }
-        
-        // place bed
-        level[houseCornerX+houseWidth-1][houseCornerY+houseHeight-1] = new Tile(TileType.BED, true);
-
-        
-        // place hoe and seed box
-        level[plotCornerX][plotCornerY] = new Tile(TileType.HOE_BOX, true);
-        level[plotCornerX+1][plotCornerY] = new Tile(TileType.SEED_BOX, true);
-        
+        // debugging printouts
+        /*
+        System.out.printf("FARMPLOT: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotSize.getX(), plotSize.getY(), plotCorner.getX(), plotCorner.getY());
+        System.out.printf("HOUSE: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", houseSize.getX(), houseSize.getY(), houseCorner.getX(), houseCorner.getY());
+        */
     }
     
     /**
@@ -370,16 +322,15 @@ public class GameEngine {
      */
     public void growCrops() {
 
-        int[][] cropCoords = findTiles(TileType.SOWED_DIRT);
+        int[][] sowedCoords = findTiles(TileType.SOWED_DIRT);
         
-        for (int i = 0; i<cropCoords.length; i++){
-            int x = cropCoords[i][0];
-            int y = cropCoords[i][1];
-            
-            level[x][y].setType(TileType.CROP);
-        }
-        
-        if (cropCoords.length >= 1){
+        if (sowedCoords.length >= 1){
+            for (int i = 0; i<sowedCoords.length; i++){
+                int x = sowedCoords[i][0];
+                int y = sowedCoords[i][1];
+
+                level[x][y].setType(TileType.CROP);
+            }
             createPest();
         }
     }
@@ -397,41 +348,38 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
-        int currentX = player.getX();
-        int currentY = player.getY();
-        
-        int nextX = 0;
-        int nextY = 0;
+        int[] currentCoords = {player.getX(), player.getY()};
+        int[] nextCoords = {0, 0};
         
         switch(direction){
             case 1 -> {
                 // up
-                nextX = currentX;
-                nextY = currentY-1;
+                nextCoords[0] = currentCoords[0];
+                nextCoords[1] = currentCoords[1]-1;
             }
             case 2 -> {
                 // right
-                nextX = currentX+1;
-                nextY = currentY;
+                nextCoords[0] = currentCoords[0]+1;
+                nextCoords[1] = currentCoords[1];
             }
             case 3 -> {
                 // down
-                nextX = currentX;
-                nextY = currentY+1;
+                nextCoords[0] = currentCoords[0];
+                nextCoords[1] = currentCoords[1]+1;
             }
             case 4 -> {
                 // left
-                nextX = currentX-1;
-                nextY = currentY;
+                nextCoords[0] = currentCoords[0]-1;
+                nextCoords[1] = currentCoords[1];
             }
         } 
         
-        if(isValid(nextX, nextY)){
-            player.setPosition(nextX, nextY);
+        if(isValid(nextCoords[0], nextCoords[1])){
+            player.setPosition(nextCoords[0], nextCoords[1]);
         }
         
-        if(isWithinLevel(nextX, nextY)){
-            handlePlayerInteraction(level[nextX][nextY]);
+        if(isWithinLevel(nextCoords[0], nextCoords[1])){
+            handlePlayerInteraction(level[nextCoords[0]][nextCoords[1]]);
         }
     }
     
@@ -489,8 +437,6 @@ public class GameEngine {
      * create more complex movement rules if you wish!)
      */
     private void movePest() {
-        //YOUR CODE HERE
-        
         /*
         basic movement (no collision)
         
@@ -502,11 +448,43 @@ public class GameEngine {
         pest can beeline for crop with simple movement
         */
         
+        int[][] cropCoords = findTiles(TileType.CROP);
         
-        
-        
-        
-        
+        if (cropCoords!= null){
+            
+            int[] currentCoords = {pest.getX(), pest.getY()};
+            int[] nextCoords = currentCoords;
+            int[] closestCoords = {0, 0};
+            
+            int shortestDistance = 999;
+            int dX = 0;
+            int dY = 0;
+            
+            for (int i = 0; i<cropCoords.length; i++){
+                dX = Math.abs(currentCoords[0] - cropCoords[i][0]);
+                dY = Math.abs(currentCoords[1] - cropCoords[i][1]);
+                
+                if (shortestDistance > dX + dY){
+                    closestCoords[0] = cropCoords[i][0];
+                    closestCoords[1] = cropCoords[i][1];
+                    
+                    shortestDistance = dX + dY;
+                }
+            }
+            
+            if (currentCoords != closestCoords) {
+                if(dX>=dY){
+                    nextCoords[0] = currentCoords[0];
+                    nextCoords[1] = currentCoords[1];
+                }
+                else{
+                    
+                }
+            }
+            
+            pest.setPosition(nextCoords[0], nextCoords[1]);
+            // System.out.printf("Closest crop is %d tiles away: (%d, %d)%n", shortestDistance, closestCoords[0], closestCoords[1]);
+        }
     }
 
     /**
@@ -515,7 +493,7 @@ public class GameEngine {
      * the array with instances of the Tree and Rock classes that you create in this
      * method. For top marks in this task the objects should be randomly placed so
      * that their position is different each game. Ideally they should not be placed
-     * in a way that prevents the player from playign the game (e.g. should not be placed
+     * in a way that prevents the player from playing the game (e.g. should not be placed
      * in a way that blocks the door to the farmhouse!)
      * Rocks and Trees should block player movement; add code to your newest
      * player movement method (depends on which tasks you have already completed!)
@@ -658,7 +636,7 @@ public class GameEngine {
     
     /**
      * Searches through the level array at O(n*m) complexity for all tiles that 
-     * match the passed TileType, returning a 2D array of all coordinate pairs.
+     * match the passed TileType, returning a 2D array of all coordinate pairs. 
      * @param t type to search level array for
      * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
      * none found
@@ -677,5 +655,84 @@ public class GameEngine {
         int[][] result = coords.toArray(new int[coords.size()][]);
         
         return result;
+    }
+    
+    /**
+     * Calculates a vector for movement from the source to the destination
+     * @param s array for (x, y) coordinates of source
+     * @param d array for (x, y) coordinates of destination
+     * @return int[] array for distance from source to destination
+     */
+    private int[] vectorToDestination(int[] s, int[] d){
+        return new int[]{d[0]-s[0], d[1]-s[1]};
+    }
+    
+    /**
+     * Generates the floor and walls of the house for generateEvenBetterFarm()
+     */
+    private void generateHouse(){
+        // house floor generation
+        // size (width, height) -> (x, y)
+        Vector houseSize = new Vector(rng.nextInt(3, 7), rng.nextInt(3, 7));
+        Vector houseCorner = new Vector(rng.nextInt(LEVEL_WIDTH-1-houseSize.getX()),
+                                        rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-houseSize.getY()));
+        
+        for (int i = houseCorner.getX(); i<houseCorner.add(houseSize).getX(); i++){
+            for (int j = houseCorner.getY(); j<houseCorner.getY()+houseSize.getY(); j++){
+                level[i][j] = new Tile(TileType.HOUSE_FLOOR);
+            }
+        }
+        // house wall generation
+        for (int i = houseCorner.getX(); i<houseCorner.getX()+houseSize.getX(); i++){
+            for (int j = houseCorner.getY(); j<houseCorner.getY()+houseSize.getY(); j++){
+                
+                // 'door' - empty tile
+                level[houseCorner.getX()+1][houseCorner.getY()] = new Tile(TileType.HOUSE_FLOOR);
+                
+                // top and left wall
+                level[i][houseCorner.getY()] = new Tile(TileType.WALL, true);
+                level[houseCorner.getX()][j] = new Tile(TileType.WALL, true);
+                
+                // bottom and right wall
+                level[i][houseCorner.getY()+houseSize.getY()] = new Tile(TileType.WALL, true);
+                level[houseCorner.getX()+houseSize.getX()][j] = new Tile(TileType.WALL, true);
+                
+                // bottom right corner
+                level[houseCorner.getX()+houseSize.getX()][houseCorner.getY()+houseSize.getY()] = new Tile(TileType.WALL, true);
+            }
+        }
+        
+        // place bed
+        level[houseCorner.getX()+houseSize.getX()-1][houseCorner.getY()+houseSize.getY()-1] = new Tile(TileType.BED, true);
+    }
+    
+    /**
+     * Generates the dirt patch for generateEvenBetterFarm()
+     */
+    private void generateDirtPatch(){
+        // farm plot generation 
+        // size (width, height) -> (x, y)
+        Vector plotSize = new Vector(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
+        Vector plotCorner = new Vector(rng.nextInt(LEVEL_WIDTH-plotSize.getX()), 
+                                       rng.nextInt(LEVEL_HEIGHT/2-plotSize.getY()));
+        
+        for (int i = plotCorner.getX(); i<plotCorner.add(plotSize).getX(); i++){
+            for (int j = plotCorner.getY(); j<plotCorner.add(plotSize).getY(); j++){
+                level[i][j] = new Tile(TileType.DIRT);
+            }
+        }
+        
+        // place hoe and seed box
+        level[plotCorner.getX()][plotCorner.getY()] = new Tile(TileType.HOE_BOX, true);
+        level[plotCorner.getX()+1][plotCorner.getY()] = new Tile(TileType.SEED_BOX, true);
+    }
+    
+    private void fillTerrain(TileType t){
+        // default terrain generation: TileType.t
+        for (int i = 0; i < level.length; i++){ //cols (x)
+            for (int j = 0; j < level[i].length;  j++){ //rows (y)
+                level[i][j] = new Tile(t);
+            }
+        }
     }
 }

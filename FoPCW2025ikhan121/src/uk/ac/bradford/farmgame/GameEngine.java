@@ -218,13 +218,16 @@ public class GameEngine {
                 nextX = currentX-1;
                 nextY = currentY;
             }
-        } 
+        }
         
-        if(isValid(nextX, nextY)){
+        // NOTE THIS ORIGINALLY DID NOT TAKE IN A VECTOR AS AN ARGUMENT
+        // I UPDATED THIS LATER TO CREATE A VECTOR TO PASS THROUGH, BUT THAT
+        // WAS NOT INITIAL DESIGN
+        if(isValid(new Vector(nextX, nextY))){
             player.setPosition(nextX, nextY);
         }
         
-        if(isWithinLevel(nextX, nextY)){
+        if(isWithinLevel(new Vector(nextX, nextY))){
             handlePlayerInteraction(level[nextX][nextY]);
         }
         
@@ -322,12 +325,12 @@ public class GameEngine {
      */
     public void growCrops() {
 
-        int[][] sowedCoords = findTiles(TileType.SOWED_DIRT);
+        Vector[] sowedCoords = findTiles(TileType.SOWED_DIRT);
         
         if (sowedCoords.length >= 1){
             for (int i = 0; i<sowedCoords.length; i++){
-                int x = sowedCoords[i][0];
-                int y = sowedCoords[i][1];
+                int x = sowedCoords[i].getX();
+                int y = sowedCoords[i].getY();
 
                 level[x][y].setType(TileType.CROP);
             }
@@ -348,38 +351,40 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
-        int[] currentCoords = {player.getX(), player.getY()};
-        int[] nextCoords = {0, 0};
+        Vector currentCoords = new Vector(player.getX(), player.getY());
+        
+        Vector translate = null;
+        Vector nextCoords = null;
         
         switch(direction){
             case 1 -> {
                 // up
-                nextCoords[0] = currentCoords[0];
-                nextCoords[1] = currentCoords[1]-1;
+                translate = new Vector(0, -1);
+                nextCoords = currentCoords.add(translate);
             }
             case 2 -> {
                 // right
-                nextCoords[0] = currentCoords[0]+1;
-                nextCoords[1] = currentCoords[1];
+                translate = new Vector(1, 0);
+                nextCoords = currentCoords.add(translate);
             }
             case 3 -> {
                 // down
-                nextCoords[0] = currentCoords[0];
-                nextCoords[1] = currentCoords[1]+1;
+                translate = new Vector(0, 1);
+                nextCoords = currentCoords.add(translate);
             }
             case 4 -> {
                 // left
-                nextCoords[0] = currentCoords[0]-1;
-                nextCoords[1] = currentCoords[1];
+                translate = new Vector(-1, 0);
+                nextCoords = currentCoords.add(translate);
             }
         } 
         
-        if(isValid(nextCoords[0], nextCoords[1])){
-            player.setPosition(nextCoords[0], nextCoords[1]);
+        if(isValid(nextCoords)){
+            player.setPosition(nextCoords.getX(), nextCoords.getY());
         }
         
-        if(isWithinLevel(nextCoords[0], nextCoords[1])){
-            handlePlayerInteraction(level[nextCoords[0]][nextCoords[1]]);
+        if(isWithinLevel(nextCoords)){
+            handlePlayerInteraction(level[nextCoords.getX()][nextCoords.getY()]);
         }
     }
     
@@ -391,8 +396,7 @@ public class GameEngine {
     private void createPest() {
         
         // generate random pestX and pestY spawn coords
-        int pestX = -1;
-        int pestY = -1;
+        Vector pestCoords = new Vector(-1, -1);
         
         /**
          * only want pest to spawn on EDGES of map, edges are 
@@ -400,32 +404,28 @@ public class GameEngine {
          * (LEVEL_WIDTH-1, y) ; (x, LEVEL_WIDTH-1)
          */
 
-        while (!isValid(pestX, pestY)){
+        while (!isValid(pestCoords)){
             switch(rng.nextInt(1,5)){
                 case 1->{
                     // (0, y)
-                    pestX = 0;
-                    pestY = rng.nextInt(LEVEL_HEIGHT-1);
+                    pestCoords = new Vector(0, rng.nextInt(LEVEL_HEIGHT-1));
                     }
                 case 2->{
                     // (x, 0)
-                    pestX = rng.nextInt(LEVEL_WIDTH-1);
-                    pestY = 0;
+                    pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), 0);
                     }
                 case 3->{
                     // (LEVEL_WIDTH-1, y)
-                    pestX = LEVEL_WIDTH-1;
-                    pestY = rng.nextInt(LEVEL_HEIGHT-1);
+                    pestCoords = new Vector(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
                     }
                 case 4->{
                     // (x, LEVEL_HEIGHT-1)
-                    pestX = rng.nextInt(LEVEL_WIDTH-1);
-                    pestY = LEVEL_HEIGHT-1;
+                    pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
                     }
             }
         }
         
-        pest = new Pest(pestX, pestY);
+        pest = new Pest(pestCoords.getX(), pestCoords.getY());
     }
     
     /**
@@ -437,52 +437,40 @@ public class GameEngine {
      * create more complex movement rules if you wish!)
      */
     private void movePest() {
-        /*
-        basic movement (no collision)
         
-        create array of coordinate pairs arr[arr[int]] for crop locations
-        loop through and get closest (smallest delta x and delta y)
-        move in direction of greatest delta, eg if x position is furthest
-        then move in x, otherwise in y
+        Vector[] cropCoords = findTiles(TileType.CROP);
         
-        pest can beeline for crop with simple movement
-        */
-        
-        int[][] cropCoords = findTiles(TileType.CROP);
-        
-        if (cropCoords!= null){
+        if (cropCoords!= null && cropCoords.length > 0){
             
-            int[] currentCoords = {pest.getX(), pest.getY()};
-            int[] nextCoords = currentCoords;
-            int[] closestCoords = {0, 0};
+            Vector currentCoords = new Vector(pest.getX(), pest.getY());
+            Vector closestCoords = new Vector();
+            
             
             int shortestDistance = 999;
-            int dX = 0;
-            int dY = 0;
             
-            for (int i = 0; i<cropCoords.length; i++){
-                dX = Math.abs(currentCoords[0] - cropCoords[i][0]);
-                dY = Math.abs(currentCoords[1] - cropCoords[i][1]);
+            for (Vector crop : cropCoords){
+                Vector delta = currentCoords.sub(crop);
                 
-                if (shortestDistance > dX + dY){
-                    closestCoords[0] = cropCoords[i][0];
-                    closestCoords[1] = cropCoords[i][1];
-                    
-                    shortestDistance = dX + dY;
+                if (shortestDistance > delta.mag()){
+                    closestCoords = crop;
+                    shortestDistance = delta.mag();
                 }
             }
             
             if (currentCoords != closestCoords) {
-                if(dX>=dY){
-                    nextCoords[0] = currentCoords[0];
-                    nextCoords[1] = currentCoords[1];
-                }
+                Vector delta = closestCoords.sub(currentCoords);
+                Vector nextCoords = new Vector(currentCoords.getX(), currentCoords.getY());
+                
+                if(delta.abs().getX() > delta.abs().getY()){
+                    nextCoords = new Vector(currentCoords.getX() + Integer.signum(delta.getX()), currentCoords.getY());
+                } 
                 else{
-                    
+                    nextCoords = new Vector(currentCoords.getX(), currentCoords.getY() + Integer.signum(delta.getY()));
                 }
+                
+                pest.setPosition(nextCoords.getX(), nextCoords.getY());
             }
             
-            pest.setPosition(nextCoords[0], nextCoords[1]);
             // System.out.printf("Closest crop is %d tiles away: (%d, %d)%n", shortestDistance, closestCoords[0], closestCoords[1]);
         }
     }
@@ -551,23 +539,25 @@ public class GameEngine {
      * checking if location exists on map, and if yes, is the tile at that location 
      * collidable. 
      * 
-     * @param x coordinate of  tile to check
-     * @param y coordinate of tile to check
+     * @param v vector containing coordinates to check
      * @return true if coordinates are valid for movement
      */
-    private boolean isValid(int x, int y){
+    private boolean isValid(Vector v){
+        int x  = v.getX();
+        int y = v.getY();
         
-        return !(!isWithinLevel(x, y) || level[x][y].isCollidable());
+        return !(!isWithinLevel(v) || level[x][y].isCollidable());
         
     }
     /**
      * Checks whether coordinate pair exists in the level array by boundaries 
      * defined by LEVEL_HEIGHT and LEVEL_WIDTH
-     * @param x coordinate of tile to check
-     * @param y coordinate of tile to check
+     * @param v vector containing coordinates to check
      * @return false if the tile coordinate exceeds the map, true if not
      */
-    private boolean isWithinLevel(int x, int y){
+    private boolean isWithinLevel(Vector v){
+        int x = v.getX();
+        int y = v.getY();
         
         if( x<0 || LEVEL_WIDTH-1<x || y<0 || LEVEL_HEIGHT-1<y){
             return false;
@@ -641,30 +631,21 @@ public class GameEngine {
      * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
      * none found
      */
-    private int[][] findTiles(TileType t){
-        List<int[]> coords = new ArrayList<>();
+    private Vector[] findTiles(TileType t){
+        List<Vector> coords = new ArrayList<>();
                 
-        for(int i = 0; i<LEVEL_WIDTH-1; i++){
-            for (int j = 0; j<LEVEL_HEIGHT-1; j++){
+        for(int i = 0; i<LEVEL_WIDTH; i++){
+            for (int j = 0; j<LEVEL_HEIGHT; j++){
                 if(level[i][j].getType() == t){
-                    coords.add(new int[]{i, j});
+                    coords.add(new Vector(i, j));
                 }
             }
         }
         
-        int[][] result = coords.toArray(new int[coords.size()][]);
+        // Vector[] result = coords.toArray(new Vector[coords.size()]);
+        Vector[] result = coords.toArray(Vector[]::new);
         
         return result;
-    }
-    
-    /**
-     * Calculates a vector for movement from the source to the destination
-     * @param s array for (x, y) coordinates of source
-     * @param d array for (x, y) coordinates of destination
-     * @return int[] array for distance from source to destination
-     */
-    private int[] vectorToDestination(int[] s, int[] d){
-        return new int[]{d[0]-s[0], d[1]-s[1]};
     }
     
     /**

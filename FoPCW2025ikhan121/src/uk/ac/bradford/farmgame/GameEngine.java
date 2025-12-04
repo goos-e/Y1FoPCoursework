@@ -296,8 +296,9 @@ public class GameEngine {
         int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);   
         int plotCornerY = rng.nextInt(LEVEL_HEIGHT/2-plotHeight);
         
-        int houseWidth = rng.nextInt(5, 8);
-        int houseHeight = rng.nextInt(3, 9);
+       
+        int houseWidth = rng.nextInt(3, 7);
+        int houseHeight = rng.nextInt(3, 7);
         int houseCornerX = rng.nextInt(LEVEL_WIDTH-1-houseWidth);   
         int houseCornerY = rng.nextInt(LEVEL_HEIGHT/2-1, LEVEL_HEIGHT-houseHeight);
         
@@ -328,9 +329,26 @@ public class GameEngine {
         // house wall generation
         for (int i = houseCornerX; i<houseCornerX+houseWidth; i++){
             for (int j = houseCornerY; j<houseCornerY+houseHeight; j++){
+                
+                // 'door' - empty tile
+                level[houseCornerX+1][houseCornerY] = new Tile(TileType.HOUSE_FLOOR);
+                
+                // top and left wall
                 level[i][houseCornerY] = new Tile(TileType.WALL, true);
+                level[houseCornerX][j] = new Tile(TileType.WALL, true);
+                
+                // bottom and right wall
+                level[i][houseCornerY+houseHeight] = new Tile(TileType.WALL, true);
+                level[houseCornerX+houseWidth][j] = new Tile(TileType.WALL, true);
+                
+                // bottom right corner
+                level[houseCornerX+houseWidth][houseCornerY+houseHeight] = new Tile(TileType.WALL, true);
             }
         }
+        
+        // place bed
+        level[houseCornerX+houseWidth-1][houseCornerY+houseHeight-1] = new Tile(TileType.BED, true);
+
         
         // place hoe and seed box
         level[plotCornerX][plotCornerY] = new Tile(TileType.HOE_BOX, true);

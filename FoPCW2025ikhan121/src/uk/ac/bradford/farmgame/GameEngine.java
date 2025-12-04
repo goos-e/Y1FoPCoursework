@@ -245,15 +245,15 @@ public class GameEngine {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
         int plotWidth = rng.nextInt(6, 12);
-        int plotHeight = rng.nextInt(3, 10);
+        int plotHeight = rng.nextInt(5, 12);
         int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);
         int plotCornerY = rng.nextInt(LEVEL_HEIGHT-plotHeight);
 
         
         // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
         
-        for (int i = 0; i < level.length; i++){
-            for (int j = 0; j < level[i].length;  j++){
+        for (int i = 0; i < level.length; i++){ //cols (x)
+            for (int j = 0; j < level[i].length;  j++){ //rows (y)
                 
                 level[i][j] = new Tile(TileType.STONE_GROUND);
                 
@@ -262,8 +262,8 @@ public class GameEngine {
                     level[i][j].setType(TileType.DIRT);
                 }
                 // this logic will need fixing, its quite bad
-                else if(i==LEVEL_WIDTH/2-1+1 && 
-                        j==LEVEL_HEIGHT/2-1){
+                if(j==plotCornerY && i==plotCornerX){
+                    System.out.printf("level[%d][%d]", i, j);
                     level[i][j] = new Tile(TileType.HOE_BOX, true);
                 }
             }

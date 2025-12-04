@@ -23,6 +23,7 @@ public class Tile {
      * which should prevent movement ie WALL, HOE_BOX etc.
      */
     private boolean collidable;
+
     
     /**
      * An enumeration type to restrict the type of Tile objects to one from a set
@@ -30,7 +31,9 @@ public class Tile {
      * screen which is set when the Tile object constructor is called.
      */
     public enum TileType {
-        AXE_BOX, BED, CROP, DIRT, HOE_BOX, HOUSE_FLOOR, PICKAXE_BOX, SEED_BOX, SOWED_DIRT, STONE_GROUND, TILLED_DIRT, WALL;
+        AXE_BOX, BED, CROP, DIRT,
+        HOE_BOX, HOUSE_FLOOR, PICKAXE_BOX, SEED_BOX,
+        SOWED_DIRT, STONE_GROUND, TILLED_DIRT, WALL;
     }
     
     /**
@@ -60,7 +63,7 @@ public class Tile {
      * @return the TIleType for this tile; one value from the TIleType enumeration defined above
      */
     public TileType getType() {
-        return this.type;
+        return type;
     }
     
     /**
@@ -79,7 +82,7 @@ public class Tile {
      * @return true if it IS collidable, false if NOT collidable
      */
     public boolean isCollidable(){
-        return this.collidable;
+        return collidable;
     }
     
     
@@ -90,5 +93,5 @@ public class Tile {
     public void setCollidable(boolean c){
         collidable = c;
     }
-    
+
 }

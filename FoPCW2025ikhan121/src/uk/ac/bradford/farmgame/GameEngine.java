@@ -287,7 +287,34 @@ public class GameEngine {
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
     private void generateEvenBetterFarm() {
-        generateBetterFarm();                   //remove this line when you reach this task!
+        level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
+        
+        int plotWidth = rng.nextInt(5, 26);
+        int plotHeight = rng.nextInt(3, LEVEL_HEIGHT/2);
+        int plotCornerX = rng.nextInt(LEVEL_WIDTH-plotWidth);   
+        int plotCornerY = rng.nextInt(LEVEL_HEIGHT/2-plotHeight);
+
+        
+        // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
+
+        // default terrain generation: stone ground
+        for (int i = 0; i < level.length; i++){ //cols (x)
+            for (int j = 0; j < level[i].length;  j++){ //rows (y)
+                level[i][j] = new Tile(TileType.STONE_GROUND);
+            }
+        }
+        
+        // farm plot generation
+        for (int i = plotCornerX; i<plotCornerX+plotWidth; i++){
+            for (int j = plotCornerY; j<plotCornerY+plotHeight; j++){
+                level[i][j] = new Tile(TileType.DIRT);
+            }
+        }
+        
+        // place hoe and seed box
+        level[plotCornerX][plotCornerY] = new Tile(TileType.HOE_BOX, true);
+        level[plotCornerX+1][plotCornerY] = new Tile(TileType.SEED_BOX, true);
+        
     }
     
     /**
@@ -477,6 +504,9 @@ public class GameEngine {
         
         if(holding == 1 && t == TileType.DIRT){
             tile.setType(TileType.TILLED_DIRT);
+        }
+        if(holding == 2 && t == TileType.TILLED_DIRT){
+            tile.setType(TileType.CROP);
         }
         
     }

@@ -656,6 +656,13 @@ public class GameEngine {
         }
     }
     
+    /**
+     * Searches through the level array at O(n*m) complexity for all tiles that 
+     * match the passed TileType, returning a 2D array of all coordinate pairs.
+     * @param t type to search level array for
+     * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
+     * none found
+     */
     private int[][] findTiles(TileType t){
         List<int[]> coords = new ArrayList<>();
                 

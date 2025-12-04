@@ -252,6 +252,7 @@ public class GameEngine {
         
         // System.out.printf("Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotWidth, plotHeight, plotCornerX, plotCornerY);
         
+        /*
         for (int i = 0; i < level.length; i++){ //cols (x)
             for (int j = 0; j < level[i].length;  j++){ //rows (y)
                 
@@ -263,11 +264,32 @@ public class GameEngine {
                 }
                 // this logic will need fixing, its quite bad
                 if(j==plotCornerY && i==plotCornerX){
-                    System.out.printf("level[%d][%d]", i, j);
+                    System.out.printf("level[%d][%d]%n", i+1, j);
                     level[i][j] = new Tile(TileType.HOE_BOX, true);
+                    level[i+1][j] = new Tile(TileType.SEED_BOX, true);
                 }
             }
         }
+        */
+        
+        // default terrain generation: stone ground
+        for (int i = 0; i < level.length; i++){ //cols (x)
+            for (int j = 0; j < level[i].length;  j++){ //rows (y)
+                level[i][j] = new Tile(TileType.STONE_GROUND);
+            }
+        }
+        
+        // farm plot generation
+        for (int i = plotCornerX; i<plotCornerX+plotWidth; i++){
+            for (int j = plotCornerY; j<plotCornerY+plotHeight; j++){
+                level[i][j] = new Tile(TileType.DIRT);
+            }
+        }
+        
+        // place hoe and seed box
+        level[plotCornerX][plotCornerY] = new Tile(TileType.HOE_BOX, true);
+        level[plotCornerX+1][plotCornerY] = new Tile(TileType.SEED_BOX, true);
+        
     }
     
     /**

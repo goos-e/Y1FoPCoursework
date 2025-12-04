@@ -420,11 +420,11 @@ public class GameEngine {
         
     }
     /**
-     * Checks whether coordinate pair exists in the level array. 
+     * Checks whether coordinate pair exists in the level array by boundaries 
+     * defined by LEVEL_HEIGHT and LEVEL_WIDTH
      * @param x coordinate of tile to check
      * @param y coordinate of tile to check
-     * @return false if the tile coordinate exceeds the map boundaries defined by 
-     * LEVEL_HEIGHT and LEVEL_WIDTH, true if not.
+     * @return false if the tile coordinate exceeds the map, true if not
      */
     private boolean isWithinLevel(int x, int y){
         

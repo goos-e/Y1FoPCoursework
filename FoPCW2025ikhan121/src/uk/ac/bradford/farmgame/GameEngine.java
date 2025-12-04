@@ -196,26 +196,26 @@ public class GameEngine {
         int nextY = 0;
         
         switch(direction){
-            case 1:
+            case 1 -> {
                 // up
                 nextX = currentX;
                 nextY = currentY-1;
-                break;
-            case 2:
+            }
+            case 2 -> {
                 // right
                 nextX = currentX+1;
                 nextY = currentY;
-                break;
-            case 3:
+            }
+            case 3 -> {
                 // down
                 nextX = currentX;
                 nextY = currentY+1;
-                break;
-            case 4:
+            }
+            case 4 -> {
                 // left
                 nextX = currentX-1;
                 nextY = currentY;
-                break;
+            }
         } 
         
         if(isValidPosition(nextX, nextY)){
@@ -391,7 +391,42 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
-        betterMovePlayer(direction);            //remove this line when you reach this task!
+        int currentX = player.getX();
+        int currentY = player.getY();
+        
+        int nextX = 0;
+        int nextY = 0;
+        
+        switch(direction){
+            case 1 -> {
+                // up
+                nextX = currentX;
+                nextY = currentY-1;
+            }
+            case 2 -> {
+                // right
+                nextX = currentX+1;
+                nextY = currentY;
+            }
+            case 3 -> {
+                // down
+                nextX = currentX;
+                nextY = currentY+1;
+            }
+            case 4 -> {
+                // left
+                nextX = currentX-1;
+                nextY = currentY;
+            }
+        } 
+        
+        if(isValidPosition(nextX, nextY)){
+            player.setPosition(nextX, nextY);
+        }
+        
+        if(isWithinLevel(nextX, nextY)){
+            handlePlayerInteraction(level[nextX][nextY]);
+        }
     }
     
     /**
@@ -562,6 +597,11 @@ public class GameEngine {
         }
         if(t==TileType.BED){
             triggerNight();
+        }
+        if(t==TileType.CROP){
+            tile.setType(TileType.DIRT);
+            System.out.printf("MONEY: $%d + $5%n",money);
+            money = money + 5;             
         }
     }
     

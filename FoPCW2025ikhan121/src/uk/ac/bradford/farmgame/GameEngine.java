@@ -1,6 +1,8 @@
 package uk.ac.bradford.farmgame;
 
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 import uk.ac.bradford.farmgame.Tile.TileType;
 
 /**
@@ -367,21 +369,17 @@ public class GameEngine {
      * whenever one or more crops are created.
      */
     public void growCrops() {
+
+        int[][] cropCoords = findTiles(TileType.SOWED_DIRT);
         
-        int totalCrops = 0;
-        
-        for (int i = 0; i<LEVEL_WIDTH; i++){
-            for (int j = 0; j<LEVEL_HEIGHT; j++){
-                Tile t = level[i][j];
-                
-                if (t.getType()==TileType.SOWED_DIRT){
-                    t.setType(TileType.CROP);
-                    totalCrops++;
-                }
-            }
+        for (int i = 0; i<cropCoords.length; i++){
+            int x = cropCoords[i][0];
+            int y = cropCoords[i][1];
+            
+            level[x][y].setType(TileType.CROP);
         }
         
-        if (totalCrops >= 1){
+        if (cropCoords.length >= 1){
             createPest();
         }
     }
@@ -445,8 +443,8 @@ public class GameEngine {
     private void createPest() {
         
         // generate random pestX and pestY spawn coords
-        int pestX = 0;
-        int pestY = 0;
+        int pestX = -1;
+        int pestY = -1;
         
         /**
          * only want pest to spawn on EDGES of map, edges are 
@@ -454,51 +452,28 @@ public class GameEngine {
          * (LEVEL_WIDTH-1, y) ; (x, LEVEL_WIDTH-1)
          */
 
-        switch(rng.nextInt(1,5)){
-            case 1->{
-                // (0, y)
-                pestX = 0;
-                pestY = rng.nextInt(LEVEL_HEIGHT-1);
-            }
-            case 2->{
-                // (x, 0)
-                pestX = rng.nextInt(LEVEL_WIDTH-1);
-                pestY = 0;
-            }
-            case 3->{
-                // (LEVEL_WIDTH-1, y)
-                pestX = LEVEL_WIDTH-1;
-                pestY = rng.nextInt(LEVEL_HEIGHT-1);
-            }
-            case 4->{
-                // (x, LEVEL_HEIGHT-1)
-                pestX = rng.nextInt(LEVEL_WIDTH-1);
-                pestY = LEVEL_HEIGHT-1;
-            }
-        }
-        
         while (!isValid(pestX, pestY)){
             switch(rng.nextInt(1,5)){
-            case 1->{
-                // (0, y)
-                pestX = 0;
-                pestY = rng.nextInt(LEVEL_HEIGHT-1);
-                }
-            case 2->{
-                // (x, 0)
-                pestX = rng.nextInt(LEVEL_WIDTH-1);
-                pestY = 0;
-                }
-            case 3->{
-                // (LEVEL_WIDTH-1, y)
-                pestX = LEVEL_WIDTH-1;
-                pestY = rng.nextInt(LEVEL_HEIGHT-1);
-                }
-            case 4->{
-                // (x, LEVEL_HEIGHT-1)
-                pestX = rng.nextInt(LEVEL_WIDTH-1);
-                pestY = LEVEL_HEIGHT-1;
-                }
+                case 1->{
+                    // (0, y)
+                    pestX = 0;
+                    pestY = rng.nextInt(LEVEL_HEIGHT-1);
+                    }
+                case 2->{
+                    // (x, 0)
+                    pestX = rng.nextInt(LEVEL_WIDTH-1);
+                    pestY = 0;
+                    }
+                case 3->{
+                    // (LEVEL_WIDTH-1, y)
+                    pestX = LEVEL_WIDTH-1;
+                    pestY = rng.nextInt(LEVEL_HEIGHT-1);
+                    }
+                case 4->{
+                    // (x, LEVEL_HEIGHT-1)
+                    pestX = rng.nextInt(LEVEL_WIDTH-1);
+                    pestY = LEVEL_HEIGHT-1;
+                    }
             }
         }
         
@@ -604,15 +579,7 @@ public class GameEngine {
      */
     private boolean isValid(int x, int y){
         
-        if(!isWithinLevel(x, y)){
-            return false;
-        }
-        else if( level[x][y].isCollidable() ){
-            return false;
-        }
-        else{
-            return true;
-        }
+        return !(!isWithinLevel(x, y) || level[x][y].isCollidable());
         
     }
     /**
@@ -689,8 +656,19 @@ public class GameEngine {
         }
     }
     
-    private int[][] findCrops(){
-        int[][] coordPairs = {{}};
-        return coordPairs;
+    private int[][] findTiles(TileType t){
+        List<int[]> coords = new ArrayList<>();
+                
+        for(int i = 0; i<LEVEL_WIDTH-1; i++){
+            for (int j = 0; j<LEVEL_HEIGHT-1; j++){
+                if(level[i][j].getType() == t){
+                    coords.add(new int[]{i, j});
+                }
+            }
+        }
+        
+        int[][] result = coords.toArray(new int[coords.size()][]);
+        
+        return result;
     }
 }

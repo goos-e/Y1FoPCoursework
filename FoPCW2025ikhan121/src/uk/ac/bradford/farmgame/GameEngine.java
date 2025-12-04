@@ -218,7 +218,7 @@ public class GameEngine {
             }
         } 
         
-        if(isValidPosition(nextX, nextY)){
+        if(isValid(nextX, nextY)){
             player.setPosition(nextX, nextY);
         }
         
@@ -367,14 +367,22 @@ public class GameEngine {
      * whenever one or more crops are created.
      */
     public void growCrops() {
+        
+        int totalCrops = 0;
+        
         for (int i = 0; i<LEVEL_WIDTH; i++){
             for (int j = 0; j<LEVEL_HEIGHT; j++){
                 Tile t = level[i][j];
                 
                 if (t.getType()==TileType.SOWED_DIRT){
                     t.setType(TileType.CROP);
+                    totalCrops++;
                 }
             }
+        }
+        
+        if (totalCrops >= 1){
+            createPest();
         }
     }
     
@@ -420,7 +428,7 @@ public class GameEngine {
             }
         } 
         
-        if(isValidPosition(nextX, nextY)){
+        if(isValid(nextX, nextY)){
             player.setPosition(nextX, nextY);
         }
         
@@ -435,7 +443,68 @@ public class GameEngine {
      * make the position of the Pest dynamic i.e. it is randomly selected in some way.
      */
     private void createPest() {
-        //YOUR CODE HERE
+        
+        // generate random pestX and pestY spawn coords
+        int pestX = 0;
+        int pestY = 0;
+        
+        /**
+         * only want pest to spawn on EDGES of map, edges are 
+         * (0, y) ; (x, 0)
+         * (LEVEL_WIDTH-1, y) ; (x, LEVEL_WIDTH-1)
+         */
+
+        switch(rng.nextInt(1,5)){
+            case 1->{
+                // (0, y)
+                pestX = 0;
+                pestY = rng.nextInt(LEVEL_HEIGHT-1);
+            }
+            case 2->{
+                // (x, 0)
+                pestX = rng.nextInt(LEVEL_WIDTH-1);
+                pestY = 0;
+            }
+            case 3->{
+                // (LEVEL_WIDTH-1, y)
+                pestX = LEVEL_WIDTH-1;
+                pestY = rng.nextInt(LEVEL_HEIGHT-1);
+            }
+            case 4->{
+                // (x, LEVEL_HEIGHT-1)
+                pestX = rng.nextInt(LEVEL_WIDTH-1);
+                pestY = LEVEL_HEIGHT-1;
+            }
+        }
+        
+        
+        
+        while (!isValid(pestX, pestY)){
+            switch(rng.nextInt(1,5)){
+            case 1->{
+                // (0, y)
+                pestX = 0;
+                pestY = rng.nextInt(LEVEL_HEIGHT-1);
+                }
+            case 2->{
+                // (x, 0)
+                pestX = rng.nextInt(LEVEL_WIDTH-1);
+                pestY = 0;
+                }
+            case 3->{
+                // (LEVEL_WIDTH-1, y)
+                pestX = LEVEL_WIDTH-1;
+                pestY = rng.nextInt(LEVEL_HEIGHT-1);
+                }
+            case 4->{
+                // (x, LEVEL_HEIGHT-1)
+                pestX = rng.nextInt(LEVEL_WIDTH-1);
+                pestY = LEVEL_HEIGHT-1;
+                }
+            }
+        }
+        
+        pest = new Pest(pestX, pestY);
     }
     
     /**
@@ -518,7 +587,7 @@ public class GameEngine {
      * @param y coordinate of tile to check
      * @return true if coordinates are valid for movement
      */
-    private boolean isValidPosition(int x, int y){
+    private boolean isValid(int x, int y){
         
         if(!isWithinLevel(x, y)){
             return false;
@@ -601,7 +670,7 @@ public class GameEngine {
         if(t==TileType.CROP){
             tile.setType(TileType.DIRT);
             System.out.printf("MONEY: $%d + $5%n",money);
-            money = money + 5;             
+            money += 5;             
         }
     }
     

@@ -477,8 +477,6 @@ public class GameEngine {
             }
         }
         
-        
-        
         while (!isValid(pestX, pestY)){
             switch(rng.nextInt(1,5)){
             case 1->{
@@ -517,6 +515,23 @@ public class GameEngine {
      */
     private void movePest() {
         //YOUR CODE HERE
+        
+        /*
+        basic movement (no collision)
+        
+        create array of coordinate pairs arr[arr[int]] for crop locations
+        loop through and get closest (smallest delta x and delta y)
+        move in direction of greatest delta, eg if x position is furthest
+        then move in x, otherwise in y
+        
+        pest can beeline for crop with simple movement
+        */
+        
+        
+        
+        
+        
+        
     }
 
     /**
@@ -674,5 +689,8 @@ public class GameEngine {
         }
     }
     
-    private void createFarm(){}
+    private int[][] findCrops(){
+        int[][] coordPairs = {{}};
+        return coordPairs;
+    }
 }

@@ -514,17 +514,21 @@ public class GameEngine {
         
         TileType t = tile.getType();
         
-        if(t == TileType.HOE_BOX){
-            player.setHeldItem(1);
-        }
-        else if(t == TileType.SEED_BOX){
-            player.setHeldItem(2);
-        }
-        else if(t == TileType.AXE_BOX){
-            player.setHeldItem(3);
-        }
-        else if(t == TileType.PICKAXE_BOX){
-            player.setHeldItem(4);
+        if(null != t)switch (t) {
+            case HOE_BOX:
+                player.setHeldItem(1);
+                break;
+            case SEED_BOX:
+                player.setHeldItem(2);
+                break;
+            case AXE_BOX:
+                player.setHeldItem(3);
+                break;
+            case PICKAXE_BOX:
+                player.setHeldItem(4);
+                break;
+            default:
+                break;
         }
     }
     

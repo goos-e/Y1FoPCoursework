@@ -551,6 +551,9 @@ public class GameEngine {
         if(holding == 2 && t == TileType.TILLED_DIRT){
             tile.setType(TileType.SOWED_DIRT);
         }   
+        if(t==TileType.BED){
+            triggerNight();
+        }
     }
     
     private void createFarm(){}

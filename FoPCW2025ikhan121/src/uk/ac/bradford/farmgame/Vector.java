@@ -30,12 +30,15 @@ public final class Vector {
         return new Vector(this.x+v.x, this.y+v.y);
     }
     
-    public Vector subtract(Vector v){
+    public Vector sub(Vector v){
         return new Vector(this.x-v.x, this.y-v.y);
     }
     
-    public int magnitude(){
+    public int mag(){
         return Math.abs(this.x)+Math.abs(this.y);
     }
     
+    public Vector abs(){
+        return new Vector(Math.abs(this.x), Math.abs(this.y));
+    }   
 }

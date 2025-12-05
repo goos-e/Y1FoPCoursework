@@ -1,6 +1,9 @@
 ~*
 *.docx
-FoPCW2025ikhan121/build/
-FoPCW2025ikhan121/nbtproject/private/
-FoPCW2025ikhan121/dist/
-FoPCW2025ikhan121/nbproject/private/
+**/build/
+**/nbtproject/private
+**/dist/
+**/nbproject/private/
+**/nbbuild/
+**/dist/
+**/nbdist/

@@ -654,7 +654,7 @@ public class GameEngine {
     private void generateHouse(){
         // house floor generation
         // size (width, height) -> (x, y)
-        Vector houseSize = new Vector(rng.nextInt(3, 7), rng.nextInt(3, 7));
+        Vector houseSize = new Vector(rng.nextInt(4, 9), rng.nextInt(3, 8));
         Vector houseCorner = new Vector(rng.nextInt(LEVEL_WIDTH-1-houseSize.getX()),
                                         rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-houseSize.getY()));
         
@@ -668,7 +668,7 @@ public class GameEngine {
             for (int j = houseCorner.getY(); j<houseCorner.getY()+houseSize.getY(); j++){
                 
                 // 'door' - empty tile
-                level[houseCorner.getX()+1][houseCorner.getY()] = new Tile(TileType.HOUSE_FLOOR);
+                level[houseCorner.getX()+houseSize.getX()/2-1][houseCorner.getY()] = new Tile(TileType.HOUSE_FLOOR);
                 
                 // top and left wall
                 level[i][houseCorner.getY()] = new Tile(TileType.WALL, true);
@@ -688,7 +688,8 @@ public class GameEngine {
     }
     
     /**
-     * Generates the dirt patch for generateEvenBetterFarm()
+     * Generates the dirt patch for generateEvenBetterFarm() and places the 
+     * hoe and seed box alongside
      */
     private void generateDirtPatch(){
         // farm plot generation 
@@ -708,6 +709,11 @@ public class GameEngine {
         level[plotCorner.getX()+1][plotCorner.getY()] = new Tile(TileType.SEED_BOX, true);
     }
     
+    /**
+     * Creates new Tile objects for each coordinate in the tile array, filling it
+     * with tiles of type t.
+     * @param t tile type to fill the level with
+     */
     private void fillTerrain(TileType t){
         // default terrain generation: TileType.t
         for (int i = 0; i < level.length; i++){ //cols (x)

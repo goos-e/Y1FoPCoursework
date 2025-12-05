@@ -326,7 +326,7 @@ public class GameEngine {
 
         Vector[] sowedCoords = findTiles(TileType.SOWED_DIRT);
         
-        if (sowedCoords.length >= 1){
+        if (sowedCoords != null){
             for (int i = 0; i<sowedCoords.length; i++){
                 int x = sowedCoords[i].getX();
                 int y = sowedCoords[i].getY();
@@ -386,6 +386,7 @@ public class GameEngine {
         }
         
         if(isWithinLevel(nextCoords)){
+            //System.out.println("Moving to: " + level[nextCoords.getX()][nextCoords.getY()].getType());
             handlePlayerInteraction(nextCoords.getX(), nextCoords.getY());
         }
     }
@@ -587,25 +588,27 @@ public class GameEngine {
     private void handlePlayerInteraction(int x, int y){
         
         Tile tile = level[x][y];
-        TileType t = tile.getType();
+        TileType type = tile.getType();
         
         updatePlayerItem(tile);
         Item holding = player.getHeldItem();
-        if(holding != null){
-            if(holding.getType() == ItemType.HOE && t == TileType.DIRT){
-                tile.setType(TileType.TILLED_DIRT);
+        
+        if(holding!=null){
+            if(holding.getType() == ItemType.HOE && type == TileType.DIRT){
+                level[x][y] = new Tile(TileType.TILLED_DIRT);
             }
-            if(holding.getType() == ItemType.SEEDBAG && t == TileType.TILLED_DIRT){
-                tile.setType(TileType.SOWED_DIRT);
+            if(holding.getType() == ItemType.SEEDBAG && type == TileType.TILLED_DIRT){
+                level[x][y] = new Tile(TileType.SOWED_DIRT);
             }
-            if(t==TileType.BED){
+        }
+        
+        if(type==TileType.BED){
                 triggerNight();
-            }
-            if(t==TileType.CROP){
-                tile.setType(TileType.DIRT);
+        }
+        if(type==TileType.CROP){
+                level[x][y] = new Tile(TileType.DIRT);
                 System.out.printf("MONEY: $%d + $5%n",money);
                 money += 5;             
-            }
         }
     }
     
@@ -683,10 +686,10 @@ public class GameEngine {
         
         // call methods to create the tile objects
         fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
-        drawLine(TileType.WALL, topLeft, topRight);
-        drawLine(TileType.WALL, topLeft, bottomLeft);
-        drawLine(TileType.WALL, topRight, bottomRight);
-        drawLine(TileType.WALL, bottomLeft, bottomRight);
+        fillLine(TileType.WALL, topLeft, topRight);
+        fillLine(TileType.WALL, topLeft, bottomLeft);
+        fillLine(TileType.WALL, topRight, bottomRight);
+        fillLine(TileType.WALL, bottomLeft, bottomRight);
         
         // 'door' - empty tile
         level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOUSE_FLOOR);
@@ -736,7 +739,7 @@ public class GameEngine {
      * @param v1
      * @param v2 
      */
-    private void drawLine(TileType t, Vector v1, Vector v2){
+    private void fillLine(TileType t, Vector v1, Vector v2){
         if(v1.getX() == v2.getX()){
             // draw vertical line
             for(int j = v1.getY(); j<=v2.getY(); j++){

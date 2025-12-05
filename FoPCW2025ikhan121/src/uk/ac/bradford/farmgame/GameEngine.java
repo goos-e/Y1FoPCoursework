@@ -27,7 +27,12 @@ public class GameEngine {
      * need to be adjusted.
      */
     public static final int LEVEL_HEIGHT = 20;
-
+    
+    /**
+     * Width and height of level as a Vector object for indexing level array.
+     */
+    private static final Vector LEVEL_SIZE = new Vector(LEVEL_WIDTH, LEVEL_HEIGHT);
+    
     /**
      * A random number generator that can be used to include randomised choices
      * in the creation of levels, in choosing places to place the player and other
@@ -294,8 +299,8 @@ public class GameEngine {
      */
     private void generateEvenBetterFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
-        
-        fillTerrain(TileType.STONE_GROUND);
+
+        fillRect(TileType.STONE_GROUND, new Vector(), LEVEL_SIZE);
         generateDirtPatch();
         generateHouse();
         
@@ -651,11 +656,13 @@ public class GameEngine {
         Vector corner = new Vector(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
                                         rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
         
+        
+        fillRect(TileType.HOUSE_FLOOR, corner, corner.add(size));
+        
         for (int i = corner.getX(); i<corner.add(size).getX(); i++){
             for (int j = corner.getY(); j<corner.add(size).getY(); j++){
                 
                 // floor placement
-                level[i][j] = new Tile(TileType.HOUSE_FLOOR);
                 
                 // top and left wall
                 level[i][corner.getY()] = new Tile(TileType.WALL, true);
@@ -687,11 +694,8 @@ public class GameEngine {
         Vector plotCorner = new Vector(rng.nextInt(LEVEL_WIDTH-plotSize.getX()), 
                                        rng.nextInt(LEVEL_HEIGHT/2-plotSize.getY()));
         
-        for (int i = plotCorner.getX(); i<plotCorner.add(plotSize).getX(); i++){
-            for (int j = plotCorner.getY(); j<plotCorner.add(plotSize).getY(); j++){
-                level[i][j] = new Tile(TileType.DIRT);
-            }
-        }
+
+        fillRect(TileType.DIRT, plotCorner, plotCorner.add(plotSize));
         
         // place hoe and seed box
         level[plotCorner.getX()][plotCorner.getY()] = new Tile(TileType.HOE_BOX, true);
@@ -699,14 +703,27 @@ public class GameEngine {
     }
     
     /**
-     * Creates new Tile objects for each coordinate in the level array, filling it
-     * with tiles of type t.
+     * Creates new Tile objects of type t for each coordinate in a rectangle defined by
+     * the passed vector arguments, top-left and bottom-right corners
      * @param t tile type to fill the level with
+     * @param v1 vector object for top-left coords of rectangle
+     * @param v2 vector object for bottom right coords of rectangle
      */
-    private void fillTerrain(TileType t){
+    private void fillRect(TileType t, Vector v1, Vector v2){
         // default terrain generation: TileType.t
-        for (int i = 0; i < level.length; i++){ //cols (x)
-            for (int j = 0; j < level[i].length;  j++){ //rows (y)
+        for (int i = v1.getX(); i < v2.getX(); i++){ //cols (x)
+            for (int j = v1.getY(); j < v2.getY();  j++){ //rows (y)
+                level[i][j] = new Tile(t);
+            }
+        }
+        // System.out.printf("v1 = (%d,%d)%nv2 = (%d,%d)%n",v1.getX(),v1.getY(),v2.getX(),v2.getY());
+    }
+    
+    private void drawLine(TileType t, Vector v1, Vector v2){
+        Vector delta = v1.sub(v2);
+        
+        for (int i = v1.getX(); i<v2.getX(); i++){
+            for (int j = v1.getY(); j<v2.getY(); j++){
                 level[i][j] = new Tile(t);
             }
         }

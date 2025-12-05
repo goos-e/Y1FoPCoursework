@@ -19,8 +19,10 @@ public class Player extends Entity {
      * 4 - a pickaxe to break stones
      * A value of 0 for this attribute will draw the player with no tool in hand
      */
-    private int holding = 0;
+    //private int holding = 0;
 
+    private Item holding = null;
+    
     /**
      * This constructor is used to create a Player object to use in the game
      *
@@ -39,7 +41,7 @@ public class Player extends Entity {
      * the how to till dirt, 2 is the seed bag to sow seeds, 3 is the axe to cut trees and 4 is
      * the pickaxe to break rocks.
      */
-    public int getHeldItem() {
+    public Item getHeldItem() {
         return holding;
     }
     
@@ -51,7 +53,7 @@ public class Player extends Entity {
      * the how to till dirt, 2 is the seed bag to sow seeds, 3 is the axe to cut trees and 4 is
      * the pickaxe to break rocks.
      */
-    public void setHeldItem(int a) {
+    public void setHeldItem(Item a) {
         holding = a;
     }
 }

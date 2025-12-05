@@ -5,5 +5,5 @@
 **/dist/
 **/nbproject/private/
 **/nbbuild/
-**/dist/
+**/dist/*
 **/nbdist/

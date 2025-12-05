@@ -251,7 +251,7 @@ public class GameEngine {
      * should be dynamically placed i.e. its position and size is determined randomly
      * each time this method is called so it is different every time the game is started.
      */
-    private void generateBetterFarm() {
+    private void betterGenerateFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
         // should make function for this + spawning
@@ -297,7 +297,7 @@ public class GameEngine {
      * in this task the farmhouse should be dynamically generated i.e. its size and/or position
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
-    private void generateEvenBetterFarm() {
+    private void evenBetterGenerateFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
 
         fillRect(TileType.STONE_GROUND, new Vector(), LEVEL_SIZE);
@@ -435,41 +435,21 @@ public class GameEngine {
      * create more complex movement rules if you wish!)
      */
     private void movePest() {
+        Vector start = new Vector(pest.getX(), pest.getY());
+        Vector closest = findClosest(TileType.CROP, start);
         
-        Vector[] cropCoords = findTiles(TileType.CROP);
-        
-        if (cropCoords!= null && cropCoords.length > 0){
-            
-            Vector currentCoords = new Vector(pest.getX(), pest.getY());
-            Vector closestCoords = new Vector();
-            
-            
-            int shortestDistance = 999;
-            
-            for (Vector crop : cropCoords){
-                Vector delta = currentCoords.sub(crop);
-                
-                if (shortestDistance > delta.mag()){
-                    closestCoords = crop;
-                    shortestDistance = delta.mag();
-                }
-            }
-            
-            if (currentCoords != closestCoords) {
-                Vector delta = closestCoords.sub(currentCoords);
-                Vector nextCoords;
+        if (start != closest) {
+                Vector delta = closest.sub(start);
+                Vector end;
                 
                 if(delta.abs().getX() > delta.abs().getY()){
-                    nextCoords = new Vector(currentCoords.getX() + Integer.signum(delta.getX()), currentCoords.getY());
+                    end = new Vector(start.getX() + Integer.signum(delta.getX()), start.getY());
                 } 
                 else{
-                    nextCoords = new Vector(currentCoords.getX(), currentCoords.getY() + Integer.signum(delta.getY()));
+                    end = new Vector(start.getX(), start.getY() + Integer.signum(delta.getY()));
                 }
                 
-                pest.setPosition(nextCoords.getX(), nextCoords.getY());
-            }
-            
-            // System.out.printf("Closest crop is %d tiles away: (%d, %d)%n", shortestDistance, closestCoords[0], closestCoords[1]);
+                pest.setPosition(end.getX(), end.getY());
         }
     }
 
@@ -527,7 +507,7 @@ public class GameEngine {
      * passed to it.
      */
     public void startGame() {
-        generateEvenBetterFarm();
+        evenBetterGenerateFarm();
         createPlayer(); 
         gui.updateDisplay(level, debris, player, pest);
     }
@@ -645,7 +625,39 @@ public class GameEngine {
         
         return result;
     }
-    
+    /**
+     * Finds the coordinates of the closest Tile with type t, with respect to 
+     * coordinate v1, and returns as a vector object. Utilises findTiles() to 
+     * create a Vector[] array, which is then searched.
+     * 
+     * @param t Tile.TileType to search
+     * @param v1 position to search from for closest
+     * @return Vector object with x,y coordinates of closest tile with type t
+     */
+    private Vector findClosest(TileType t, Vector v1){
+        Vector[] tiles = findTiles(t);
+        
+        if (tiles!= null && tiles.length > 0){
+            
+            Vector currentCoords = new Vector(v1.getX(), v1.getY());
+            Vector closestCoords = new Vector();
+            
+            
+            int shortestDistance = 999;
+            
+            for (Vector crop : tiles){
+                Vector delta = currentCoords.sub(crop);
+                
+                if (shortestDistance > delta.mag()){
+                    closestCoords = crop;
+                    shortestDistance = delta.mag();
+                }
+            }
+            
+            return closestCoords;
+        }
+        return null;
+    }
     /**
      * Generates the floor and walls of the house for generateEvenBetterFarm()
      */

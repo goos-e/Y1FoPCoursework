@@ -45,7 +45,18 @@ public class Tile {
      */
     public Tile(TileType t) {
         type = t;
-        collidable = false;
+        switch (t){
+            case TileType.WALL:
+            case TileType.HOE_BOX:
+            case TileType.SEED_BOX:
+            case TileType.AXE_BOX:
+            case TileType.PICKAXE_BOX:
+            case TileType.BED:
+                collidable = true;
+                break;
+            default:
+                collidable = false;
+        }
     }
     
     /**
@@ -93,5 +104,4 @@ public class Tile {
     public void setCollidable(boolean c){
         collidable = c;
     }
-
 }

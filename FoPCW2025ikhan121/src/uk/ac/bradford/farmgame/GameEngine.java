@@ -233,7 +233,7 @@ public class GameEngine {
         }
         
         if(isWithinLevel(new Vector(nextX, nextY))){
-            handlePlayerInteraction(level[nextX][nextY]);
+            handlePlayerInteraction(nextX, nextY);
         }
         
     }
@@ -330,7 +330,7 @@ public class GameEngine {
                 int x = sowedCoords[i].getX();
                 int y = sowedCoords[i].getY();
 
-                level[x][y].setType(TileType.CROP);
+                level[x][y] = new Tile(TileType.CROP);
             }
             createPest();
         }
@@ -382,7 +382,7 @@ public class GameEngine {
         }
         
         if(isWithinLevel(nextCoords)){
-            handlePlayerInteraction(level[nextCoords.getX()][nextCoords.getY()]);
+            handlePlayerInteraction(nextCoords.getX(), nextCoords.getY());
         }
     }
     
@@ -573,18 +573,18 @@ public class GameEngine {
         }
     }
     
-    
     /**
      * Handles the interaction between the level array and the player, for example
      * tilling the ground if the player is holding a hoe.
      * @param tile the tile which the entity is attempting to interact with
      */
-    private void handlePlayerInteraction(Tile tile){
+    private void handlePlayerInteraction(int x, int y){
+        
+        Tile tile = level[x][y];
+        TileType t = tile.getType();
         
         updatePlayerItem(tile);
-        
         int holding = player.getHeldItem();
-        TileType t = tile.getType();
         
         if(holding == 1 && t == TileType.DIRT){
             tile.setType(TileType.TILLED_DIRT);
@@ -625,6 +625,7 @@ public class GameEngine {
         
         return result;
     }
+    
     /**
      * Finds the coordinates of the closest Tile with type t, with respect to 
      * coordinate v1, and returns as a vector object. Utilises findTiles() to 

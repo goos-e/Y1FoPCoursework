@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import uk.ac.bradford.farmgame.Tile.TileType;
+import uk.ac.bradford.farmgame.Item.ItemType;
 
 /**
  * The GameEngine class is responsible for managing information about the game,
@@ -332,7 +333,10 @@ public class GameEngine {
 
                 level[x][y] = new Tile(TileType.CROP);
             }
-            createPest();
+            
+            if(pest==null){
+                createPest();
+            }
         }
     }
     
@@ -401,25 +405,26 @@ public class GameEngine {
          * (0, y) ; (x, 0)
          * (LEVEL_WIDTH-1, y) ; (x, LEVEL_WIDTH-1)
          */
-
-        while (!isValid(pestCoords)){
-            switch(rng.nextInt(1,5)){
-                case 1->{
-                    // (0, y)
-                    pestCoords = new Vector(0, rng.nextInt(LEVEL_HEIGHT-1));
-                    }
-                case 2->{
-                    // (x, 0)
-                    pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), 0);
-                    }
-                case 3->{
-                    // (LEVEL_WIDTH-1, y)
-                    pestCoords = new Vector(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
-                    }
-                case 4->{
-                    // (x, LEVEL_HEIGHT-1)
-                    pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
-                    }
+        if (pest == null){
+            while (!isValid(pestCoords)){
+                switch(rng.nextInt(1,5)){
+                    case 1->{
+                        // (0, y)
+                        pestCoords = new Vector(0, rng.nextInt(LEVEL_HEIGHT-1));
+                        }
+                    case 2->{
+                        // (x, 0)
+                        pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), 0);
+                        }
+                    case 3->{
+                        // (LEVEL_WIDTH-1, y)
+                        pestCoords = new Vector(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
+                        }
+                    case 4->{
+                        // (x, LEVEL_HEIGHT-1)
+                        pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
+                        }
+                }
             }
         }
         
@@ -438,7 +443,8 @@ public class GameEngine {
         Vector start = new Vector(pest.getX(), pest.getY());
         Vector closest = findClosest(TileType.CROP, start);
         
-        if (start != closest) {
+
+        if (start != closest && closest != null) {
                 Vector delta = closest.sub(start);
                 Vector end;
                 
@@ -557,16 +563,16 @@ public class GameEngine {
         
         if(null != t)switch (t) {
             case HOE_BOX:
-                player.setHeldItem(1);
+                player.setHeldItem(new Item(ItemType.HOE));
                 break;
             case SEED_BOX:
-                player.setHeldItem(2);
+                player.setHeldItem(new Item(ItemType.SEEDBAG));
                 break;
             case AXE_BOX:
-                player.setHeldItem(3);
+                player.setHeldItem(new Item(ItemType.AXE));
                 break;
             case PICKAXE_BOX:
-                player.setHeldItem(4);
+                player.setHeldItem(new Item(ItemType.PICKAXE));
                 break;
             default:
                 break;
@@ -584,21 +590,22 @@ public class GameEngine {
         TileType t = tile.getType();
         
         updatePlayerItem(tile);
-        int holding = player.getHeldItem();
-        
-        if(holding == 1 && t == TileType.DIRT){
-            tile.setType(TileType.TILLED_DIRT);
-        }
-        if(holding == 2 && t == TileType.TILLED_DIRT){
-            tile.setType(TileType.SOWED_DIRT);
-        }
-        if(t==TileType.BED){
-            triggerNight();
-        }
-        if(t==TileType.CROP){
-            tile.setType(TileType.DIRT);
-            System.out.printf("MONEY: $%d + $5%n",money);
-            money += 5;             
+        Item holding = player.getHeldItem();
+        if(holding != null){
+            if(holding.getType() == ItemType.HOE && t == TileType.DIRT){
+                tile.setType(TileType.TILLED_DIRT);
+            }
+            if(holding.getType() == ItemType.SEEDBAG && t == TileType.TILLED_DIRT){
+                tile.setType(TileType.SOWED_DIRT);
+            }
+            if(t==TileType.BED){
+                triggerNight();
+            }
+            if(t==TileType.CROP){
+                tile.setType(TileType.DIRT);
+                System.out.printf("MONEY: $%d + $5%n",money);
+                money += 5;             
+            }
         }
     }
     

@@ -327,16 +327,17 @@ public class GameEngine {
         Vector[] sowedCoords = findTiles(TileType.SOWED_DIRT);
         
         if (sowedCoords != null){
+            
+            if(pest==null){
+                createPest();
+            }
+            
             for (int i = 0; i<sowedCoords.length; i++){
                 int x = sowedCoords[i].getX();
                 int y = sowedCoords[i].getY();
 
                 level[x][y] = new Tile(TileType.CROP);
-            }
-            
-            if(pest==null){
-                createPest();
-            }
+            }   
         }
     }
     
@@ -593,6 +594,7 @@ public class GameEngine {
         updatePlayerItem(tile);
         Item holding = player.getHeldItem();
         
+        // item interactions with world
         if(holding!=null){
             if(holding.getType() == ItemType.HOE && type == TileType.DIRT){
                 level[x][y] = new Tile(TileType.TILLED_DIRT);
@@ -602,6 +604,14 @@ public class GameEngine {
             }
         }
         
+        // interactions with pest
+        if(pest!=null){
+            if(x==pest.getX() && y == pest.getY()){
+            pest=null;
+            }
+        }
+            
+        // no prerequisite interactions    
         if(type==TileType.BED){
                 triggerNight();
         }

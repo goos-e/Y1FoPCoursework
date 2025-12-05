@@ -457,7 +457,7 @@ public class GameEngine {
             
             if (currentCoords != closestCoords) {
                 Vector delta = closestCoords.sub(currentCoords);
-                Vector nextCoords = new Vector(currentCoords.getX(), currentCoords.getY());
+                Vector nextCoords;
                 
                 if(delta.abs().getX() > delta.abs().getY()){
                     nextCoords = new Vector(currentCoords.getX() + Integer.signum(delta.getX()), currentCoords.getY());
@@ -631,7 +631,7 @@ public class GameEngine {
      */
     private Vector[] findTiles(TileType t){
         List<Vector> coords = new ArrayList<>();
-                
+        
         for(int i = 0; i<LEVEL_WIDTH; i++){
             for (int j = 0; j<LEVEL_HEIGHT; j++){
                 if(level[i][j].getType() == t){
@@ -653,36 +653,28 @@ public class GameEngine {
         // house floor generation
         // size (width, height) -> (x, y)
         Vector size = new Vector(rng.nextInt(4, 9), rng.nextInt(3, 8));
-        Vector corner = new Vector(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
+        Vector topLeft = new Vector(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
                                         rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
         
+        // calculate all corners
+        Vector bottomRight = topLeft.add(size);
+        Vector topRight = new Vector(bottomRight.getX(), topLeft.getY());
+        Vector bottomLeft = new Vector(topLeft.getX(), bottomRight.getY());
         
-        fillRect(TileType.HOUSE_FLOOR, corner, corner.add(size));
+        // call methods to create the tile objects
+        fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
+        drawLine(TileType.WALL, topLeft, topRight);
+        drawLine(TileType.WALL, topLeft, bottomLeft);
+        drawLine(TileType.WALL, topRight, bottomRight);
+        drawLine(TileType.WALL, bottomLeft, bottomRight);
         
-        for (int i = corner.getX(); i<corner.add(size).getX(); i++){
-            for (int j = corner.getY(); j<corner.add(size).getY(); j++){
-                
-                // floor placement
-                
-                // top and left wall
-                level[i][corner.getY()] = new Tile(TileType.WALL, true);
-                level[corner.getX()][j] = new Tile(TileType.WALL, true);
-                
-                // bottom and right wall
-                level[i][corner.add(size).getY()] = new Tile(TileType.WALL, true);
-                level[corner.add(size).getX()][j] = new Tile(TileType.WALL, true);
-                
-                // bottom right corner
-                level[corner.add(size).getX()][corner.add(size).getY()] = new Tile(TileType.WALL, true);
-            }
-        }
-
         // 'door' - empty tile
-        level[corner.getX()+size.getX()/2][corner.getY()] = new Tile(TileType.HOUSE_FLOOR);
+        level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOUSE_FLOOR);
         // place bed
-        level[corner.getX()+size.getX()-1][corner.getY()+size.getY()-1] = new Tile(TileType.BED, true);
+        level[topLeft.getX()+size.getX()-1][topLeft.getY()+size.getY()-1] = new Tile(TileType.BED, true);
     }
     
+
     /**
      * Generates the dirt patch for generateEvenBetterFarm() and places the 
      * hoe and seed box alongside
@@ -690,16 +682,15 @@ public class GameEngine {
     private void generateDirtPatch(){
         // farm plot generation 
         // size (width, height) -> (x, y)
-        Vector plotSize = new Vector(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
-        Vector plotCorner = new Vector(rng.nextInt(LEVEL_WIDTH-plotSize.getX()), 
-                                       rng.nextInt(LEVEL_HEIGHT/2-plotSize.getY()));
-        
+        Vector size = new Vector(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
+        Vector topLeft = new Vector(rng.nextInt(LEVEL_WIDTH-size.getX()), 
+                                       rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
 
-        fillRect(TileType.DIRT, plotCorner, plotCorner.add(plotSize));
+        fillRect(TileType.DIRT, topLeft, topLeft.add(size));
         
         // place hoe and seed box
-        level[plotCorner.getX()][plotCorner.getY()] = new Tile(TileType.HOE_BOX, true);
-        level[plotCorner.getX()+1][plotCorner.getY()] = new Tile(TileType.SEED_BOX, true);
+        level[topLeft.getX()][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
+        level[topLeft.getX()+1][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
     }
     
     /**
@@ -719,12 +710,23 @@ public class GameEngine {
         // System.out.printf("v1 = (%d,%d)%nv2 = (%d,%d)%n",v1.getX(),v1.getY(),v2.getX(),v2.getY());
     }
     
+    /**
+     * Creates new Tile objects in a line 
+     * @param t
+     * @param v1
+     * @param v2 
+     */
     private void drawLine(TileType t, Vector v1, Vector v2){
-        Vector delta = v1.sub(v2);
-        
-        for (int i = v1.getX(); i<v2.getX(); i++){
-            for (int j = v1.getY(); j<v2.getY(); j++){
-                level[i][j] = new Tile(t);
+        if(v1.getX() == v2.getX()){
+            // draw vertical line
+            for(int j = v1.getY(); j<=v2.getY(); j++){
+                level[v1.getX()][j] = new Tile(t);
+            }
+        }
+        else{
+            // draw horizontal
+            for(int i = v1.getX(); i<=v2.getX(); i++){
+                level[i][v1.getY()] = new Tile(t);
             }
         }
     }

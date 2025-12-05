@@ -647,32 +647,33 @@ public class GameEngine {
     private void generateHouse(){
         // house floor generation
         // size (width, height) -> (x, y)
-        Vector houseSize = new Vector(rng.nextInt(4, 9), rng.nextInt(3, 8));
-        Vector houseCorner = new Vector(rng.nextInt(LEVEL_WIDTH-1-houseSize.getX()),
-                                        rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-houseSize.getY()));
+        Vector size = new Vector(rng.nextInt(4, 9), rng.nextInt(3, 8));
+        Vector corner = new Vector(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
+                                        rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
         
-        for (int i = houseCorner.getX(); i<houseCorner.add(houseSize).getX(); i++){
-            for (int j = houseCorner.getY(); j<houseCorner.add(houseSize).getY(); j++){
+        for (int i = corner.getX(); i<corner.add(size).getX(); i++){
+            for (int j = corner.getY(); j<corner.add(size).getY(); j++){
+                
+                // floor placement
                 level[i][j] = new Tile(TileType.HOUSE_FLOOR);
                 
-                // 'door' - empty tile
-                level[houseCorner.getX()+houseSize.getX()/2-1][houseCorner.getY()] = new Tile(TileType.HOUSE_FLOOR);
-                
                 // top and left wall
-                level[i][houseCorner.getY()] = new Tile(TileType.WALL, true);
-                level[houseCorner.getX()][j] = new Tile(TileType.WALL, true);
+                level[i][corner.getY()] = new Tile(TileType.WALL, true);
+                level[corner.getX()][j] = new Tile(TileType.WALL, true);
                 
                 // bottom and right wall
-                level[i][houseCorner.getY()+houseSize.getY()] = new Tile(TileType.WALL, true);
-                level[houseCorner.getX()+houseSize.getX()][j] = new Tile(TileType.WALL, true);
+                level[i][corner.add(size).getY()] = new Tile(TileType.WALL, true);
+                level[corner.add(size).getX()][j] = new Tile(TileType.WALL, true);
                 
                 // bottom right corner
-                level[houseCorner.getX()+houseSize.getX()][houseCorner.getY()+houseSize.getY()] = new Tile(TileType.WALL, true);
+                level[corner.add(size).getX()][corner.add(size).getY()] = new Tile(TileType.WALL, true);
             }
         }
 
+        // 'door' - empty tile
+        level[corner.getX()+size.getX()/2][corner.getY()] = new Tile(TileType.HOUSE_FLOOR);
         // place bed
-        level[houseCorner.getX()+houseSize.getX()-1][houseCorner.getY()+houseSize.getY()-1] = new Tile(TileType.BED, true);
+        level[corner.getX()+size.getX()-1][corner.getY()+size.getY()-1] = new Tile(TileType.BED, true);
     }
     
     /**
@@ -698,7 +699,7 @@ public class GameEngine {
     }
     
     /**
-     * Creates new Tile objects for each coordinate in the tile array, filling it
+     * Creates new Tile objects for each coordinate in the level array, filling it
      * with tiles of type t.
      * @param t tile type to fill the level with
      */

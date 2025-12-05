@@ -326,7 +326,7 @@ public class GameEngine {
 
         Vector[] sowedCoords = findTiles(TileType.SOWED_DIRT);
         
-        if (sowedCoords != null){
+        if (sowedCoords.length>0){
             
             if(pest==null){
                 createPest();

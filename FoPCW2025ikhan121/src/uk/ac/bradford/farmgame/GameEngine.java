@@ -294,13 +294,6 @@ public class GameEngine {
      */
     private void generateEvenBetterFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
-
-        // default terrain generation: stone ground
-        for (int i = 0; i < level.length; i++){ //cols (x)
-            for (int j = 0; j < level[i].length;  j++){ //rows (y)
-                level[i][j] = new Tile(TileType.STONE_GROUND);
-            }
-        }
         
         fillTerrain(TileType.STONE_GROUND);
         generateDirtPatch();
@@ -659,13 +652,8 @@ public class GameEngine {
                                         rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-houseSize.getY()));
         
         for (int i = houseCorner.getX(); i<houseCorner.add(houseSize).getX(); i++){
-            for (int j = houseCorner.getY(); j<houseCorner.getY()+houseSize.getY(); j++){
+            for (int j = houseCorner.getY(); j<houseCorner.add(houseSize).getY(); j++){
                 level[i][j] = new Tile(TileType.HOUSE_FLOOR);
-            }
-        }
-        // house wall generation
-        for (int i = houseCorner.getX(); i<houseCorner.getX()+houseSize.getX(); i++){
-            for (int j = houseCorner.getY(); j<houseCorner.getY()+houseSize.getY(); j++){
                 
                 // 'door' - empty tile
                 level[houseCorner.getX()+houseSize.getX()/2-1][houseCorner.getY()] = new Tile(TileType.HOUSE_FLOOR);
@@ -682,7 +670,7 @@ public class GameEngine {
                 level[houseCorner.getX()+houseSize.getX()][houseCorner.getY()+houseSize.getY()] = new Tile(TileType.WALL, true);
             }
         }
-        
+
         // place bed
         level[houseCorner.getX()+houseSize.getX()-1][houseCorner.getY()+houseSize.getY()-1] = new Tile(TileType.BED, true);
     }

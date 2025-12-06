@@ -410,19 +410,19 @@ public class GameEngine {
             while (!isValid(pestCoords)){
                 switch(rng.nextInt(1,5)){
                     case 1->{
-                        // (0, y)
+                        // (0, y) left
                         pestCoords = new Vector(0, rng.nextInt(LEVEL_HEIGHT-1));
                         }
                     case 2->{
-                        // (x, 0)
+                        // (x, 0) top
                         pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), 0);
                         }
                     case 3->{
-                        // (LEVEL_WIDTH-1, y)
+                        // (LEVEL_WIDTH-1, y) right
                         pestCoords = new Vector(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
                         }
                     case 4->{
-                        // (x, LEVEL_HEIGHT-1)
+                        // (x, LEVEL_HEIGHT-1) bottom
                         pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
                         }
                 }
@@ -528,9 +528,12 @@ public class GameEngine {
      * @return true if coordinates are valid for movement
      */
     private boolean isValid(Vector v){
+        if(v == null){
+            return false;
+        }
+        
         int x  = v.getX();
         int y = v.getY();
-        
         
         return (isWithinLevel(v) && !level[x][y].isCollidable() && !isTileOccupied(v));
     }
@@ -541,6 +544,9 @@ public class GameEngine {
      * @return false if the tile coordinate exceeds the map, true if not
      */
     private boolean isWithinLevel(Vector v){
+        if(v == null){
+            return false;
+        }
         int x = v.getX();
         int y = v.getY();
         
@@ -721,8 +727,9 @@ public class GameEngine {
         Vector topRight = new Vector(bottomRight.getX(), topLeft.getY());
         Vector bottomLeft = new Vector(topLeft.getX(), bottomRight.getY());
         
-        // call methods to create the tile objects
+        // call methods to create the floor and walls
         fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
+        // walls
         fillLine(TileType.WALL, topLeft, topRight);
         fillLine(TileType.WALL, topLeft, bottomLeft);
         fillLine(TileType.WALL, topRight, bottomRight);
@@ -730,8 +737,8 @@ public class GameEngine {
         
         // 'door' - empty tile
         level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOUSE_FLOOR);
-        // place bed
-        level[topLeft.getX()+size.getX()-1][topLeft.getY()+size.getY()-1] = new Tile(TileType.BED, true);
+        // place bed and axe/pick box
+        level[topLeft.getX()+size.getX()/2][topLeft.getY()+size.getY()/2] = new Tile(TileType.BED, true);
     }
     
 
@@ -748,26 +755,26 @@ public class GameEngine {
 
         fillRect(TileType.DIRT, topLeft, topLeft.add(size));
         
-        // place hoe and seed box
-        level[topLeft.getX()][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
-        level[topLeft.getX()+1][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
+        // place item boxes
+        level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
+        level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
     }
-        
+    
     
     private void generateDebris(){
-        debris = new Entity[10]; 
+        debris = new Entity[100]; 
         
         for(int i = 0; i<debris.length; i++){
             int x = rng.nextInt(LEVEL_WIDTH);
             int y = rng.nextInt(LEVEL_HEIGHT);
             TileType type = level[x][y].getType();
             
-            if(isValid(new Vector(x,y)) && type != TileType.HOUSE_FLOOR){
-                if(type == TileType.STONE_GROUND){
-                    debris[i] = new Rock(x, y);
-                }
-                if(type == TileType.DIRT){
+            if(isValid(new Vector(x,y)) &&  type == TileType.DIRT){
+                if(rng.nextBoolean()){
                     debris[i] = new Tree(x, y);
+                }
+                else{
+                    debris[i] = new Rock(x, y);
                 }
             }
         }
@@ -791,6 +798,17 @@ public class GameEngine {
     }
     
     /**
+     * Creates new Tile objects of type t for each coordinate in a circle defined by
+     * the passed vector and integer arguments, mid-point and radius. 
+     * @param t
+     * @param mid
+     * @param rad 
+     */
+    private void fillCircle(TileType t, Vector mid, int rad){
+        
+    }
+    
+    /**
      * Creates new Tile objects of tile type t in a line from starting point v1 
      * to end point v2, determining whether line is horizontal or vertical by comparing x,y coords
      *  
@@ -808,8 +826,21 @@ public class GameEngine {
         else{
             // draw horizontal
             for(int i = v1.getX(); i<=v2.getX(); i++){
+                
                 level[i][v1.getY()] = new Tile(t);
             }
         }
+    }
+    
+    /**
+     * Helper method to replace all level[x][y] calls. Takes a tile type and vector.
+     * @param t TileType to set the coordinate at coordinate v to
+     * @param v Vector object with (x,y) coords to create new Tile at
+     */
+    private void placeTile(TileType t, Vector v){
+        int x = v.getX();
+        int y = v.getY();
+        
+        level[x][y] = new Tile(t);
     }
 }

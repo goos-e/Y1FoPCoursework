@@ -76,7 +76,7 @@ public class GameEngine {
      * 
      * would return the value true if the tile at position 10,15 was a DIRT tile.
      */
-    private Tile[][] level;
+    private Level level;
     
     /**
      * A Player object that is the current player. This object stores the state
@@ -307,11 +307,11 @@ public class GameEngine {
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
     private void evenBetterGenerateFarm() {
-        level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
+        level = new Level(LEVEL_WIDTH, LEVEL_HEIGHT);
         
         // create default stone ground map
         // Vector() defaults to (0,0) 
-        fillRect(TileType.STONE_GROUND, new Vector(), LEVEL_SIZE);
+        level.fillRect(TileType.STONE_GROUND, new Vector(), LEVEL_SIZE);
         // spawn a dirt patch ie farm plot
         generateDirtPatch();
         // spawn the house
@@ -332,7 +332,7 @@ public class GameEngine {
      */
     public void growCrops() {
 
-        Vector[] sowedCoords = findTiles(TileType.SOWED_DIRT);
+        Vector[] sowedCoords = level.findTiles(TileType.SOWED_DIRT);
         
         if (sowedCoords.length>0){
             
@@ -340,11 +340,8 @@ public class GameEngine {
                 createPest();
             }
             
-            for (int i = 0; i<sowedCoords.length; i++){
-                int x = sowedCoords[i].getX();
-                int y = sowedCoords[i].getY();
-
-                level[x][y] = new Tile(TileType.CROP);
+            for (Vector v : sowedCoords){
+                level.fillTile(TileType.CROP, v);
             }   
         }
     }
@@ -394,7 +391,7 @@ public class GameEngine {
             player.setPosition(nextCoords.getX(), nextCoords.getY());
         }
         
-        if(isWithinLevel(nextCoords)){
+        if(level.isWithinLevel(nextCoords)){
             //System.out.println("Moving to: " + level[nextCoords.getX()][nextCoords.getY()].getType());
             handlePlayerInteraction(nextCoords);
         }
@@ -454,7 +451,7 @@ public class GameEngine {
         int sX = start.getX();
         int sY = start.getY();
         
-        Vector closest = findClosest(TileType.CROP, start);
+        Vector closest = level.findClosest(TileType.CROP, start);
         
         if(closest != null){
             if (start != closest) {
@@ -522,7 +519,7 @@ public class GameEngine {
         if (turnNumber % 4 == 0 && pest != null) {
             movePest();
         }
-        gui.updateDisplay(level, debris, player, pest);
+        gui.updateDisplay(level.asArray(), debris, player, pest);
     }
 
     /**
@@ -533,7 +530,7 @@ public class GameEngine {
     public void startGame() {
         evenBetterGenerateFarm();
         createPlayer(); 
-        gui.updateDisplay(level, debris, player, pest);
+        gui.updateDisplay(level.asArray(), debris, player, pest);
     }
     
     /**
@@ -552,7 +549,7 @@ public class GameEngine {
         int x  = v.getX();
         int y = v.getY();
         
-        return (isWithinLevel(v) && !level[x][y].isCollidable() && !hasDebris(v));
+        return (level.isWithinLevel(v) && !level.getTile(v).isCollidable() && !hasDebris(v));
     }
     
     /**
@@ -616,20 +613,21 @@ public class GameEngine {
         int y = v.getY();
         
         
-        Tile tile = level[x][y];
+        Tile tile = level.getTile(v);
         TileType type = tile.getType();
         
         updatePlayerItem(tile);
         Item holding = player.getHeldItem();
         
+        // checks if tile has debris on it -> preventing interaction
         if (!hasDebris(v)){
             // item interactions with world
             if(holding!=null){
                 if(holding.getType() == ItemType.HOE && type == TileType.DIRT){
-                    level[x][y] = new Tile(TileType.TILLED_DIRT);
+                    level.fillTile(TileType.TILLED_DIRT, v);
                 }
                 if(holding.getType() == ItemType.SEEDBAG && type == TileType.TILLED_DIRT){
-                    level[x][y] = new Tile(TileType.SOWED_DIRT);
+                    level.fillTile(TileType.SOWED_DIRT, v);
                 }
             }
 
@@ -642,12 +640,12 @@ public class GameEngine {
 
             // no prerequisite interactions    
             if(type==TileType.BED){
-                    triggerNight();
+                triggerNight();
             }
             if(type==TileType.CROP){
-                    level[x][y] = new Tile(TileType.DIRT);
-                    System.out.printf("MONEY: $%d + $5%n",money);
-                    money += 5;             
+                level.fillTile(TileType.DIRT, v);
+                System.out.printf("MONEY: $%d + $5%n",money);
+                money += 5;             
             }
         }
     }
@@ -669,17 +667,21 @@ public class GameEngine {
         Vector bottomLeft = new Vector(topLeft.getX(), bottomRight.getY());
         
         // call methods to create the floor and walls
-        fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
+        level.fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
         // walls
-        fillLine(TileType.WALL, topLeft, topRight);
-        fillLine(TileType.WALL, topLeft, bottomLeft);
-        fillLine(TileType.WALL, topRight, bottomRight);
-        fillLine(TileType.WALL, bottomLeft, bottomRight);
+        level.fillLine(TileType.WALL, topLeft, topRight);
+        level.fillLine(TileType.WALL, topLeft, bottomLeft);
+        level.fillLine(TileType.WALL, topRight, bottomRight);
+        level.fillLine(TileType.WALL, bottomLeft, bottomRight);
         
         // 'door' - empty tile
-        level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOUSE_FLOOR);
-        // place bed and item boxes
-        level[topLeft.getX()+size.getX()/2][topLeft.getY()+size.getY()/2] = new Tile(TileType.BED, true);
+        //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOUSE_FLOOR);
+        Vector doorV = new Vector(topLeft.getX()+size.getX()/2, topLeft.getY());
+        level.fillTile(TileType.HOUSE_FLOOR, doorV);
+        // place bed
+        //level[topLeft.getX()+size.getX()/2][topLeft.getY()+size.getY()/2] = new Tile(TileType.BED, true);
+        Vector bedV = bottomRight.left().up();
+        level.fillTile(TileType.BED, bedV);
     }
     
 
@@ -694,11 +696,15 @@ public class GameEngine {
         Vector topLeft = new Vector(rng.nextInt(LEVEL_WIDTH-size.getX()), 
                                        rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
 
-        fillRect(TileType.DIRT, topLeft, topLeft.add(size));
+        level.fillRect(TileType.DIRT, topLeft, topLeft.add(size));
         
         // place item boxes
-        level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
-        level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
+        //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
+        //level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
+        
+        Vector boxV = new Vector(topLeft.getX()+size.getX()/2, topLeft.getY());
+        level.fillTile(TileType.HOE_BOX, boxV);
+        level.fillTile(TileType.SEED_BOX, boxV.left());
     }
     
     
@@ -708,7 +714,10 @@ public class GameEngine {
         for(int i = 0; i<debris.length; i++){
             int x = rng.nextInt(LEVEL_WIDTH);
             int y = rng.nextInt(LEVEL_HEIGHT);
-            TileType type = level[x][y].getType();
+            
+            Vector v = new Vector(x, y);
+            
+            TileType type = level.getTile(v).getType();
             
             if(isValid(new Vector(x,y)) &&  type == TileType.DIRT){
                 if(rng.nextBoolean()){
@@ -723,148 +732,4 @@ public class GameEngine {
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 
     // AND ARE TO BE REMOVED LATER
-
-    
-    /**
-     * Creates new Tile objects of type t for each coordinate in a rectangle defined by
-     * the passed vector arguments, top-left and bottom-right corners
-     * @param t tile type to fill the level with
-     * @param v1 vector object for top-left coords of rectangle
-     * @param v2 vector object for bottom right coords of rectangle
-     */
-    private void fillRect(TileType t, Vector v1, Vector v2){
-        // default terrain generation: TileType.t
-        for (int i = v1.getX(); i < v2.getX(); i++){ //cols (x)
-            for (int j = v1.getY(); j < v2.getY();  j++){ //rows (y)
-                level[i][j] = new Tile(t);
-            }
-        }
-        // System.out.printf("v1 = (%d,%d)%nv2 = (%d,%d)%n",v1.getX(),v1.getY(),v2.getX(),v2.getY());
-    }
-    
-    /**
-     * Creates new Tile objects of type t for each coordinate in a circle defined by
-     * the passed vector and integer arguments; mid-point and radius. 
-     * @param t
-     * @param mid
-     * @param rad 
-     */
-    private void fillCircle(TileType t, Vector mid, int rad){
-        
-    }
-    
-    /**
-     * Creates new Tile objects of tile type t in a line from starting point v1 
-     * to end point v2, determining whether line is horizontal or vertical by comparing x,y coords
-     *  
-     * @param t tile type to fill the line with
-     * @param v1 vector object for starting point of line
-     * @param v2 vector object for endpoint of line
-     */
-    private void fillLine(TileType t, Vector v1, Vector v2){
-        if(v1.getX() == v2.getX()){
-            // draw vertical line
-            for(int j = v1.getY(); j<=v2.getY(); j++){
-                level[v1.getX()][j] = new Tile(t);
-            }
-        }
-        else{
-            // draw horizontal
-            for(int i = v1.getX(); i<=v2.getX(); i++){
-                
-                level[i][v1.getY()] = new Tile(t);
-            }
-        }
-    }
-    
-    /**
-     * Helper method to replace all level[x][y] calls. Takes a tile type and vector.
-     * @param t TileType to set the coordinate at coordinate v to
-     * @param v Vector object with (x,y) coords to create new Tile at
-     */
-    private void placeTile(TileType t, Vector v){
-        int x = v.getX();
-        int y = v.getY();
-        
-        level[x][y] = new Tile(t);
-    }
-    
-    /**
-     * Searches through the level array at O(n*m) complexity for all tiles that 
-     * match the passed TileType, returning a 2D array of all coordinate pairs. 
-     * @param t type to search level array for
-     * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
-     * none found
-     */
-    private Vector[] findTiles(TileType t){
-        List<Vector> coords = new ArrayList<>();
-        
-        for(int i = 0; i<LEVEL_WIDTH; i++){
-            for (int j = 0; j<LEVEL_HEIGHT; j++){
-                if(level[i][j].getType() == t){
-                    coords.add(new Vector(i, j));
-                }
-            }
-        }
-        
-        // Vector[] result = coords.toArray(new Vector[coords.size()]);
-        Vector[] result = coords.toArray(Vector[]::new);
-        
-        return result;
-    }    
-    
-    /**
-     * Finds the coordinates of the closest Tile with type t, with respect to 
-     * coordinate v1, and returns as a vector object. Utilises findTiles() to 
-     * create a Vector[] array, which is then searched.
-     * 
-     * @param t Tile.TileType to search
-     * @param v1 position to search from for closest
-     * @return Vector object with x,y coordinates of closest tile with type t
-     */
-    private Vector findClosest(TileType t, Vector v1){
-        Vector[] tiles = findTiles(t);
-        
-        if (tiles!= null && tiles.length > 0){
-            
-            Vector currentCoords = new Vector(v1.getX(), v1.getY());
-            Vector closestCoords = new Vector();
-            
-            
-            int shortestDistance = 999;
-            
-            for (Vector crop : tiles){
-                Vector delta = currentCoords.sub(crop);
-                
-                if (shortestDistance > delta.mag()){
-                    closestCoords = crop;
-                    shortestDistance = delta.mag();
-                }
-            }
-            
-            return closestCoords;
-        }
-        return null;
-    }
-    
-    /**
-     * Checks whether coordinate pair exists in the level array by boundaries 
-     * defined by LEVEL_HEIGHT and LEVEL_WIDTH
-     * @param v vector containing coordinates to check
-     * @return false if the tile coordinate exceeds the map, true if not
-     */
-    private boolean isWithinLevel(Vector v){
-        if(v == null){
-            return false;
-        }
-        int x = v.getX();
-        int y = v.getY();
-        
-        if( x<0 || LEVEL_WIDTH-1<x || y<0 || LEVEL_HEIGHT-1<y){
-            return false;
-        }
-        else{
-            return true;
-        }
-    }
 }

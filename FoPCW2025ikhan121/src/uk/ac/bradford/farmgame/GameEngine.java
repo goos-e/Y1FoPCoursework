@@ -226,15 +226,15 @@ public class GameEngine {
             }
         }
         
-        // NOTE THIS ORIGINALLY DID NOT TAKE IN A VECTOR AS AN ARGUMENT
+        // NOTE THESE ORIGINALLY DID NOT TAKE IN A VECTOR AS AN ARGUMENT
         // I UPDATED THIS LATER TO CREATE A VECTOR TO PASS THROUGH, BUT THAT
-        // WAS NOT INITIAL DESIGN
+        // WAS NOT THE ORIGINAL DESIGN AT THIS STAGE
         if(isValid(new Vector(nextX, nextY))){
             player.setPosition(nextX, nextY);
         }
         
         if(isWithinLevel(new Vector(nextX, nextY))){
-            handlePlayerInteraction(nextX, nextY);
+            handlePlayerInteraction(new Vector(nextX, nextY));
         }
         
     }
@@ -300,16 +300,15 @@ public class GameEngine {
      */
     private void evenBetterGenerateFarm() {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
-
+        
+        // create default stone ground map
         fillRect(TileType.STONE_GROUND, new Vector(), LEVEL_SIZE);
+        // spawn a dirt patch ie farm plot
         generateDirtPatch();
+        // spawn the house
         generateHouse();
         
-        // debugging printouts
-        /*
-        System.out.printf("FARMPLOT: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", plotSize.getX(), plotSize.getY(), plotCorner.getX(), plotCorner.getY());
-        System.out.printf("HOUSE: Width, Height: %d,%d %nCorner Coords : (%d,%d) %n", houseSize.getX(), houseSize.getY(), houseCorner.getX(), houseCorner.getY());
-        */
+        
     }
     
     /**
@@ -388,7 +387,7 @@ public class GameEngine {
         
         if(isWithinLevel(nextCoords)){
             //System.out.println("Moving to: " + level[nextCoords.getX()][nextCoords.getY()].getType());
-            handlePlayerInteraction(nextCoords.getX(), nextCoords.getY());
+            handlePlayerInteraction(nextCoords);
         }
     }
     
@@ -584,9 +583,12 @@ public class GameEngine {
     /**
      * Handles the interaction between the level array and the player, for example
      * tilling the ground if the player is holding a hoe.
-     * @param tile the tile which the entity is attempting to interact with
+     * @param v vector object of tile coordinate player is attemping to interact with
      */
-    private void handlePlayerInteraction(int x, int y){
+    private void handlePlayerInteraction(Vector v){
+        int x = v.getX();
+        int y = v.getY();
+        
         
         Tile tile = level[x][y];
         TileType type = tile.getType();
@@ -744,10 +746,12 @@ public class GameEngine {
     }
     
     /**
-     * Creates new Tile objects in a line 
-     * @param t
-     * @param v1
-     * @param v2 
+     * Creates new Tile objects of tile type t in a line from starting point v1 
+     * to end point v2, determines whether line is horizontal/vertical by comparing x,y coords
+     *  
+     * @param t tile type to fill the line with
+     * @param v1 vector object for starting point of line
+     * @param v2 vector object for endpoint of line
      */
     private void fillLine(TileType t, Vector v1, Vector v2){
         if(v1.getX() == v2.getX()){

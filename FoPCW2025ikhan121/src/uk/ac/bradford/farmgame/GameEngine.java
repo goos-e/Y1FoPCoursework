@@ -442,24 +442,32 @@ public class GameEngine {
      */
     private void movePest() {
         Vector start = new Vector(pest.getX(), pest.getY());
+        int sX = start.getX();
+        int sY = start.getY();
+        
         Vector closest = findClosest(TileType.CROP, start);
         
+        if(closest != null){
+            if (start != closest) {
+                    Vector delta = closest.sub(start);
+                    int dX = delta.getX();
+                    int dY = delta.getY();
+                    
+                    Vector end;
 
-        if (start != closest && closest != null) {
-                Vector delta = closest.sub(start);
-                Vector end;
-                
-                if(delta.abs().getX() > delta.abs().getY()){
-                    end = new Vector(start.getX() + Integer.signum(delta.getX()), start.getY());
-                } 
-                else{
-                    end = new Vector(start.getX(), start.getY() + Integer.signum(delta.getY()));
-                }
-                
-                pest.setPosition(end.getX(), end.getY());
+                    if(delta.abs().getX() > delta.abs().getY()){
+                        end = new Vector(sX + Integer.signum(dX), sY);
+                    } 
+                    else{
+                        end = new Vector(sX, sY + Integer.signum(dY));
+                    }
+
+                    pest.setPosition(end.getX(), end.getY());
+            }
+            else{
+            }
         }
     }
-
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
      * It should instantiate the debris array with a sensible length and then fill
@@ -718,7 +726,7 @@ public class GameEngine {
     private void generateHouse(){
         // house floor generation
         // size (width, height) -> (x, y)
-        Vector size = new Vector(rng.nextInt(4, 9), rng.nextInt(3, 8));
+        Vector size = new Vector(rng.nextInt(4, 9), rng.nextInt(4, 9));
         Vector topLeft = new Vector(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
                                         rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
         
@@ -737,7 +745,7 @@ public class GameEngine {
         
         // 'door' - empty tile
         level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOUSE_FLOOR);
-        // place bed and axe/pick box
+        // place bed and item boxes
         level[topLeft.getX()+size.getX()/2][topLeft.getY()+size.getY()/2] = new Tile(TileType.BED, true);
     }
     

@@ -72,12 +72,12 @@ public class GameEngine {
      * 
      * For example:
      * 
-     * level[10][15].getType() == TiletType.DIRT
+     * level[10][15].getType() == TileType.DIRT
      * 
      * would return the value true if the tile at position 10,15 was a DIRT tile.
      */
     private Tile[][] level;
-
+    
     /**
      * A Player object that is the current player. This object stores the state
      * information for the player, including the current position
@@ -102,7 +102,7 @@ public class GameEngine {
      * should block player movement into the tile that they are in.
      */
     private Entity[] debris;
-
+    
     /**
      * Constructor that creates a GameEngine object and connects it with a
      * GameGUI object.
@@ -139,6 +139,8 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void movePlayer(int direction) {
+        // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
+        /*
         int currentX = player.getX();
         int currentY = player.getY();
         
@@ -160,8 +162,9 @@ public class GameEngine {
                 player.setPosition(currentX-1, currentY);
                 break;
         }
+        */
     }
-
+    
     /**
      * Generates a new level. This method should instantiate the level array, and
      * then fill it with Tile objects that are created inside this method.
@@ -176,6 +179,8 @@ public class GameEngine {
      *
      */
     private void generateFarm() {
+        // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
+        /*
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
         for (int i = 0; i < level.length; i++){
@@ -183,6 +188,7 @@ public class GameEngine {
                 level[i][j] = new Tile(TileType.STONE_GROUND);
             }
         }
+        */
     }
     
     /**
@@ -197,6 +203,8 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void betterMovePlayer(int direction) {
+        // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
+        /*
         int currentX = player.getX();
         int currentY = player.getY();
         
@@ -226,17 +234,15 @@ public class GameEngine {
             }
         }
         
-        // NOTE THESE ORIGINALLY DID NOT TAKE IN A VECTOR AS AN ARGUMENT
-        // I UPDATED THIS LATER TO CREATE A VECTOR TO PASS THROUGH, BUT THAT
-        // WAS NOT THE ORIGINAL DESIGN AT THIS STAGE
-        if(isValid(new Vector(nextX, nextY))){
+        // NOTE THESE FUNCTIONS ORIGINALLY DID NOT TAKE IN A VECTOR AS AN ARGUMENT
+        if(isValid(nextX, nextY))){
             player.setPosition(nextX, nextY);
         }
         
-        if(isWithinLevel(new Vector(nextX, nextY))){
-            handlePlayerInteraction(new Vector(nextX, nextY));
+        if(isWithinLevel(nextX, nextY)){
+            handlePlayerInteraction(nextX, nextY);
         }
-        
+        */
     }
     
     /**
@@ -253,6 +259,8 @@ public class GameEngine {
      * each time this method is called so it is different every time the game is started.
      */
     private void betterGenerateFarm() {
+        // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
+        /*
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
         // should make function for this + spawning
@@ -281,7 +289,7 @@ public class GameEngine {
         // place hoe and seed box
         level[plotCornerX][plotCornerY] = new Tile(TileType.HOE_BOX, true);
         level[plotCornerX+1][plotCornerY] = new Tile(TileType.SEED_BOX, true);
-        
+        */
     }
     
     /**
@@ -544,7 +552,7 @@ public class GameEngine {
         int x  = v.getX();
         int y = v.getY();
         
-        return (isWithinLevel(v) && !level[x][y].isCollidable() && !isTileOccupied(v));
+        return (isWithinLevel(v) && !level[x][y].isCollidable() && !hasDebris(v));
     }
     
     /**
@@ -554,7 +562,7 @@ public class GameEngine {
      * @return true if there is at least 1 entity with the same (x,y) coordinates
      * as the vector
      */
-    private boolean isTileOccupied(Vector v){
+    private boolean hasDebris(Vector v){
         for (Entity entity : debris){
             if(entity!=null){
                 int entityX = entity.getX();
@@ -614,7 +622,7 @@ public class GameEngine {
         updatePlayerItem(tile);
         Item holding = player.getHeldItem();
         
-        if (!isTileOccupied(v)){
+        if (!hasDebris(v)){
             // item interactions with world
             if(holding!=null){
                 if(holding.getType() == ItemType.HOE && type == TileType.DIRT){

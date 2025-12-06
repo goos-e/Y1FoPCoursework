@@ -317,7 +317,7 @@ public class GameEngine {
         // spawn the house
         generateHouse();
         // generates the debris layer 
-        generateDebris();
+        addDebris();
     }
     
     /**
@@ -486,7 +486,25 @@ public class GameEngine {
      * player movement method (depends on which tasks you have already completed!)
      */
     private void addDebris() {
-        //YOUR CODE HERE
+        debris = new Entity[100]; 
+        
+        for(int i = 0; i<debris.length; i++){
+            int x = rng.nextInt(LEVEL_WIDTH);
+            int y = rng.nextInt(LEVEL_HEIGHT);
+            
+            Vector v = new Vector(x, y);
+            
+            TileType type = level.getTile(v).getType();
+            
+            if(isValid(new Vector(x,y)) &&  type == TileType.DIRT){
+                if(rng.nextBoolean()){
+                    debris[i] = new Tree(x, y);
+                }
+                else{
+                    debris[i] = new Rock(x, y);
+                }
+            }
+        }
     }
 
     /**
@@ -705,29 +723,6 @@ public class GameEngine {
         Vector boxV = new Vector(topLeft.getX()+size.getX()/2, topLeft.getY());
         level.fillTile(TileType.HOE_BOX, boxV);
         level.fillTile(TileType.SEED_BOX, boxV.left());
-    }
-    
-    
-    private void generateDebris(){
-        debris = new Entity[100]; 
-        
-        for(int i = 0; i<debris.length; i++){
-            int x = rng.nextInt(LEVEL_WIDTH);
-            int y = rng.nextInt(LEVEL_HEIGHT);
-            
-            Vector v = new Vector(x, y);
-            
-            TileType type = level.getTile(v).getType();
-            
-            if(isValid(new Vector(x,y)) &&  type == TileType.DIRT){
-                if(rng.nextBoolean()){
-                    debris[i] = new Tree(x, y);
-                }
-                else{
-                    debris[i] = new Rock(x, y);
-                }
-            }
-        }
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

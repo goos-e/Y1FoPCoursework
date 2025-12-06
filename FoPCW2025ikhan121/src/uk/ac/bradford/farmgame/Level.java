@@ -74,17 +74,6 @@ public class Level {
             }
         }
     }
-
-    /**
-     * Creates new Tile objects of type t for each coordinate in a circle defined by
-     * the passed vector and integer arguments, mid-point and radius. 
-     * @param t
-     * @param mid
-     * @param rad 
-     */
-    public void fillCircle(TileType t, Vector mid, int rad){
-        
-    }
     
     /**
      * Creates new Tile objects of type t for each coordinate in a rectangle defined by
@@ -102,7 +91,18 @@ public class Level {
         }
         // System.out.printf("v1 = (%d,%d)%nv2 = (%d,%d)%n",v1.getX(),v1.getY(),v2.getX(),v2.getY());
     }
+    
+    /**
+     * Creates new Tile objects of type t for each coordinate in a circle defined by
+     * the passed vector and integer arguments, mid-point and radius. 
+     * @param t
+     * @param mid
+     * @param rad 
+     */
+    public void fillCircle(TileType t, Vector mid, int rad){
         
+    }
+    
     /**
      * Searches through the level array at O(n*m) complexity for all tiles that 
      * match the passed TileType, returning a 2D array of all coordinate pairs. 

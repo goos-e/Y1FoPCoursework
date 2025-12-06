@@ -537,7 +537,7 @@ public class GameEngine {
         if (turnNumber % 4 == 0 && pest != null) {
             movePest();
         }
-        gui.updateDisplay(level.asArray(), debris, player, pest);
+        gui.updateDisplay(level.toArray(), debris, player, pest);
     }
 
     /**
@@ -548,7 +548,7 @@ public class GameEngine {
     public void startGame() {
         evenBetterGenerateFarm();
         createPlayer(); 
-        gui.updateDisplay(level.asArray(), debris, player, pest);
+        gui.updateDisplay(level.toArray(), debris, player, pest);
     }
     
     /**
@@ -639,6 +639,7 @@ public class GameEngine {
         
         // checks if tile has debris on it -> preventing interaction
         if (!hasDebris(v)){
+            
             // item interactions with world
             if(holding!=null){
                 if(holding.getType() == ItemType.HOE && type == TileType.DIRT){
@@ -681,11 +682,17 @@ public class GameEngine {
         
         // calculate all corners
         Vector bottomRight = topLeft.add(size);
-        Vector topRight = new Vector(bottomRight.getX(), topLeft.getY());
-        Vector bottomLeft = new Vector(topLeft.getX(), bottomRight.getY());
+        Vector topRight = topLeft.add(size.getX(), 0);
+        Vector bottomLeft = topLeft.add(0, size.getY());
         
-        // call methods to create the floor and walls
+        // door, bed and box vector coords
+        Vector doorV = topLeft.add(size.getX() / 2, 0);
+        Vector bedV = bottomRight.sub(1, 1);
+        Vector boxV = doorV.add(1,1);
+        
+        // floor
         level.fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
+        
         // walls
         level.fillLine(TileType.WALL, topLeft, topRight);
         level.fillLine(TileType.WALL, topLeft, bottomLeft);
@@ -693,13 +700,14 @@ public class GameEngine {
         level.fillLine(TileType.WALL, bottomLeft, bottomRight);
         
         // 'door' - empty tile
-        //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOUSE_FLOOR);
-        Vector doorV = new Vector(topLeft.getX()+size.getX()/2, topLeft.getY());
         level.fillTile(TileType.HOUSE_FLOOR, doorV);
+        
         // place bed
-        //level[topLeft.getX()+size.getX()/2][topLeft.getY()+size.getY()/2] = new Tile(TileType.BED, true);
-        Vector bedV = bottomRight.left().up();
         level.fillTile(TileType.BED, bedV);
+        
+        // place boxes
+        level.fillTile(TileType.AXE_BOX, boxV);
+        level.fillTile(TileType.PICKAXE_BOX, boxV.right());
     }
     
 

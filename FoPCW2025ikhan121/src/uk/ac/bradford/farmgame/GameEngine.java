@@ -307,8 +307,8 @@ public class GameEngine {
         generateDirtPatch();
         // spawn the house
         generateHouse();
-        
-        
+        // generates the debris layer 
+        generateDebris();
     }
     
     /**
@@ -531,8 +531,8 @@ public class GameEngine {
         int x  = v.getX();
         int y = v.getY();
         
-        return !(!isWithinLevel(v) || level[x][y].isCollidable());
         
+        return (isWithinLevel(v) && !level[x][y].isCollidable() && !isTileOccupied(v));
     }
     /**
      * Checks whether coordinate pair exists in the level array by boundaries 
@@ -550,6 +550,29 @@ public class GameEngine {
         else{
             return true;
         }
+    }
+    
+    /**
+     * Traversed debris array to check whether an entity has the same x,y
+     * as the passed vector.
+     * @param v vector object to check against each entity in the debris array
+     * @return true if there is at least 1 entity with the same (x,y) coordinates
+     * as the vector
+     */
+    private boolean isTileOccupied(Vector v){
+        for (Entity entity : debris){
+            if(entity!=null){
+                int entityX = entity.getX();
+                int entityY = entity.getY();
+                int vX = v.getX();
+                int vY = v.getY();
+
+                if(entityX == vX && entityY == vY){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     /**
@@ -596,31 +619,33 @@ public class GameEngine {
         updatePlayerItem(tile);
         Item holding = player.getHeldItem();
         
-        // item interactions with world
-        if(holding!=null){
-            if(holding.getType() == ItemType.HOE && type == TileType.DIRT){
-                level[x][y] = new Tile(TileType.TILLED_DIRT);
+        if (!isTileOccupied(v)){
+            // item interactions with world
+            if(holding!=null){
+                if(holding.getType() == ItemType.HOE && type == TileType.DIRT){
+                    level[x][y] = new Tile(TileType.TILLED_DIRT);
+                }
+                if(holding.getType() == ItemType.SEEDBAG && type == TileType.TILLED_DIRT){
+                    level[x][y] = new Tile(TileType.SOWED_DIRT);
+                }
             }
-            if(holding.getType() == ItemType.SEEDBAG && type == TileType.TILLED_DIRT){
-                level[x][y] = new Tile(TileType.SOWED_DIRT);
+
+            // interactions with pest
+            if(pest!=null){
+                if(x==pest.getX() && y == pest.getY()){
+                pest=null;
+                }
             }
-        }
-        
-        // interactions with pest
-        if(pest!=null){
-            if(x==pest.getX() && y == pest.getY()){
-            pest=null;
+
+            // no prerequisite interactions    
+            if(type==TileType.BED){
+                    triggerNight();
             }
-        }
-            
-        // no prerequisite interactions    
-        if(type==TileType.BED){
-                triggerNight();
-        }
-        if(type==TileType.CROP){
-                level[x][y] = new Tile(TileType.DIRT);
-                System.out.printf("MONEY: $%d + $5%n",money);
-                money += 5;             
+            if(type==TileType.CROP){
+                    level[x][y] = new Tile(TileType.DIRT);
+                    System.out.printf("MONEY: $%d + $5%n",money);
+                    money += 5;             
+            }
         }
     }
     
@@ -727,6 +752,26 @@ public class GameEngine {
         level[topLeft.getX()][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
         level[topLeft.getX()+1][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
     }
+        
+    
+    private void generateDebris(){
+        debris = new Entity[10]; 
+        
+        for(int i = 0; i<debris.length; i++){
+            int x = rng.nextInt(LEVEL_WIDTH);
+            int y = rng.nextInt(LEVEL_HEIGHT);
+            TileType type = level[x][y].getType();
+            
+            if(isValid(new Vector(x,y)) && type != TileType.HOUSE_FLOOR){
+                if(type == TileType.STONE_GROUND){
+                    debris[i] = new Rock(x, y);
+                }
+                if(type == TileType.DIRT){
+                    debris[i] = new Tree(x, y);
+                }
+            }
+        }
+    }
     
     /**
      * Creates new Tile objects of type t for each coordinate in a rectangle defined by
@@ -747,7 +792,7 @@ public class GameEngine {
     
     /**
      * Creates new Tile objects of tile type t in a line from starting point v1 
-     * to end point v2, determines whether line is horizontal/vertical by comparing x,y coords
+     * to end point v2, determining whether line is horizontal or vertical by comparing x,y coords
      *  
      * @param t tile type to fill the line with
      * @param v1 vector object for starting point of line

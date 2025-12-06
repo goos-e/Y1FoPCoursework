@@ -302,6 +302,7 @@ public class GameEngine {
         level = new Tile[LEVEL_WIDTH][LEVEL_HEIGHT];
         
         // create default stone ground map
+        // Vector() defaults to (0,0) 
         fillRect(TileType.STONE_GROUND, new Vector(), LEVEL_SIZE);
         // spawn a dirt patch ie farm plot
         generateDirtPatch();
@@ -545,26 +546,6 @@ public class GameEngine {
         
         return (isWithinLevel(v) && !level[x][y].isCollidable() && !isTileOccupied(v));
     }
-    /**
-     * Checks whether coordinate pair exists in the level array by boundaries 
-     * defined by LEVEL_HEIGHT and LEVEL_WIDTH
-     * @param v vector containing coordinates to check
-     * @return false if the tile coordinate exceeds the map, true if not
-     */
-    private boolean isWithinLevel(Vector v){
-        if(v == null){
-            return false;
-        }
-        int x = v.getX();
-        int y = v.getY();
-        
-        if( x<0 || LEVEL_WIDTH-1<x || y<0 || LEVEL_HEIGHT-1<y){
-            return false;
-        }
-        else{
-            return true;
-        }
-    }
     
     /**
      * Traversed debris array to check whether an entity has the same x,y
@@ -732,9 +713,9 @@ public class GameEngine {
         }
     }
     
-    // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES
-    
-    
+    // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 
+    // AND ARE TO BE REMOVED LATER
+
     
     /**
      * Creates new Tile objects of type t for each coordinate in a rectangle defined by
@@ -755,7 +736,7 @@ public class GameEngine {
     
     /**
      * Creates new Tile objects of type t for each coordinate in a circle defined by
-     * the passed vector and integer arguments, mid-point and radius. 
+     * the passed vector and integer arguments; mid-point and radius. 
      * @param t
      * @param mid
      * @param rad 
@@ -856,5 +837,26 @@ public class GameEngine {
             return closestCoords;
         }
         return null;
+    }
+    
+    /**
+     * Checks whether coordinate pair exists in the level array by boundaries 
+     * defined by LEVEL_HEIGHT and LEVEL_WIDTH
+     * @param v vector containing coordinates to check
+     * @return false if the tile coordinate exceeds the map, true if not
+     */
+    private boolean isWithinLevel(Vector v){
+        if(v == null){
+            return false;
+        }
+        int x = v.getX();
+        int y = v.getY();
+        
+        if( x<0 || LEVEL_WIDTH-1<x || y<0 || LEVEL_HEIGHT-1<y){
+            return false;
+        }
+        else{
+            return true;
+        }
     }
 }

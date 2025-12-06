@@ -15,10 +15,29 @@ public class Level {
     private int LEVEL_WIDTH = 0;
     private int LEVEL_HEIGHT = 0;
     
-    public Level(int w, int h){
-        this.WIDTH = w;
-        this.HEIGHT = h;
-        level = new Tile[this.WIDTH][this.HEIGHT];
+    
+    /**
+     * Constructor for Level object, creates an empty Tile[][] array of dimension w * h
+     * @param width width (number of columns; x axis) of the 2d tile array
+     * @param height height (number of rows; y axis) of the 2d tile array
+     */
+    public Level(int width, int height){
+        this.LEVEL_WIDTH = width;
+        this.LEVEL_HEIGHT = height;
+        level = new Tile[this.LEVEL_WIDTH][this.LEVEL_HEIGHT];
+    }
+    
+    
+    /**
+     * get method for the Tile object at coordinate (x,y) according to Vector v
+     * @param v Vector object for the Tile object at coords (x,y)
+     * @return the Tile object at level[x][y]
+     */
+    public Tile getTile(Vector v){
+        int x = v.getX();
+        int y = v.getY();
+        
+        return level[x][y];
     }
     
     /**
@@ -26,7 +45,7 @@ public class Level {
      * @param t TileType to set the coordinate at coordinate v to
      * @param v Vector object with (x,y) coords to create new Tile at
      */
-    private void placeTile(TileType t, Vector v){
+    public void fillTile(TileType t, Vector v){
         int x = v.getX();
         int y = v.getY();
         
@@ -67,6 +86,23 @@ public class Level {
     private void fillCircle(TileType t, Vector mid, int rad){
         
     }
+    
+    /**
+     * Creates new Tile objects of type t for each coordinate in a rectangle defined by
+     * the passed vector arguments, top-left and bottom-right corners
+     * @param t tile type to fill the level with
+     * @param v1 vector object for top-left coords of rectangle
+     * @param v2 vector object for bottom right coords of rectangle
+     */
+    private void fillRect(TileType t, Vector v1, Vector v2){
+        // default terrain generation: TileType.t
+        for (int i = v1.getX(); i < v2.getX(); i++){ //cols (x)
+            for (int j = v1.getY(); j < v2.getY();  j++){ //rows (y)
+                level[i][j] = new Tile(t);
+            }
+        }
+        // System.out.printf("v1 = (%d,%d)%nv2 = (%d,%d)%n",v1.getX(),v1.getY(),v2.getX(),v2.getY());
+    }
         
     /**
      * Searches through the level array at O(n*m) complexity for all tiles that 
@@ -78,8 +114,8 @@ public class Level {
     private Vector[] findTiles(TileType t){
         List<Vector> coords = new ArrayList<>();
         
-        for(int i = 0; i<this.WIDTH; i++){
-            for (int j = 0; j<this.HEIGHT; j++){
+        for(int i = 0; i<this.LEVEL_WIDTH; i++){
+            for (int j = 0; j<this.LEVEL_HEIGHT; j++){
                 if(level[i][j].getType() == t){
                     coords.add(new Vector(i, j));
                 }
@@ -90,6 +126,64 @@ public class Level {
         Vector[] result = coords.toArray(Vector[]::new);
         
         return result;
+    }    
+    
+    /**
+     * Finds the coordinates of the closest Tile with type t, with respect to 
+     * coordinate v1, and returns as a vector object. Utilises findTiles() to 
+     * create a Vector[] array, which is then searched.
+     * 
+     * @param t Tile.TileType to search
+     * @param v1 position to search from for closest
+     * @return Vector object with x,y coordinates of closest tile with type t
+     */
+    private Vector findClosest(TileType t, Vector v1){
+        Vector[] tiles = findTiles(t);
+        
+        if (tiles!= null && tiles.length > 0){
+            
+            Vector currentCoords = new Vector(v1.getX(), v1.getY());
+            Vector closestCoords = new Vector();
+            
+            
+            int shortestDistance = 999;
+            
+            for (Vector crop : tiles){
+                Vector delta = currentCoords.sub(crop);
+                
+                if (shortestDistance > delta.mag()){
+                    closestCoords = crop;
+                    shortestDistance = delta.mag();
+                }
+            }
+            
+            return closestCoords;
+        }
+        return null;
+    }    
+    
+    /**
+     * Checks whether coordinate pair exists in the level array by boundaries 
+     * defined by LEVEL_HEIGHT and LEVEL_WIDTH
+     * @param v vector containing coordinates to check
+     * @return false if the tile coordinate exceeds the map, true if not
+     */
+    private boolean isWithinLevel(Vector v){
+        if(v == null){
+            return false;
+        }
+        int x = v.getX();
+        int y = v.getY();
+        
+        if( x<0 || LEVEL_WIDTH-1<x || y<0 || LEVEL_HEIGHT-1<y){
+            return false;
+        }
+        else{
+            return true;
+        }
     }
     
+    public Tile[][] asArray(){
+        return level;
+    }
 }

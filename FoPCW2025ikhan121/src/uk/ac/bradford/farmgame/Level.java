@@ -27,7 +27,6 @@ public class Level {
         level = new Tile[this.LEVEL_WIDTH][this.LEVEL_HEIGHT];
     }
     
-    
     /**
      * get method for the Tile object at coordinate (x,y) according to Vector v
      * @param v Vector object for the Tile object at coords (x,y)
@@ -51,7 +50,7 @@ public class Level {
         
         level[x][y] = new Tile(t);
     }
-        
+    
     /**
      * Creates new Tile objects of tile type t in a line from starting point v1 
      * to end point v2, determining whether line is horizontal or vertical by comparing x,y coords
@@ -60,7 +59,7 @@ public class Level {
      * @param v1 vector object for starting point of line
      * @param v2 vector object for endpoint of line
      */
-    private void fillLine(TileType t, Vector v1, Vector v2){
+    public void fillLine(TileType t, Vector v1, Vector v2){
         if(v1.getX() == v2.getX()){
             // draw vertical line
             for(int j = v1.getY(); j<=v2.getY(); j++){
@@ -83,7 +82,7 @@ public class Level {
      * @param mid
      * @param rad 
      */
-    private void fillCircle(TileType t, Vector mid, int rad){
+    public void fillCircle(TileType t, Vector mid, int rad){
         
     }
     
@@ -94,7 +93,7 @@ public class Level {
      * @param v1 vector object for top-left coords of rectangle
      * @param v2 vector object for bottom right coords of rectangle
      */
-    private void fillRect(TileType t, Vector v1, Vector v2){
+    public void fillRect(TileType t, Vector v1, Vector v2){
         // default terrain generation: TileType.t
         for (int i = v1.getX(); i < v2.getX(); i++){ //cols (x)
             for (int j = v1.getY(); j < v2.getY();  j++){ //rows (y)
@@ -111,7 +110,7 @@ public class Level {
      * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
      * none found
      */
-    private Vector[] findTiles(TileType t){
+    public Vector[] findTiles(TileType t){
         List<Vector> coords = new ArrayList<>();
         
         for(int i = 0; i<this.LEVEL_WIDTH; i++){
@@ -137,7 +136,7 @@ public class Level {
      * @param v1 position to search from for closest
      * @return Vector object with x,y coordinates of closest tile with type t
      */
-    private Vector findClosest(TileType t, Vector v1){
+    public Vector findClosest(TileType t, Vector v1){
         Vector[] tiles = findTiles(t);
         
         if (tiles!= null && tiles.length > 0){
@@ -168,7 +167,7 @@ public class Level {
      * @param v vector containing coordinates to check
      * @return false if the tile coordinate exceeds the map, true if not
      */
-    private boolean isWithinLevel(Vector v){
+    public boolean isWithinLevel(Vector v){
         if(v == null){
             return false;
         }

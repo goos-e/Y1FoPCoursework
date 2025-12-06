@@ -30,8 +30,16 @@ public final class Vector {
         return new Vector(this.x+v.x, this.y+v.y);
     }
     
+    public Vector add(int x, int y){
+        return new Vector(this.x+x, this.y+y);
+    }
+    
     public Vector sub(Vector v){
         return new Vector(this.x-v.x, this.y-v.y);
+    }
+    
+    public Vector sub(int x, int y){
+        return new Vector(this.x-x, this.y-y);
     }
     
     public int mag(){
@@ -40,5 +48,21 @@ public final class Vector {
     
     public Vector abs(){
         return new Vector(Math.abs(this.x), Math.abs(this.y));
-    }   
+    }
+    
+    public Vector up(){
+        return new Vector(this.x, this.y-1);
+    }
+    
+    public Vector down(){
+        return new Vector(this.x, this.y+1);
+    }
+    
+    public Vector left(){
+        return new Vector(this.x-1, this.y);
+    }
+    
+    public Vector right(){
+        return new Vector(this.x+1, this.y);
+    }
 }

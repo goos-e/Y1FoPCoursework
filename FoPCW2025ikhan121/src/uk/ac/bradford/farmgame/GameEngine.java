@@ -663,63 +663,7 @@ public class GameEngine {
         }
     }
     
-    /**
-     * Searches through the level array at O(n*m) complexity for all tiles that 
-     * match the passed TileType, returning a 2D array of all coordinate pairs. 
-     * @param t type to search level array for
-     * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
-     * none found
-     */
-    private Vector[] findTiles(TileType t){
-        List<Vector> coords = new ArrayList<>();
-        
-        for(int i = 0; i<LEVEL_WIDTH; i++){
-            for (int j = 0; j<LEVEL_HEIGHT; j++){
-                if(level[i][j].getType() == t){
-                    coords.add(new Vector(i, j));
-                }
-            }
-        }
-        
-        // Vector[] result = coords.toArray(new Vector[coords.size()]);
-        Vector[] result = coords.toArray(Vector[]::new);
-        
-        return result;
-    }
-    
-    /**
-     * Finds the coordinates of the closest Tile with type t, with respect to 
-     * coordinate v1, and returns as a vector object. Utilises findTiles() to 
-     * create a Vector[] array, which is then searched.
-     * 
-     * @param t Tile.TileType to search
-     * @param v1 position to search from for closest
-     * @return Vector object with x,y coordinates of closest tile with type t
-     */
-    private Vector findClosest(TileType t, Vector v1){
-        Vector[] tiles = findTiles(t);
-        
-        if (tiles!= null && tiles.length > 0){
-            
-            Vector currentCoords = new Vector(v1.getX(), v1.getY());
-            Vector closestCoords = new Vector();
-            
-            
-            int shortestDistance = 999;
-            
-            for (Vector crop : tiles){
-                Vector delta = currentCoords.sub(crop);
-                
-                if (shortestDistance > delta.mag()){
-                    closestCoords = crop;
-                    shortestDistance = delta.mag();
-                }
-            }
-            
-            return closestCoords;
-        }
-        return null;
-    }
+
     /**
      * Generates the floor and walls of the house for generateEvenBetterFarm()
      */
@@ -788,6 +732,10 @@ public class GameEngine {
         }
     }
     
+    // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES
+    
+    
+    
     /**
      * Creates new Tile objects of type t for each coordinate in a rectangle defined by
      * the passed vector arguments, top-left and bottom-right corners
@@ -850,5 +798,63 @@ public class GameEngine {
         int y = v.getY();
         
         level[x][y] = new Tile(t);
+    }
+    
+    /**
+     * Searches through the level array at O(n*m) complexity for all tiles that 
+     * match the passed TileType, returning a 2D array of all coordinate pairs. 
+     * @param t type to search level array for
+     * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
+     * none found
+     */
+    private Vector[] findTiles(TileType t){
+        List<Vector> coords = new ArrayList<>();
+        
+        for(int i = 0; i<LEVEL_WIDTH; i++){
+            for (int j = 0; j<LEVEL_HEIGHT; j++){
+                if(level[i][j].getType() == t){
+                    coords.add(new Vector(i, j));
+                }
+            }
+        }
+        
+        // Vector[] result = coords.toArray(new Vector[coords.size()]);
+        Vector[] result = coords.toArray(Vector[]::new);
+        
+        return result;
+    }    
+    
+    /**
+     * Finds the coordinates of the closest Tile with type t, with respect to 
+     * coordinate v1, and returns as a vector object. Utilises findTiles() to 
+     * create a Vector[] array, which is then searched.
+     * 
+     * @param t Tile.TileType to search
+     * @param v1 position to search from for closest
+     * @return Vector object with x,y coordinates of closest tile with type t
+     */
+    private Vector findClosest(TileType t, Vector v1){
+        Vector[] tiles = findTiles(t);
+        
+        if (tiles!= null && tiles.length > 0){
+            
+            Vector currentCoords = new Vector(v1.getX(), v1.getY());
+            Vector closestCoords = new Vector();
+            
+            
+            int shortestDistance = 999;
+            
+            for (Vector crop : tiles){
+                Vector delta = currentCoords.sub(crop);
+                
+                if (shortestDistance > delta.mag()){
+                    closestCoords = crop;
+                    shortestDistance = delta.mag();
+                }
+            }
+            
+            return closestCoords;
+        }
+        return null;
     }
 }

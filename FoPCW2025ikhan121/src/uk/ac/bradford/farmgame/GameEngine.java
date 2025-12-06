@@ -584,7 +584,7 @@ public class GameEngine {
                 int entityY = entity.getY();
                 int vX = v.getX();
                 int vY = v.getY();
-
+                
                 if(entityX == vX && entityY == vY){
                     return true;
                 }
@@ -642,10 +642,12 @@ public class GameEngine {
             
             // item interactions with world
             if(holding!=null){
-                if(holding.getType() == ItemType.HOE && type == TileType.DIRT){
+                ItemType heldType = holding.getType();
+                
+                if(heldType == ItemType.HOE && type == TileType.DIRT){
                     level.fillTile(TileType.TILLED_DIRT, v);
                 }
-                if(holding.getType() == ItemType.SEEDBAG && type == TileType.TILLED_DIRT){
+                if(heldType == ItemType.SEEDBAG && type == TileType.TILLED_DIRT){
                     level.fillTile(TileType.SOWED_DIRT, v);
                 }
             }
@@ -665,6 +667,19 @@ public class GameEngine {
                 level.fillTile(TileType.DIRT, v);
                 System.out.printf("MONEY: $%d + $5%n",money);
                 money += 5;             
+            }
+        }
+        else{
+            if(holding!=null){
+                int debrisIndex = getDebris(v);
+                ItemType heldType = holding.getType();
+                
+                if(heldType == ItemType.AXE && debris[debrisIndex].getClass() == Tree.class){
+                    debris[debrisIndex] = null;
+                }
+                if(heldType == ItemType.PICKAXE && debris[debrisIndex].getClass() == Rock.class){
+                    debris[debrisIndex] = null;
+                }
             }
         }
     }
@@ -731,6 +746,30 @@ public class GameEngine {
         Vector boxV = new Vector(topLeft.getX()+size.getX()/2, topLeft.getY());
         level.fillTile(TileType.HOE_BOX, boxV);
         level.fillTile(TileType.SEED_BOX, boxV.left());
+    }
+    
+    /**
+     * Gets the Entity object at the coordinate v, stored in the Entity[] debris
+     * @param v Vector object containing coordinates to find index
+     * @return 
+     */
+    private int getDebris(Vector v){
+        
+        int vX = v.getX();
+        int vY = v.getY();
+        
+        for(int i = 0; i<debris.length; i++){
+            Entity e = debris[i];
+            
+            if(e == null){continue;}
+            int x = e.getX();
+            int y = e.getY();
+            
+            if (x == vX && y == vY){
+               return i; 
+            }
+        }
+        return 0;
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

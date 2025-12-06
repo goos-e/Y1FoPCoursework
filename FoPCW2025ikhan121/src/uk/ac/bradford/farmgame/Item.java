@@ -8,7 +8,7 @@ public class Item {
     public String name;
     
     private double durability;
-    private ItemType type;
+    private static ItemType type;
     
     public enum ItemType{
         HOE, AXE, PICKAXE, SEEDBAG,
@@ -28,5 +28,10 @@ public class Item {
     
     public ItemType getType(){
         return this.type;
+    }
+    
+    
+    public void lowerDurability(double a){
+        
     }
 }

@@ -50,5 +50,4 @@ public abstract class Entity {
         xPos = x;
         yPos = y;
     }
-    
 }

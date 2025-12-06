@@ -182,7 +182,7 @@ public class Level {
         }
     }
     
-    public Tile[][] asArray(){
+    public Tile[][] toArray(){
         return level;
     }
 }

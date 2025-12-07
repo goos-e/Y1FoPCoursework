@@ -24,7 +24,8 @@ public abstract class Entity {
      * 1,0 is the tile to the right of 0,0. 0,1 is the tile below 0,0.
      */
     private int yPos;
-
+    
+    private int health;
     
     /**
      * position is the Vector object containing the x,y coordinates in the game
@@ -54,5 +55,9 @@ public abstract class Entity {
 
     public void setPosition(Vector v){
         this.position = v;
+    }
+    
+    public  void hurtEntity(int d){
+        this.health  = this.health - d;
     }
 }

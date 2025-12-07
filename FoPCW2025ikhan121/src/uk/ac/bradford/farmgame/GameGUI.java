@@ -13,7 +13,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import uk.ac.bradford.farmgame.Item.ItemType;
 
 /**
  * The GameGUI class is responsible for rendering graphics to the screen to
@@ -299,17 +298,20 @@ class Canvas extends JPanel {
         }
         if (currentPlayer != null) {
             if(currentPlayer.getHeldItem() != null){
-                switch (currentPlayer.getHeldItem().getType()) {
-                    case HOE ->
+                if(currentPlayer.getHeldItem() instanceof Hoe){
                         g2.drawImage(playerWithHoe, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
-                    case SEEDBAG ->
-                        g2.drawImage(playerWithSeeds, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
-                    case AXE ->
-                        g2.drawImage(playerWithAxe, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
-                    case PICKAXE ->
-                        g2.drawImage(playerWithPick, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
-                    default ->
-                        g2.drawImage(player, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                }
+                if(currentPlayer.getHeldItem() instanceof SeedBag){
+                    g2.drawImage(playerWithSeeds, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                }
+                if(currentPlayer.getHeldItem() instanceof Axe){
+                    g2.drawImage(playerWithAxe, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                }
+                if(currentPlayer.getHeldItem() instanceof Pickaxe){
+                    g2.drawImage(playerWithPick, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                }
+                else{
+                    g2.drawImage(player, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
                 }
             }
             g2.drawImage(player, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);

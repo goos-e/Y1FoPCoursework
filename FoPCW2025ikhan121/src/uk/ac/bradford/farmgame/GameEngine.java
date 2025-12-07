@@ -2,7 +2,6 @@ package uk.ac.bradford.farmgame;
 
 import java.util.Random;
 import uk.ac.bradford.farmgame.Tile.TileType;
-import uk.ac.bradford.farmgame.Item.ItemType;
 
 /**
  * The GameEngine class is responsible for managing information about the game,
@@ -341,7 +340,7 @@ public class GameEngine {
      * whenever one or more crops are created.
      */
     public void growCrops() {
-
+        soilDecay();
         Vector[] sowedCoords = level.findTiles(TileType.SOWED_DIRT);
         
         if (sowedCoords.length>0){
@@ -357,6 +356,22 @@ public class GameEngine {
                 }
                 else{
                     level.fillTile(TileType.TILLED_DIRT, v);
+                }
+            }
+        }
+    }
+    
+    /**
+     * This method implements the possible soil decay if no seeds are sown
+     * on tilled soil. The % is hard coded but this may change ?
+     */
+    private void soilDecay(){
+        Vector [] tilledCoords = level.findTiles(TileType.TILLED_DIRT);
+        
+        if(tilledCoords.length > 0){
+            for(Vector v : tilledCoords){
+                if(rng.nextDouble() <= 0.33){
+                    level.fillTile(TileType.DIRT, v);
                 }
             }
         }
@@ -621,16 +636,16 @@ public class GameEngine {
         
         if(null != t)switch (t) {
             case HOE_BOX:
-                player.setHeldItem(new Item(ItemType.HOE, 1));
+                player.setHeldItem(new Hoe());
                 break;
             case SEED_BOX:
-                player.setHeldItem(new Item(ItemType.SEEDBAG, 1));
+                player.setHeldItem(new SeedBag());
                 break;
             case AXE_BOX:
-                player.setHeldItem(new Item(ItemType.AXE, 1));
+                player.setHeldItem(new Axe());
                 break;
             case PICKAXE_BOX:
-                player.setHeldItem(new Item(ItemType.PICKAXE, 1));
+                player.setHeldItem(new Pickaxe());
                 break;
             default:
                 break;
@@ -646,7 +661,6 @@ public class GameEngine {
         int x = v.getX();
         int y = v.getY();
         
-        
         Tile tile = level.getTile(v);
         TileType type = tile.getType();
         
@@ -658,14 +672,7 @@ public class GameEngine {
             
             // item interactions with world
             if(holding!=null){
-                ItemType heldType = holding.getType();
-                
-                if(heldType == ItemType.HOE && type == TileType.DIRT){
-                    level.fillTile(TileType.TILLED_DIRT, v);
-                }
-                if(heldType == ItemType.SEEDBAG && type == TileType.TILLED_DIRT){
-                    level.fillTile(TileType.SOWED_DIRT, v);
-                }
+                holding.use(tile);
             }
 
             // interactions with pest
@@ -688,14 +695,9 @@ public class GameEngine {
         else{
             if(holding!=null){
                 int debrisIndex = getEntity(v, debris);
-                ItemType heldType = holding.getType();
+                Entity debrisEntity = debris[debrisIndex];
                 
-                if(heldType == ItemType.AXE && debris[debrisIndex].getClass() == Tree.class){
-                    debris[debrisIndex] = null;
-                }
-                if(heldType == ItemType.PICKAXE && debris[debrisIndex].getClass() == Rock.class){
-                    debris[debrisIndex] = null;
-                }
+                holding.use(debrisEntity);
             }
         }
     }
@@ -787,10 +789,6 @@ public class GameEngine {
             }
         }
         return 0;
-    }
-    
-    private void soilDecay(){
-        
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

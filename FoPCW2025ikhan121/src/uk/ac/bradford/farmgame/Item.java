@@ -4,30 +4,25 @@ package uk.ac.bradford.farmgame;
  * i should have done this 10 years ago
  * @author goose
  */
-public class Item {
-    public String name;
+public abstract class Item {
+    private String name;
     
+    /**
+     * the current durability and durability modifier of the item, 
+     * the max durability is calculated by 100*durabilityModifier
+     */
     private int durability;
     private int durabilityModifier;
     
-    private int damage;
+    protected int damage;
     
-    private final ItemType type;
     
-    public enum ItemType{
-        HOE, AXE, PICKAXE, SEEDBAG,
-    }
-    
-    public Item(ItemType t, int d){
-        this.name = "itemname";
+    public Item(String name, int dMod){
+        this.name = name;
+        this.durabilityModifier = dMod;
         this.durability = 100 * durabilityModifier;
-        this.durabilityModifier = d;
-        this.type = t;
     }
     
-    public ItemType getType(){
-        return this.type;
-    }
     
     public void reduceDurability(){
         this.durability = this.durability - 10;
@@ -39,6 +34,11 @@ public class Item {
     
     private void breakItem(){
         System.out.println("item is broken");
+        
+        // NEED TO IMPLEMENT ITEM DESTRUCTION 
         return;
     }
+    
+    public abstract void use(Entity e);
+    public abstract void use(Tile t);
 }

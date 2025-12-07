@@ -56,4 +56,11 @@ public class Player extends Entity {
     public void setHeldItem(Item a) {
         holding = a;
     }
+    
+    /**
+     * A setter to change the held item to null, so the item is destroyed.
+     */
+    public void destroyItem(){
+        this.holding = null;
+    }
 }

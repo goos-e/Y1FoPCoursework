@@ -58,14 +58,6 @@ public class Tile {
                 collidable = false;
         }
     }
-    
-    /**
-     * Overloaded constructor to set attribute collidable
-     */
-    public Tile(TileType t, boolean c) {
-        type = t;
-        collidable = c;
-    }
         
     /**
      * Get the type for this Tile object. The value will be one of those
@@ -85,7 +77,19 @@ public class Tile {
      * enumeration
      */
     public void setType(TileType t){
-        type = t;
+        switch (t){
+            case TileType.WALL:
+            case TileType.HOE_BOX:
+            case TileType.SEED_BOX:
+            case TileType.AXE_BOX:
+            case TileType.PICKAXE_BOX:
+            case TileType.BED:
+                collidable = true;
+                break;
+            default:
+                collidable = false;
+        }
+        this.type=t;
     }
     
     /**

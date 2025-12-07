@@ -7,10 +7,11 @@ package uk.ac.bradford.farmgame;
 public class Rock extends Entity {
     /**
      * A constructor to create a new Rock object.
-     * @param x the X coordinate for this Rock object.
-     * @param y the Y coordinate for this Rock object.
+     * 
+     * @param v the starting position of this Rock in the game defined by a 
+     * Vector object (x,y)
      */
-    public Rock(int x, int y) {
-        setPosition(x, y);
+    public Rock(Vector v) {
+        setPosition(v);
     }
 }

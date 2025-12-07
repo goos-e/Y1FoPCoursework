@@ -7,10 +7,11 @@ package uk.ac.bradford.farmgame;
 public class Tree extends Entity {
     /**
      * A constructor to create a new Tree object.
-     * @param x the X coordinate for this Tree object.
-     * @param y the Y coordinate for this Tree object.
+     * 
+     * @param v the starting position of this Tree in the game defined by a 
+     * Vector object (x,y)
      */
-    public Tree(int x, int y) {
-        setPosition(x, y);
+    public Tree(Vector v) {
+        setPosition(v);
     }
 }

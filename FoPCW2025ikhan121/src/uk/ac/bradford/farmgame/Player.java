@@ -26,11 +26,11 @@ public class Player extends Entity {
     /**
      * This constructor is used to create a Player object to use in the game
      *
-     * @param x the starting X position of this Player in the game
-     * @param y the starting Y position of this Player in the game
+     * @param v the starting position of this Player in the game defined by a 
+     * Vector object (x,y)
      */
-    public Player(int x, int y) {
-        setPosition(x, y);
+    public Player(Vector v) {
+        setPosition(v);
     }
 
     /**

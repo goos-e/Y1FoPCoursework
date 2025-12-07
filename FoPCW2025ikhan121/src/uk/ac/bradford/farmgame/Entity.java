@@ -24,13 +24,20 @@ public abstract class Entity {
      * 1,0 is the tile to the right of 0,0. 0,1 is the tile below 0,0.
      */
     private int yPos;
-        
+
+    
+    /**
+     * position is the Vector object containing the x,y coordinates in the game
+     * for this entity. 
+     */
+    private Vector position = new Vector(xPos, yPos);
+    
     /**
      * This method returns the current X position for this entity in the game
      * @return The X co-ordinate of this Entity in the game
      */
     public int getX() {
-        return xPos;
+        return position.getX();
     }
     
     /**
@@ -38,16 +45,14 @@ public abstract class Entity {
      * @return The Y co-ordinate of this Entity in the game
      */
     public int getY() {
-        return yPos;
+        return position.getY();
     }
     
-    /**
-     * Sets the position of the Entity in the game
-     * @param x The new X position for this Entity
-     * @param y The new Y position for this Entity
-     */
-    public void setPosition (int x, int y) {
-        xPos = x;
-        yPos = y;
+    public Vector getPosition(){
+        return this.position;
+    }
+
+    public void setPosition(Vector v){
+        this.position = v;
     }
 }

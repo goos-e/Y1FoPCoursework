@@ -10,10 +10,11 @@ public class Pest extends Entity {
     
     /**
      * This constructor is used to create a Pest object to use in the game.
-     * @param x the starting X position of this Pest in the level
-     * @param y the starting Y position of this Pest in the level
+     * 
+     * @param v the starting position of this Pest in the game defined by a 
+     * Vector object (x,y)
      */
-    public Pest(int x, int y) {
-        setPosition(x, y);
+    public Pest(Vector v) {
+        setPosition(v);
     }
 }

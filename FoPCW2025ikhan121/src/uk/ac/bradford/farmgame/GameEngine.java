@@ -1,8 +1,6 @@
 package uk.ac.bradford.farmgame;
 
 import java.util.Random;
-import java.util.ArrayList;
-import java.util.List;
 import uk.ac.bradford.farmgame.Tile.TileType;
 import uk.ac.bradford.farmgame.Item.ItemType;
 
@@ -75,6 +73,9 @@ public class GameEngine {
      * level[10][15].getType() == TileType.DIRT
      * 
      * would return the value true if the tile at position 10,15 was a DIRT tile.
+     * 
+     * 
+     * ive changed this but yet to amend the javadoc: forgive me
      */
     private Level level;
     
@@ -123,7 +124,16 @@ public class GameEngine {
      * This method should use fixed X and Y values for the player's position.
      */
     private void createPlayer() {
-            player = new Player(LEVEL_WIDTH/2-1,LEVEL_HEIGHT/2-1);
+        Vector playerSpawnPoint = new Vector(-1, -1);
+        
+        while(!isValid(playerSpawnPoint)){
+            int x = rng.nextInt(0, LEVEL_WIDTH);
+            int y = rng.nextInt(0, LEVEL_HEIGHT);
+            
+            playerSpawnPoint = new Vector(x, y);
+        }
+        
+        player = new Player(playerSpawnPoint);
     }
     
     /**
@@ -339,10 +349,16 @@ public class GameEngine {
             if(pest==null){
                 createPest();
             }
-            
+
             for (Vector v : sowedCoords){
-                level.fillTile(TileType.CROP, v);
-            }   
+                
+                if(rng.nextDouble() < 0.05){
+                    level.fillTile(TileType.CROP, v);
+                }
+                else{
+                    level.fillTile(TileType.TILLED_DIRT, v);
+                }
+            }
         }
     }
     
@@ -388,7 +404,7 @@ public class GameEngine {
         } 
         
         if(isValid(nextCoords)){
-            player.setPosition(nextCoords.getX(), nextCoords.getY());
+            player.setPosition(nextCoords);
         }
         
         if(level.isWithinLevel(nextCoords)){
@@ -435,7 +451,7 @@ public class GameEngine {
             }
         }
         
-        pest = new Pest(pestCoords.getX(), pestCoords.getY());
+        pest = new Pest(pestCoords);
     }
     
     /**
@@ -468,7 +484,7 @@ public class GameEngine {
                         end = new Vector(sX, sY + Integer.signum(dY));
                     }
 
-                    pest.setPosition(end.getX(), end.getY());
+                    pest.setPosition(end);
             }
             else{
             }
@@ -496,12 +512,12 @@ public class GameEngine {
             
             TileType type = level.getTile(v).getType();
             
-            if(isValid(new Vector(x,y)) &&  type == TileType.DIRT){
+            if(isValid(v) &&  type == TileType.DIRT){
                 if(rng.nextBoolean()){
-                    debris[i] = new Tree(x, y);
+                    debris[i] = new Tree(v);
                 }
                 else{
-                    debris[i] = new Rock(x, y);
+                    debris[i] = new Rock(v);
                 }
             }
         }
@@ -605,16 +621,16 @@ public class GameEngine {
         
         if(null != t)switch (t) {
             case HOE_BOX:
-                player.setHeldItem(new Item(ItemType.HOE));
+                player.setHeldItem(new Item(ItemType.HOE, 1));
                 break;
             case SEED_BOX:
-                player.setHeldItem(new Item(ItemType.SEEDBAG));
+                player.setHeldItem(new Item(ItemType.SEEDBAG, 1));
                 break;
             case AXE_BOX:
-                player.setHeldItem(new Item(ItemType.AXE));
+                player.setHeldItem(new Item(ItemType.AXE, 1));
                 break;
             case PICKAXE_BOX:
-                player.setHeldItem(new Item(ItemType.PICKAXE));
+                player.setHeldItem(new Item(ItemType.PICKAXE, 1));
                 break;
             default:
                 break;
@@ -671,7 +687,7 @@ public class GameEngine {
         }
         else{
             if(holding!=null){
-                int debrisIndex = getDebris(v);
+                int debrisIndex = getEntity(v, debris);
                 ItemType heldType = holding.getType();
                 
                 if(heldType == ItemType.AXE && debris[debrisIndex].getClass() == Tree.class){
@@ -751,15 +767,16 @@ public class GameEngine {
     /**
      * Gets the Entity object at the coordinate v, stored in the Entity[] debris
      * @param v Vector object containing coordinates to find index
+     * @param e Entity[] containing objects with class or child of Entity 
      * @return 
      */
-    private int getDebris(Vector v){
+    private int getEntity(Vector v, Entity[] entityArray){
         
         int vX = v.getX();
         int vY = v.getY();
         
-        for(int i = 0; i<debris.length; i++){
-            Entity e = debris[i];
+        for(int i = 0; i<entityArray.length; i++){
+            Entity e = entityArray[i];
             
             if(e == null){continue;}
             int x = e.getX();
@@ -770,6 +787,10 @@ public class GameEngine {
             }
         }
         return 0;
+    }
+    
+    private void soilDecay(){
+        
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

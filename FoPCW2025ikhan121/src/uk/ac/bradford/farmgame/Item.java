@@ -7,31 +7,38 @@ package uk.ac.bradford.farmgame;
 public class Item {
     public String name;
     
-    private double durability;
-    private static ItemType type;
+    private int durability;
+    private int durabilityModifier;
+    
+    private int damage;
+    
+    private final ItemType type;
     
     public enum ItemType{
         HOE, AXE, PICKAXE, SEEDBAG,
     }
     
-    public Item(ItemType t){
-        this.type = t;
+    public Item(ItemType t, int d){
         this.name = "itemname";
-        this.durability = 1.0;
-    }
-    
-    public Item(ItemType t, String n){
-        this.name = n;
+        this.durability = 100 * durabilityModifier;
+        this.durabilityModifier = d;
         this.type = t;
-        this.durability = 1.0;
     }
     
     public ItemType getType(){
         return this.type;
     }
     
-    
-    public void lowerDurability(double a){
+    public void reduceDurability(){
+        this.durability = this.durability - 10;
         
+        if(this.durability <= 0){
+            breakItem();
+        }
+    }
+    
+    private void breakItem(){
+        System.out.println("item is broken");
+        return;
     }
 }

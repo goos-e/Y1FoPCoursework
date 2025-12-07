@@ -12,22 +12,6 @@ import uk.ac.bradford.farmgame.Vector;
 public abstract class Entity {
     
     /**
-     * xPos is the current x position in the game for this entity. Together with the
-     * yPos attribute this determines the position of this Entity when it is drawn to
-     * the screen using the style X,Y. 0,0 is the top left tile in the level.
-     * 1,0 is the tile to the right of 0,0. 0,1 is the tile below 0,0 etc.
-     */
-    private int xPos;
-    
-    /**
-     * yPos is the current y position in the game for this entity. Together with the
-     * xPos attribute this sets the position of this Entity when it is drawn to
-     * the screen using the style X,Y. 0,0 is the top left tile in the level.
-     * 1,0 is the tile to the right of 0,0. 0,1 is the tile below 0,0.
-     */
-    private int yPos;
-    
-    /**
      * Total health of this entity, 100 is 'full' and 0 is 'dead'
      */
     private int health;
@@ -36,7 +20,7 @@ public abstract class Entity {
      * position is the Vector object containing the x,y coordinates in the game
      * for this entity. 
      */
-    protected Vector position = new Vector(xPos, yPos);
+    protected Vector position;
     
     /**
      * This method returns the current X position for this entity in the game
@@ -69,6 +53,10 @@ public abstract class Entity {
      */
     public void setPosition(Vector v){
         this.position = v;
+    }
+    
+    public int getHealth(){
+        return this.health;
     }
     
     public void setHealth(int health){

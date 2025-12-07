@@ -19,26 +19,19 @@ public abstract class Item {
     
     protected int damage;
     
-    public Item(String name, int durabilityModifier){
+    public Item(String name, int durabilityModifier, int damage){
         this.name = name;
         this.durabilityModifier = durabilityModifier;
         this.durability = 100 * durabilityModifier;
+        this.damage = damage;
     }
     
-    
-    public void reduceDurability(){
+    protected void reduceDurability(){
         this.durability = this.durability - 10;
-        
-        if(this.durability <= 0){
-            breakItem();
-        }
     }
     
-    private void breakItem(){
-        System.out.println("item is broken");
-        
-        // NEED TO IMPLEMENT ITEM DESTRUCTION 
-        return;
+    public int getDurability(){
+        return this.durability;
     }
     
     public String getName(){

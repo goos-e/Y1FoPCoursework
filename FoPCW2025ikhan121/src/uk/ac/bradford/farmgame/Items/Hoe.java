@@ -10,7 +10,7 @@ import uk.ac.bradford.farmgame.Tile.TileType;
  */
 public class Hoe extends Item{
     public Hoe(){
-        super("Pickaxe", 1);
+        super("Hoe", 1, 15);
     }
     
     @Override
@@ -20,7 +20,7 @@ public class Hoe extends Item{
     public void use(Tile t){
         if (t.getType() == TileType.DIRT){
             t.setType(TileType.TILLED_DIRT);
-            this.reduceDurability();
         }
+        this.reduceDurability();
     }
 }

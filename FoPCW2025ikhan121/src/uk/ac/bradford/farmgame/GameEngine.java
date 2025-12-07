@@ -395,29 +395,24 @@ public class GameEngine {
     public void evenBetterMovePlayer(int direction) {
         Vector currentCoords = new Vector(player.getX(), player.getY());
         
-        Vector translate = null;
         Vector nextCoords = null;
         
         switch(direction){
             case 1 -> {
                 // up
-                translate = new Vector(0, -1);
-                nextCoords = currentCoords.add(translate);
+                nextCoords = currentCoords.up();
             }
             case 2 -> {
                 // right
-                translate = new Vector(1, 0);
-                nextCoords = currentCoords.add(translate);
+                nextCoords = currentCoords.right();
             }
             case 3 -> {
                 // down
-                translate = new Vector(0, 1);
-                nextCoords = currentCoords.add(translate);
+                nextCoords = currentCoords.down();
             }
             case 4 -> {
                 // left
-                translate = new Vector(-1, 0);
-                nextCoords = currentCoords.add(translate);
+                nextCoords = currentCoords.left();
             }
         } 
         
@@ -637,8 +632,16 @@ public class GameEngine {
     private void updatePlayerItem(Tile tile){
         
         TileType t = tile.getType();
+        Item holding = player.getHeldItem();
         
-        if(null != t)switch (t) {
+        if(holding != null){
+            if(holding.getDurability() <= 0){
+                player.checkHeldDurability();
+            }
+        }
+        
+        if(t != null)
+            switch (t){
             case HOE_BOX:
                 player.setHeldItem(new Hoe());
                 break;
@@ -670,37 +673,40 @@ public class GameEngine {
         Item holding = player.getHeldItem();
         
         // checks if tile has debris on it -> preventing interaction
-        if (!hasDebris(v)){
-            
-            // item interactions with world
-            if(holding!=null){
-                holding.use(tile);
-            }
-
-            // interactions with pest
-            if(pest!=null){
-                if(pest.getPosition() == v){
-                    pest=null;
+        if (hasDebris(v)){
+            if(holding != null){
+                int debrisIndex = getEntity(v);
+                Entity e = debris[debrisIndex];
+                
+                holding.use(e);
+                // System.out.printf("Entity hp is at: %d%n", e.getHealth());
+                if(e.getHealth() <= 0){
+                    debris[debrisIndex] = null;
                 }
             }
+            return;
+        }
 
-            // no prerequisite interactions    
-            if(type==TileType.BED){
+        // no prerequisite interactions    
+        
+        switch(type){
+            case BED:
                 triggerNight();
-            }
-            if(type==TileType.CROP){
+            case CROP:
                 level.fillTile(TileType.DIRT, v);
                 System.out.printf("MONEY: $%d + $5%n",money);
-                money += 5;             
+                money += 5;
+        }
+        
+        // interactions with pest
+        if(pest!=null){
+            if(pest.getPosition() == v){
+                pest=null;
             }
         }
-        else{
-            if(holding!=null){
-                int debrisIndex = getEntity(v, debris);
-                Entity debrisEntity = debris[debrisIndex];
-                
-                holding.use(debrisEntity);
-            }
+        // item interactions with world
+        if(holding!=null){
+            holding.use(tile);
         }
     }
     
@@ -774,20 +780,13 @@ public class GameEngine {
      * @param e Entity[] containing objects with class or child of Entity 
      * @return 
      */
-    private int getEntity(Vector v, Entity[] entityArray){
-        
-        int vX = v.getX();
-        int vY = v.getY();
-        
-        for(int i = 0; i<entityArray.length; i++){
-            Entity e = entityArray[i];
+    private int getEntity(Vector v){
+        for(int i = 0; i<debris.length; i++){
+            Entity e = debris[i];
             
             if(e == null){continue;}
-            int x = e.getX();
-            int y = e.getY();
-            
-            if (x == vX && y == vY){
-               return i; 
+            if(e.getPosition().equals(v)){
+                return i;
             }
         }
         return 0;

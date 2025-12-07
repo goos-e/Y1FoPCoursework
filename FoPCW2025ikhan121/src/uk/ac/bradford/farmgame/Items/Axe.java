@@ -12,17 +12,17 @@ public class Axe extends Item{
     
     
     public Axe(){
-        super("Axe", 1);
+        super("Axe", 1, 25);
     }
+    
     
     @Override
     public void use(Entity e){
         if (e instanceof Tree){
-            e.hurtEntity(this.damage);
-            this.reduceDurability();
+            e.hurtEntity(this.damage*2);
         }
+        this.reduceDurability();
     }
     
-    @Override
     public void use(Tile t){}
 }

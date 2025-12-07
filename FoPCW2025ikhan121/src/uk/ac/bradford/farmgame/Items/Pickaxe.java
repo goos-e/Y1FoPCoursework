@@ -10,15 +10,15 @@ import uk.ac.bradford.farmgame.Tile;
  */
 public class Pickaxe extends Item{
     public Pickaxe(){
-        super("Pickaxe", 1);
+        super("Pickaxe", 1, 25);
     }
     
     @Override
     public void use(Entity e){
         if (e instanceof Rock){
             e.hurtEntity(this.damage);
-            this.reduceDurability();
         }
+        this.reduceDurability();
     }
     
     @Override

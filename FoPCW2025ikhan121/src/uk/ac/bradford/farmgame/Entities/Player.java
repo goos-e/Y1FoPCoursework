@@ -12,18 +12,9 @@ import uk.ac.bradford.farmgame.Vector;
  */
 public class Player extends Entity {
     
-    /**
-     * A numerical code for what the player is currently holding. By default the game
-     * will draw a tool or seed bag when this attribute has one of the following
-     * values:
-     * 1 - a hoe to till dirt
-     * 2 - a seed bag to plant seeds
-     * 3 - an axe to cut trees
-     * 4 - a pickaxe to break stones
-     * A value of 0 for this attribute will draw the player with no tool in hand
-     */
-    //private int holding = 0;
-
+   /**
+    * Item object for what the player is holding
+    */
     private Item holding = null;
     
     /**
@@ -63,9 +54,15 @@ public class Player extends Entity {
     /**
      * A setter to change the held item to null, so the item is destroyed.
      */
-    public void removeHeldItem(){
+    private void removeHeldItem(){
         if(holding!=null){
             this.holding = null;
+        }
+    }
+    
+    public void checkHeldDurability(){
+        if(holding.getDurability() <= 0){
+            removeHeldItem();
         }
     }
 }

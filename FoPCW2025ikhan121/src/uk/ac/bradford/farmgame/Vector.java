@@ -65,4 +65,11 @@ public final class Vector {
     public Vector right(){
         return new Vector(this.x+1, this.y);
     }
+    
+    @Override
+    public boolean equals(Object o){
+        if(!(o instanceof Vector)){return false;}
+        Vector v = (Vector) o;
+        return(this.x == v.getX() && this.y == v.getY());
+    }
 }

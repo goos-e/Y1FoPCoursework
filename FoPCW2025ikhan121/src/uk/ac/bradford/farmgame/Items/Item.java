@@ -14,10 +14,10 @@ public abstract class Item {
      * the current durability and durability modifier of the item, 
      * the max durability is calculated by 100*durabilityModifier
      */
-    private int durability;
-    private int durabilityModifier;
+    private double durability;
+    private double durabilityModifier;
     
-    protected int damage;
+    protected double damage;
     
     public Item(String name, int durabilityModifier, int damage){
         this.name = name;
@@ -27,10 +27,19 @@ public abstract class Item {
     }
     
     protected void reduceDurability(){
-        this.durability = this.durability - 10;
+        this.durability = this.durability - 10.0;
     }
     
-    public int getDurability(){
+    
+    /**
+     * overloaded method for durability loss modifier
+     * @param m 
+     */
+    protected void reduceDurability(double m){
+        this.durability = this.durability - 10.0*m;
+    }
+    
+    public double getDurability(){
         return this.durability;
     }
     

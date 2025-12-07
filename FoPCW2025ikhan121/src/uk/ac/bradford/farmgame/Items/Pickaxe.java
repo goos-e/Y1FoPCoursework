@@ -15,10 +15,16 @@ public class Pickaxe extends Item{
     
     @Override
     public void use(Entity e){
+        double damageMod = 1.0;
+        double durabilityLossMod = 1.0;
+        
         if (e instanceof Rock){
-            e.hurtEntity(this.damage);
+            damageMod = 2.0;
+            durabilityLossMod = 0.5;
         }
-        this.reduceDurability();
+        
+        e.hurtEntity(this.damage * damageMod);
+        this.reduceDurability(durabilityLossMod);
     }
     
     @Override

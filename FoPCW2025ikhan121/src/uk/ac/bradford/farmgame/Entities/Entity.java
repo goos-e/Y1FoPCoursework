@@ -14,7 +14,7 @@ public abstract class Entity {
     /**
      * Total health of this entity, 100 is 'full' and 0 is 'dead'
      */
-    private int health;
+    private double health;
     
     /**
      * position is the Vector object containing the x,y coordinates in the game
@@ -55,11 +55,11 @@ public abstract class Entity {
         this.position = v;
     }
     
-    public int getHealth(){
+    public double getHealth(){
         return this.health;
     }
     
-    public void setHealth(int health){
+    public void setHealth(double health){
         this.health = health;
     }
     
@@ -67,7 +67,7 @@ public abstract class Entity {
      * Deals 'damage' to the entity by subtracting a value 'd' from its health
      * @param d The amount to subtract from the health of the entity
      */
-    public void hurtEntity(int d){
+    public void hurtEntity(double d){
         this.health  = this.health - d;
     }
 }

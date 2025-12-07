@@ -687,8 +687,7 @@ public class GameEngine {
             return;
         }
 
-        // no prerequisite interactions    
-        
+        // no prerequisites
         switch(type){
             case BED->{
                 triggerNight();

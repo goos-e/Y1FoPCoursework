@@ -1,4 +1,7 @@
-package uk.ac.bradford.farmgame;
+package uk.ac.bradford.farmgame.Entities;
+
+import uk.ac.bradford.farmgame.Entities.Entity;
+import uk.ac.bradford.farmgame.Vector;
 
 /**The Pest class is a subclass of Entity and implements the
  * pest concept in the game. The pest moves towards crops once they have grown

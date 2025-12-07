@@ -1,4 +1,6 @@
-package uk.ac.bradford.farmgame;
+package uk.ac.bradford.farmgame.Entities;
+
+import uk.ac.bradford.farmgame.Vector;
 
 /**
  * The Entity class stores basic state information for the Player, Pest, Tree and
@@ -25,13 +27,16 @@ public abstract class Entity {
      */
     private int yPos;
     
+    /**
+     * Total health of this entity, 100 is 'full' and 0 is 'dead'
+     */
     private int health;
     
     /**
      * position is the Vector object containing the x,y coordinates in the game
      * for this entity. 
      */
-    private Vector position = new Vector(xPos, yPos);
+    protected Vector position = new Vector(xPos, yPos);
     
     /**
      * This method returns the current X position for this entity in the game
@@ -49,15 +54,32 @@ public abstract class Entity {
         return position.getY();
     }
     
+    /**
+     * This method returns the current X,Y coordinate pair for this entity in the game
+     * @return The X,Y coordinate as a Vector 
+     */
     public Vector getPosition(){
         return this.position;
     }
 
+    /**
+     * This method sets the current X,Y coordinate pair of this entity as the 
+     * passed vector parameter, v
+     * @param v the x,y coordinate as a vector, to set the entity's position to
+     */
     public void setPosition(Vector v){
         this.position = v;
     }
     
-    public  void hurtEntity(int d){
+    public void setHealth(int health){
+        this.health = health;
+    }
+    
+    /**
+     * Deals 'damage' to the entity by subtracting a value 'd' from its health
+     * @param d The amount to subtract from the health of the entity
+     */
+    public void hurtEntity(int d){
         this.health  = this.health - d;
     }
 }

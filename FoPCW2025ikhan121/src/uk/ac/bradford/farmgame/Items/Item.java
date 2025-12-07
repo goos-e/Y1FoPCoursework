@@ -1,4 +1,7 @@
-package uk.ac.bradford.farmgame;
+package uk.ac.bradford.farmgame.Items;
+
+import uk.ac.bradford.farmgame.Entities.Entity;
+import uk.ac.bradford.farmgame.Tile;
 
 /**
  * i should have done this 10 years ago
@@ -16,10 +19,9 @@ public abstract class Item {
     
     protected int damage;
     
-    
-    public Item(String name, int dMod){
+    public Item(String name, int durabilityModifier){
         this.name = name;
-        this.durabilityModifier = dMod;
+        this.durabilityModifier = durabilityModifier;
         this.durability = 100 * durabilityModifier;
     }
     
@@ -37,6 +39,10 @@ public abstract class Item {
         
         // NEED TO IMPLEMENT ITEM DESTRUCTION 
         return;
+    }
+    
+    public String getName(){
+        return this.name;
     }
     
     public abstract void use(Entity e);

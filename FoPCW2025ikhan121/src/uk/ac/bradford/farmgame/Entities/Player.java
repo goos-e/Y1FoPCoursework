@@ -1,4 +1,7 @@
-package uk.ac.bradford.farmgame;
+package uk.ac.bradford.farmgame.Entities;
+
+import uk.ac.bradford.farmgame.Items.Item;
+import uk.ac.bradford.farmgame.Vector;
 
 /**
  * The Player class is a subclass of Entity and adds specific state and
@@ -60,7 +63,9 @@ public class Player extends Entity {
     /**
      * A setter to change the held item to null, so the item is destroyed.
      */
-    public void destroyItem(){
-        this.holding = null;
+    public void removeHeldItem(){
+        if(holding!=null){
+            this.holding = null;
+        }
     }
 }

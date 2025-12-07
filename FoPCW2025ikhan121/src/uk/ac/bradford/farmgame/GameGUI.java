@@ -1,5 +1,7 @@
 package uk.ac.bradford.farmgame;
 
+import uk.ac.bradford.farmgame.Entities.*;
+import uk.ac.bradford.farmgame.Items.*;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;

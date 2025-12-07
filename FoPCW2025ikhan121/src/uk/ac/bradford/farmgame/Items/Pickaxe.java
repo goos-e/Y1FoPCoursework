@@ -1,4 +1,8 @@
-package uk.ac.bradford.farmgame;
+package uk.ac.bradford.farmgame.Items;
+
+import uk.ac.bradford.farmgame.Entities.Entity;
+import uk.ac.bradford.farmgame.Entities.Rock;
+import uk.ac.bradford.farmgame.Tile;
 
 /**
  *

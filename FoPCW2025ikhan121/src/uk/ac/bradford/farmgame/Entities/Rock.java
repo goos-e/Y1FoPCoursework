@@ -1,4 +1,7 @@
-package uk.ac.bradford.farmgame;
+package uk.ac.bradford.farmgame.Entities;
+
+import uk.ac.bradford.farmgame.Entities.Entity;
+import uk.ac.bradford.farmgame.Vector;
 
 /**
  * A class to represent a Rock in the game. Used for the debris task that adds Rocks and Trees.
@@ -13,5 +16,6 @@ public class Rock extends Entity {
      */
     public Rock(Vector v) {
         setPosition(v);
+        setHealth(100);
     }
 }

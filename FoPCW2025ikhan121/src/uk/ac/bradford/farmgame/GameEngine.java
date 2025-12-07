@@ -1,5 +1,8 @@
 package uk.ac.bradford.farmgame;
 
+import uk.ac.bradford.farmgame.Entities.*;
+import uk.ac.bradford.farmgame.Items.*;
+
 import java.util.Random;
 import uk.ac.bradford.farmgame.Tile.TileType;
 
@@ -505,6 +508,7 @@ public class GameEngine {
             }
         }
     }
+    
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
      * It should instantiate the debris array with a sensible length and then fill
@@ -658,8 +662,6 @@ public class GameEngine {
      * @param v vector object of tile coordinate player is attemping to interact with
      */
     private void handlePlayerInteraction(Vector v){
-        int x = v.getX();
-        int y = v.getY();
         
         Tile tile = level.getTile(v);
         TileType type = tile.getType();
@@ -677,8 +679,8 @@ public class GameEngine {
 
             // interactions with pest
             if(pest!=null){
-                if(x==pest.getX() && y == pest.getY()){
-                pest=null;
+                if(pest.getPosition() == v){
+                    pest=null;
                 }
             }
 

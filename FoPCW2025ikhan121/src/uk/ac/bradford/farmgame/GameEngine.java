@@ -491,10 +491,10 @@ public class GameEngine {
                     Vector end;
 
                     if(delta.abs().getX() > delta.abs().getY()){
-                        end = new Vector(sX + Integer.signum(dX), sY);
+                        end = start.add(Integer.signum(dX), 0);
                     } 
                     else{
-                        end = new Vector(sX, sY + Integer.signum(dY));
+                        end = start.add(0, Integer.signum(dY));
                     }
 
                     pest.setPosition(end);
@@ -690,20 +690,21 @@ public class GameEngine {
         // no prerequisite interactions    
         
         switch(type){
-            case BED:
+            case BED->{
                 triggerNight();
-            case CROP:
+            }
+            case CROP->{
                 level.fillTile(TileType.DIRT, v);
                 System.out.printf("MONEY: $%d + $5%n",money);
                 money += 5;
+            }
         }
         
         // interactions with pest
-        if(pest!=null){
-            if(pest.getPosition() == v){
-                pest=null;
-            }
+        if(pest!=null && pest.getPosition().equals(v)){
+            pest=null;
         }
+        
         // item interactions with world
         if(holding!=null){
             holding.use(tile);

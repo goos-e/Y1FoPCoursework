@@ -20,7 +20,7 @@ public class SeedBag extends Item{
     public void use(Tile t){
         if (t.getType() == TileType.TILLED_DIRT){
             t.setType(TileType.SOWED_DIRT);
+            this.reduceDurability();
         }
-        this.reduceDurability();
     }
 }

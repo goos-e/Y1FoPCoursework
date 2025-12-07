@@ -20,7 +20,7 @@ public class Hoe extends Item{
     public void use(Tile t){
         if (t.getType() == TileType.DIRT){
             t.setType(TileType.TILLED_DIRT);
+            this.reduceDurability();
         }
-        this.reduceDurability();
     }
 }

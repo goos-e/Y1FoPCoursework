@@ -122,10 +122,10 @@ class Canvas extends JPanel {
     private BufferedImage pest;
     private BufferedImage pickaxeBox;
     private BufferedImage player;
-    private BufferedImage playerWithAxe;
-    private BufferedImage playerWithHoe;
-    private BufferedImage playerWithPick;
-    private BufferedImage playerWithSeeds;
+    private BufferedImage axe;
+    private BufferedImage hoe;
+    private BufferedImage pickaxe;
+    private BufferedImage seedbag;
     private BufferedImage rock;
     private BufferedImage seedBox;
     private BufferedImage sowedDirt;
@@ -183,18 +183,18 @@ class Canvas extends JPanel {
             player = ImageIO.read(new File("assets/player.png"));
             assert player.getHeight() == GameGUI.TILE_HEIGHT
                     && player.getWidth() == GameGUI.TILE_WIDTH;
-            playerWithAxe = ImageIO.read(new File("assets/playerWithAxe.png"));
-            assert playerWithAxe.getHeight() == GameGUI.TILE_HEIGHT
-                    && playerWithAxe.getWidth() == GameGUI.TILE_WIDTH;
-            playerWithHoe = ImageIO.read(new File("assets/playerWithHoe.png"));
-            assert playerWithHoe.getHeight() == GameGUI.TILE_HEIGHT
-                    && playerWithHoe.getWidth() == GameGUI.TILE_WIDTH;
-            playerWithPick = ImageIO.read(new File("assets/playerWithPick.png"));
-            assert playerWithPick.getHeight() == GameGUI.TILE_HEIGHT
-                    && playerWithPick.getWidth() == GameGUI.TILE_WIDTH;
-            playerWithSeeds = ImageIO.read(new File("assets/playerWithSeeds.png"));
-            assert playerWithSeeds.getHeight() == GameGUI.TILE_HEIGHT
-                    && playerWithSeeds.getWidth() == GameGUI.TILE_WIDTH;
+            axe = ImageIO.read(new File("assets/axe.png"));
+            assert axe.getHeight() == GameGUI.TILE_HEIGHT
+                    && axe.getWidth() == GameGUI.TILE_WIDTH;
+            hoe = ImageIO.read(new File("assets/hoe.png"));
+            assert hoe.getHeight() == GameGUI.TILE_HEIGHT
+                    && hoe.getWidth() == GameGUI.TILE_WIDTH;
+            pickaxe = ImageIO.read(new File("assets/pickaxe.png"));
+            assert pickaxe.getHeight() == GameGUI.TILE_HEIGHT
+                    && pickaxe.getWidth() == GameGUI.TILE_WIDTH;
+            seedbag = ImageIO.read(new File("assets/seedbag.png"));
+            assert seedbag.getHeight() == GameGUI.TILE_HEIGHT
+                    && seedbag.getWidth() == GameGUI.TILE_WIDTH;
             rock = ImageIO.read(new File("assets/rock.png"));
             assert rock.getHeight() == GameGUI.TILE_HEIGHT
                     && rock.getWidth() == GameGUI.TILE_WIDTH;
@@ -301,19 +301,16 @@ class Canvas extends JPanel {
         if (currentPlayer != null) {
             if(currentPlayer.getHeldItem() != null){
                 if(currentPlayer.getHeldItem() instanceof Hoe){
-                        g2.drawImage(playerWithHoe, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                    g2.drawImage(hoe, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
                 if(currentPlayer.getHeldItem() instanceof SeedBag){
-                    g2.drawImage(playerWithSeeds, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                    g2.drawImage(seedbag, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
                 if(currentPlayer.getHeldItem() instanceof Axe){
-                    g2.drawImage(playerWithAxe, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                    g2.drawImage(axe, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
                 if(currentPlayer.getHeldItem() instanceof Pickaxe){
-                    g2.drawImage(playerWithPick, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
-                }
-                else{
-                    g2.drawImage(player, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
+                    g2.drawImage(pickaxe, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
             }
             g2.drawImage(player, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);

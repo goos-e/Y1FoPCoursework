@@ -352,7 +352,7 @@ public class GameEngine {
 
             for (Vector v : sowedCoords){
                 
-                if(rng.nextDouble() < 0.05){
+                if(rng.nextDouble() > 0.05){
                     level.fillTile(TileType.CROP, v);
                 }
                 else{
@@ -707,7 +707,7 @@ public class GameEngine {
     private void generateHouse(){
         // house floor generation
         // size (width, height) -> (x, y)
-        Vector size = new Vector(rng.nextInt(4, 9), rng.nextInt(4, 9));
+        Vector size = new Vector(rng.nextInt(5, 7), rng.nextInt(4, 6));
         Vector topLeft = new Vector(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
                                         rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
         

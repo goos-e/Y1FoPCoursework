@@ -1,6 +1,5 @@
 package uk.ac.bradford.farmgame;
 
-import java.util.List;
 import uk.ac.bradford.farmgame.item.*;
 import uk.ac.bradford.farmgame.entity.*;
 
@@ -98,7 +97,9 @@ public class GameEngine {
      * and update the position of the pest.
      */
     private Pest pest;
-
+    
+    private NPC npc;
+    
     /**
      * An array of Entity objects that is used to store Tree and Rock objects for
      * one of the coursework tasks. New Tree and Rock objects should be created and
@@ -106,9 +107,6 @@ public class GameEngine {
      * should block player movement into the tile that they are in.
      */
     private Entity[] debris;
-    
-    private List<Entity> entities;
-    
     
     /**
      * Constructor that creates a GameEngine object and connects it with a
@@ -130,6 +128,8 @@ public class GameEngine {
      * This method should use fixed X and Y values for the player's position.
      */
     private void createPlayer() {
+        if(player != null){return;}
+        
         Vec2 playerSpawnPoint = new Vec2(-1, -1);
         
         while(!isValid(playerSpawnPoint)){
@@ -140,6 +140,44 @@ public class GameEngine {
         }
         
         player = new Player(playerSpawnPoint);
+    }
+    
+    
+    private void createNPC(){
+        if(npc != null){return;}
+        
+        Vec2 npcSpawn = getRandomEdgePoint();
+        npc = new NPC(npcSpawn);
+    }
+    
+    private void moveNPC(){
+        if(npc == null){return;}
+        
+        Vec2 currentCoords = npc.getPosition();
+        Vec2 nextCoords = null;
+        
+        while(!isValid(nextCoords)){
+            switch(rng.nextInt(5)){
+                case 1 -> {
+                    // up
+                    nextCoords = currentCoords.up();
+                }
+                case 2 -> {
+                    // right
+                    nextCoords = currentCoords.right();
+                }
+                case 3 -> {
+                    // down
+                    nextCoords = currentCoords.down();
+                }
+                case 4 -> {
+                    // left
+                    nextCoords = currentCoords.left();
+                }
+            }
+        }
+        
+        npc.setPosition(nextCoords);
     }
     
     /**
@@ -436,38 +474,9 @@ public class GameEngine {
      * make the position of the Pest dynamic i.e. it is randomly selected in some way.
      */
     private void createPest() {
+        if (pest != null){return;}
         
-        // generate random pestX and pestY spawn coords
-        Vec2 pestCoords = new Vec2(-1, -1);
-        
-        /**
-         * only want pest to spawn on EDGES of map, edges are 
-         * (0, y) ; (x, 0)
-         * (LEVEL_WIDTH-1, y) ; (x, LEVEL_WIDTH-1)
-         */
-        if (pest == null){
-            while (!isValid(pestCoords)){
-                switch(rng.nextInt(1,5)){
-                    case 1->{
-                        // (0, y) left
-                        pestCoords = new Vec2(0, rng.nextInt(LEVEL_HEIGHT-1));
-                        }
-                    case 2->{
-                        // (x, 0) top
-                        pestCoords = new Vec2(rng.nextInt(LEVEL_WIDTH-1), 0);
-                        }
-                    case 3->{
-                        // (LEVEL_WIDTH-1, y) right
-                        pestCoords = new Vec2(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
-                        }
-                    case 4->{
-                        // (x, LEVEL_HEIGHT-1) bottom
-                        pestCoords = new Vec2(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
-                        }
-                }
-            }
-        }
-        
+        Vec2 pestCoords = getRandomEdgePoint();
         pest = new Pest(pestCoords);
     }
     
@@ -566,7 +575,10 @@ public class GameEngine {
         if (turnNumber % 4 == 0 && pest != null) {
             movePest();
         }
-        gui.updateDisplay(level.toArray(), debris, player, pest);
+        if (turnNumber % 2 == 0 && npc != null) {
+            moveNPC();
+        }
+        gui.updateDisplay(level.toArray(), debris, player, pest, npc);
     }
 
     /**
@@ -577,7 +589,8 @@ public class GameEngine {
     public void startGame() {
         evenBetterGenerateFarm();
         createPlayer(); 
-        gui.updateDisplay(level.toArray(), debris, player, pest);
+        createNPC();
+        gui.updateDisplay(level.toArray(), debris, player, pest, npc);
     }
     
     /**
@@ -749,6 +762,37 @@ public class GameEngine {
             }
         }
         return 0;
+    }
+    
+    /**
+     * Randomly generates a Vec2 coordinate for a point on the edge of the map
+     * that is valid for non-static entities to stand on.
+     * @return Vec2 edgePoint containing x,y coordinates of a point on the edge of the map
+     */
+    private Vec2 getRandomEdgePoint(){
+        Vec2 edgePoint = null;
+        
+        while (!isValid(edgePoint)){
+                switch(rng.nextInt(1,5)){
+                    case 1->{
+                        // (0, y) left
+                        edgePoint = new Vec2(0, rng.nextInt(LEVEL_HEIGHT-1));
+                        }
+                    case 2->{
+                        // (x, 0) top
+                        edgePoint = new Vec2(rng.nextInt(LEVEL_WIDTH-1), 0);
+                        }
+                    case 3->{
+                        // (LEVEL_WIDTH-1, y) right
+                        edgePoint = new Vec2(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
+                        }
+                    case 4->{
+                        // (x, LEVEL_HEIGHT-1) bottom
+                        edgePoint = new Vec2(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
+                        }
+                }
+            }
+        return edgePoint;
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

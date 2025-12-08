@@ -83,8 +83,8 @@ public class GameGUI extends JFrame {
      * @param pest A Pest object that is processed to draw the pest. null
      * can be passed for this argument in which case no pest will be drawn.
      */
-    public void updateDisplay(Tile[][] tiles, Entity[] debris, Player player, Pest pest) {
-        canvas.update(tiles, debris, player, pest);
+    public void updateDisplay(Tile[][] tiles, Entity[] debris, Player player, Pest pest, NPC npc) {
+        canvas.update(tiles, debris, player, pest, npc);
     }
 
     /**
@@ -142,6 +142,7 @@ class Canvas extends JPanel {
     Entity[] currentDebris;     //the current array of debris objects (e.g. trees, rocks)
     Player currentPlayer;       //the current player object to be drawn
     Pest currentPest;           //the current pest to draw
+    NPC currentNPC;
 
     private boolean night = false;  //boolean to track night animation status
     private float alpha = 0.0f;     //transparency of the night effect to simulate dark/light levels
@@ -225,7 +226,7 @@ class Canvas extends JPanel {
                     && npc.getWidth() == GameGUI.TILE_WIDTH;
             door = ImageIO.read(new File("assets/door.png"));
             assert door.getHeight() == GameGUI.TILE_HEIGHT
-                    && npc.getWidth() == GameGUI.TILE_WIDTH;
+                    && door.getWidth() == GameGUI.TILE_WIDTH;
 
         } catch (IOException e) {
             System.out.println("Exception loading images: " + e.getMessage());
@@ -242,11 +243,12 @@ class Canvas extends JPanel {
      * @param player The current player object, used to draw the player
      * @param pest The pest to display on the level
      */
-    public void update(Tile[][] t, Entity[] debris, Player player, Pest pest) {
+    public void update(Tile[][] t, Entity[] debris, Player player, Pest pest, NPC npc) {
         currentTiles = t;
         currentPlayer = player;
         currentPest = pest;
         currentDebris = debris;
+        currentNPC = npc;
         repaint();
     }
 
@@ -309,6 +311,9 @@ class Canvas extends JPanel {
         }
         if (currentPest != null) {
             g2.drawImage(pest, currentPest.getX() * GameGUI.TILE_WIDTH, currentPest.getY() * GameGUI.TILE_HEIGHT, null);
+        }
+        if (currentNPC != null){
+            g2.drawImage(npc, currentNPC.getX() * GameGUI.TILE_WIDTH, currentNPC.getY() * GameGUI.TILE_HEIGHT, null);
         }
         if (currentPlayer != null) {
             if(currentPlayer.getHeldItem() != null){

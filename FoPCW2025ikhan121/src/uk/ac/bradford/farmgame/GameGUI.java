@@ -134,6 +134,7 @@ class Canvas extends JPanel {
     private BufferedImage tilledDirt;
     private BufferedImage tree;
     private BufferedImage wall;
+    private BufferedImage npc;
 
     Tile[][] currentTiles;      //the current 2D array of tiles to display
     Entity[] currentDebris;     //the current array of debris objects (e.g. trees, rocks)
@@ -178,7 +179,7 @@ class Canvas extends JPanel {
             pest = ImageIO.read(new File("assets/pest.png"));
             assert pest.getHeight() == GameGUI.TILE_HEIGHT
                     && pest.getWidth() == GameGUI.TILE_WIDTH;
-            pickaxeBox = ImageIO.read(new File("assets/pickaxeBox.png"));
+            pickaxeBox = ImageIO.read(new File("assets/pickBox.png"));
             assert pickaxeBox.getHeight() == GameGUI.TILE_HEIGHT
                     && pickaxeBox.getWidth() == GameGUI.TILE_WIDTH;
             player = ImageIO.read(new File("assets/player.png"));
@@ -217,6 +218,9 @@ class Canvas extends JPanel {
             wall = ImageIO.read(new File("assets/wall.png"));
             assert wall.getHeight() == GameGUI.TILE_HEIGHT
                     && wall.getWidth() == GameGUI.TILE_WIDTH;
+            npc = ImageIO.read(new File("assets/npc.png"));
+            assert npc.getHeight() == GameGUI.TILE_HEIGHT
+                    && npc.getWidth() == GameGUI.TILE_WIDTH;
 
         } catch (IOException e) {
             System.out.println("Exception loading images: " + e.getMessage());

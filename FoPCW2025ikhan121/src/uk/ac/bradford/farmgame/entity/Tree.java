@@ -1,7 +1,6 @@
 package uk.ac.bradford.farmgame.entity;
 
-import uk.ac.bradford.farmgame.entity.Entity;
-import uk.ac.bradford.farmgame.Vector;
+import uk.ac.bradford.farmgame.Vec2;
 
 /**
  * A class to represent a Tree in the game. Used for the debris task that adds Rocks and Trees.
@@ -14,7 +13,7 @@ public class Tree extends Entity {
      * @param v the starting position of this Tree in the game defined by a 
      * Vector object (x,y)
      */
-    public Tree(Vector v) {
+    public Tree(Vec2 v) {
         setPosition(v);
         setHealth(100);
     }

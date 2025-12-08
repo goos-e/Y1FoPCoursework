@@ -1,7 +1,7 @@
 package uk.ac.bradford.farmgame.entity;
 
 import uk.ac.bradford.farmgame.item.Item;
-import uk.ac.bradford.farmgame.Vector;
+import uk.ac.bradford.farmgame.Vec2;
 
 /**
  * The Player class is a subclass of Entity and adds specific state and
@@ -23,7 +23,7 @@ public class Player extends Entity {
      * @param v the starting position of this Player in the game defined by a 
      * Vector object (x,y)
      */
-    public Player(Vector v) {
+    public Player(Vec2 v) {
         setPosition(v);
     }
 

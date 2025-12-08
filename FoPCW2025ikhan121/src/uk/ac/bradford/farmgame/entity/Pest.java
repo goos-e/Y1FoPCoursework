@@ -1,7 +1,6 @@
 package uk.ac.bradford.farmgame.entity;
 
-import uk.ac.bradford.farmgame.entity.Entity;
-import uk.ac.bradford.farmgame.Vector;
+import uk.ac.bradford.farmgame.Vec2;
 
 /**The Pest class is a subclass of Entity and implements the
  * pest concept in the game. The pest moves towards crops once they have grown
@@ -17,7 +16,8 @@ public class Pest extends Entity {
      * @param v the starting position of this Pest in the game defined by a 
      * Vector object (x,y)
      */
-    public Pest(Vector v) {
+    public Pest(Vec2 v) {
         setPosition(v);
+        setHealth(100);
     }
 }

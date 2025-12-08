@@ -32,7 +32,7 @@ public class Level {
      * @param v Vector object for the Tile object at coords (x,y)
      * @return the Tile object at level[x][y]
      */
-    public Tile getTile(Vector v){
+    public Tile getTile(Vec2 v){
         int x = v.getX();
         int y = v.getY();
         
@@ -44,7 +44,7 @@ public class Level {
      * @param t TileType to set the coordinate at coordinate v to
      * @param v Vector object with (x,y) coords to create new Tile at
      */
-    public void fillTile(TileType t, Vector v){
+    public void fillTile(TileType t, Vec2 v){
         int x = v.getX();
         int y = v.getY();
         
@@ -59,7 +59,7 @@ public class Level {
      * @param v1 vector object for starting point of line
      * @param v2 vector object for endpoint of line
      */
-    public void fillLine(TileType t, Vector v1, Vector v2){
+    public void fillLine(TileType t, Vec2 v1, Vec2 v2){
         if(v1.getX() == v2.getX()){
             // draw vertical line
             for(int j = v1.getY(); j<=v2.getY(); j++){
@@ -82,7 +82,7 @@ public class Level {
      * @param v1 vector object for top-left coords of rectangle
      * @param v2 vector object for bottom right coords of rectangle
      */
-    public void fillRect(TileType t, Vector v1, Vector v2){
+    public void fillRect(TileType t, Vec2 v1, Vec2 v2){
         // default terrain generation: TileType.t
         for (int i = v1.getX(); i < v2.getX(); i++){ //cols (x)
             for (int j = v1.getY(); j < v2.getY();  j++){ //rows (y)
@@ -99,7 +99,7 @@ public class Level {
      * @param mid
      * @param rad 
      */
-    public void fillCircle(TileType t, Vector mid, int rad){
+    public void fillCircle(TileType t, Vec2 mid, int rad){
         
     }
     
@@ -110,22 +110,22 @@ public class Level {
      * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
      * none found
      */
-    public Vector[] findTiles(TileType t){
-        List<Vector> coords = new ArrayList<>();
+    public Vec2[] findTiles(TileType t){
+        List<Vec2> coords = new ArrayList<>();
         
         for(int i = 0; i<this.LEVEL_WIDTH; i++){
             for (int j = 0; j<this.LEVEL_HEIGHT; j++){
                 if(level[i][j].getType() == t){
-                    coords.add(new Vector(i, j));
+                    coords.add(new Vec2(i, j));
                 }
             }
         }
         
         // Vector[] result = coords.toArray(new Vector[coords.size()]);
-        Vector[] result = coords.toArray(Vector[]::new);
+        Vec2[] result = coords.toArray(Vec2[]::new);
         
         return result;
-    }    
+    }
     
     /**
      * Finds the coordinates of the closest Tile with type t, with respect to 
@@ -136,19 +136,19 @@ public class Level {
      * @param v1 position to search from for closest
      * @return Vector object with x,y coordinates of closest tile with type t
      */
-    public Vector findClosest(TileType t, Vector v1){
-        Vector[] tiles = findTiles(t);
+    public Vec2 findClosest(TileType t, Vec2 v1){
+        Vec2[] tiles = findTiles(t);
         
         if (tiles!= null && tiles.length > 0){
             
-            Vector currentCoords = new Vector(v1.getX(), v1.getY());
-            Vector closestCoords = new Vector();
+            Vec2 currentCoords = new Vec2(v1.getX(), v1.getY());
+            Vec2 closestCoords = new Vec2();
             
             
             int shortestDistance = 999;
             
-            for (Vector crop : tiles){
-                Vector delta = currentCoords.sub(crop);
+            for (Vec2 crop : tiles){
+                Vec2 delta = currentCoords.sub(crop);
                 
                 if (shortestDistance > delta.mag()){
                     closestCoords = crop;
@@ -167,7 +167,7 @@ public class Level {
      * @param v vector containing coordinates to check
      * @return false if the tile coordinate exceeds the map, true if not
      */
-    public boolean isWithinLevel(Vector v){
+    public boolean isWithinLevel(Vec2 v){
         if(v == null){
             return false;
         }

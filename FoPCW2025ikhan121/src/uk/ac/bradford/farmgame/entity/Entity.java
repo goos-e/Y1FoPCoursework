@@ -1,6 +1,6 @@
 package uk.ac.bradford.farmgame.entity;
 
-import uk.ac.bradford.farmgame.Vector;
+import uk.ac.bradford.farmgame.Vec2;
 
 /**
  * The Entity class stores basic state information for the Player, Pest, Tree and
@@ -20,7 +20,7 @@ public abstract class Entity {
      * position is the Vector object containing the x,y coordinates in the game
      * for this entity. 
      */
-    protected Vector position;
+    protected Vec2 position;
     
     /**
      * This method returns the current X position for this entity in the game
@@ -42,7 +42,7 @@ public abstract class Entity {
      * This method returns the current X,Y coordinate pair for this entity in the game
      * @return The X,Y coordinate as a Vector 
      */
-    public Vector getPosition(){
+    public Vec2 getPosition(){
         return this.position;
     }
 
@@ -51,7 +51,7 @@ public abstract class Entity {
      * passed vector parameter, v
      * @param v the x,y coordinate as a vector, to set the entity's position to
      */
-    public void setPosition(Vector v){
+    public void setPosition(Vec2 v){
         this.position = v;
     }
     
@@ -69,5 +69,39 @@ public abstract class Entity {
      */
     public void hurtEntity(double d){
         this.health  = this.health - d;
+    }
+    
+    public void killEntity(){
+        this.health = 0.0;
+    }
+    
+    /**
+     * Move towards the coordinate passed by the vector closest, currently
+     * ignores terrain
+     * @param closest Vector containing coordinates for entity to move towards
+     */
+    public void moveTowards(Vec2 closest){
+        Vec2 start = this.position;
+        
+        if(closest != null){
+            if (start != closest) {
+                    Vec2 delta = closest.sub(start);
+                    int dX = delta.getX();
+                    int dY = delta.getY();
+                    
+                    Vec2 end;
+                    
+                    if(Math.abs(dX) > Math.abs(dY)){
+                        end = start.add(Integer.signum(dX), 0);
+                    } 
+                    else{
+                        end = start.add(0, Integer.signum(dY));
+                    }
+
+                    this.setPosition(end);
+            }
+            else{
+            }
+        }
     }
 }

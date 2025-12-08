@@ -1,5 +1,6 @@
 package uk.ac.bradford.farmgame;
 
+import java.util.List;
 import uk.ac.bradford.farmgame.item.*;
 import uk.ac.bradford.farmgame.entity.*;
 
@@ -32,7 +33,7 @@ public class GameEngine {
     /**
      * Width and height of level as a Vector object for indexing level array.
      */
-    private static final Vector LEVEL_SIZE = new Vector(LEVEL_WIDTH, LEVEL_HEIGHT);
+    private static final Vec2 LEVEL_SIZE = new Vec2(LEVEL_WIDTH, LEVEL_HEIGHT);
     
     /**
      * A random number generator that can be used to include randomised choices
@@ -106,6 +107,9 @@ public class GameEngine {
      */
     private Entity[] debris;
     
+    private List<Entity> entities;
+    
+    
     /**
      * Constructor that creates a GameEngine object and connects it with a
      * GameGUI object.
@@ -126,13 +130,13 @@ public class GameEngine {
      * This method should use fixed X and Y values for the player's position.
      */
     private void createPlayer() {
-        Vector playerSpawnPoint = new Vector(-1, -1);
+        Vec2 playerSpawnPoint = new Vec2(-1, -1);
         
         while(!isValid(playerSpawnPoint)){
             int x = rng.nextInt(0, LEVEL_WIDTH);
             int y = rng.nextInt(0, LEVEL_HEIGHT);
             
-            playerSpawnPoint = new Vector(x, y);
+            playerSpawnPoint = new Vec2(x, y);
         }
         
         player = new Player(playerSpawnPoint);
@@ -323,7 +327,7 @@ public class GameEngine {
         
         // create default stone ground map
         // Vector() defaults to (0,0) 
-        level.fillRect(TileType.STONE_GROUND, new Vector(), LEVEL_SIZE);
+        level.fillRect(TileType.STONE_GROUND, new Vec2(), LEVEL_SIZE);
         // spawn a dirt patch ie farm plot
         generateDirtPatch();
         // spawn the house
@@ -344,7 +348,7 @@ public class GameEngine {
      */
     public void growCrops() {
         soilDecay();
-        Vector[] sowedCoords = level.findTiles(TileType.SOWED_DIRT);
+        Vec2[] sowedCoords = level.findTiles(TileType.SOWED_DIRT);
         
         if (sowedCoords.length>0){
             
@@ -352,7 +356,7 @@ public class GameEngine {
                 createPest();
             }
 
-            for (Vector v : sowedCoords){
+            for (Vec2 v : sowedCoords){
                 
                 if(rng.nextDouble() > 0.05){
                     level.fillTile(TileType.CROP, v);
@@ -369,10 +373,10 @@ public class GameEngine {
      * on tilled soil. The % is hard coded but this may change ?
      */
     private void soilDecay(){
-        Vector [] tilledCoords = level.findTiles(TileType.TILLED_DIRT);
+        Vec2 [] tilledCoords = level.findTiles(TileType.TILLED_DIRT);
         
         if(tilledCoords.length > 0){
-            for(Vector v : tilledCoords){
+            for(Vec2 v : tilledCoords){
                 if(rng.nextDouble() <= 0.33){
                     level.fillTile(TileType.DIRT, v);
                 }
@@ -393,9 +397,9 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
-        Vector currentCoords = new Vector(player.getX(), player.getY());
+        Vec2 currentCoords = new Vec2(player.getX(), player.getY());
         
-        Vector nextCoords = null;
+        Vec2 nextCoords = null;
         
         switch(direction){
             case 1 -> {
@@ -434,7 +438,7 @@ public class GameEngine {
     private void createPest() {
         
         // generate random pestX and pestY spawn coords
-        Vector pestCoords = new Vector(-1, -1);
+        Vec2 pestCoords = new Vec2(-1, -1);
         
         /**
          * only want pest to spawn on EDGES of map, edges are 
@@ -446,19 +450,19 @@ public class GameEngine {
                 switch(rng.nextInt(1,5)){
                     case 1->{
                         // (0, y) left
-                        pestCoords = new Vector(0, rng.nextInt(LEVEL_HEIGHT-1));
+                        pestCoords = new Vec2(0, rng.nextInt(LEVEL_HEIGHT-1));
                         }
                     case 2->{
                         // (x, 0) top
-                        pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), 0);
+                        pestCoords = new Vec2(rng.nextInt(LEVEL_WIDTH-1), 0);
                         }
                     case 3->{
                         // (LEVEL_WIDTH-1, y) right
-                        pestCoords = new Vector(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
+                        pestCoords = new Vec2(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
                         }
                     case 4->{
                         // (x, LEVEL_HEIGHT-1) bottom
-                        pestCoords = new Vector(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
+                        pestCoords = new Vec2(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
                         }
                 }
             }
@@ -476,32 +480,11 @@ public class GameEngine {
      * create more complex movement rules if you wish!)
      */
     private void movePest() {
-        Vector start = new Vector(pest.getX(), pest.getY());
-        int sX = start.getX();
-        int sY = start.getY();
+        Vec2 start = pest.getPosition();
         
-        Vector closest = level.findClosest(TileType.CROP, start);
+        Vec2 closest = level.findClosest(TileType.CROP, start);
         
-        if(closest != null){
-            if (start != closest) {
-                    Vector delta = closest.sub(start);
-                    int dX = delta.getX();
-                    int dY = delta.getY();
-                    
-                    Vector end;
-
-                    if(delta.abs().getX() > delta.abs().getY()){
-                        end = start.add(Integer.signum(dX), 0);
-                    } 
-                    else{
-                        end = start.add(0, Integer.signum(dY));
-                    }
-
-                    pest.setPosition(end);
-            }
-            else{
-            }
-        }
+        pest.moveTowards(closest);
     }
     
     /**
@@ -516,17 +499,33 @@ public class GameEngine {
      * player movement method (depends on which tasks you have already completed!)
      */
     private void addDebris() {
-        debris = new Entity[100]; 
+        debris = new Entity[100];
         
         for(int i = 0; i<debris.length; i++){
             int x = rng.nextInt(LEVEL_WIDTH);
             int y = rng.nextInt(LEVEL_HEIGHT);
             
-            Vector v = new Vector(x, y);
+            Vec2 v = new Vec2(x, y);
+            
+            if(!isValid(v)){continue;}
             
             TileType type = level.getTile(v).getType();
+            Vec2[] adjacent = v.getNeighbours4();
             
-            if(isValid(v) &&  type == TileType.DIRT){
+            boolean valid = type != TileType.HOUSE_FLOOR;
+            
+            for(Vec2 adj : adjacent){
+                if(!isValid(adj)){continue;}
+                
+                TileType adjType = level.getTile(adj).getType();
+                
+                if(adjType == TileType.HOUSE_FLOOR){
+                    valid = false;
+                    break;
+                }
+            }
+            
+            if(valid){
                 if(rng.nextBoolean()){
                     debris[i] = new Tree(v);
                 }
@@ -589,7 +588,7 @@ public class GameEngine {
      * @param v vector containing coordinates to check
      * @return true if coordinates are valid for movement
      */
-    private boolean isValid(Vector v){
+    private boolean isValid(Vec2 v){
         if(v == null){
             return false;
         }
@@ -607,7 +606,7 @@ public class GameEngine {
      * @return true if there is at least 1 entity with the same (x,y) coordinates
      * as the vector
      */
-    private boolean hasDebris(Vector v){
+    private boolean hasDebris(Vec2 v){
         for (Entity entity : debris){
             if(entity!=null){
                 int entityX = entity.getX();
@@ -664,7 +663,7 @@ public class GameEngine {
      * tilling the ground if the player is holding a hoe.
      * @param v vector object of tile coordinate player is attemping to interact with
      */
-    private void handlePlayerInteraction(Vector v){
+    private void handlePlayerInteraction(Vec2 v){
         
         Tile tile = level.getTile(v);
         TileType type = tile.getType();
@@ -717,19 +716,19 @@ public class GameEngine {
     private void generateHouse(){
         // house floor generation
         // size (width, height) -> (x, y)
-        Vector size = new Vector(rng.nextInt(5, 7), rng.nextInt(4, 6));
-        Vector topLeft = new Vector(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
+        Vec2 size = new Vec2(rng.nextInt(5, 7), rng.nextInt(4, 6));
+        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
                                         rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
         
         // calculate all corners
-        Vector bottomRight = topLeft.add(size);
-        Vector topRight = topLeft.add(size.getX(), 0);
-        Vector bottomLeft = topLeft.add(0, size.getY());
+        Vec2 bottomRight = topLeft.add(size);
+        Vec2 topRight = topLeft.add(size.getX(), 0);
+        Vec2 bottomLeft = topLeft.add(0, size.getY());
         
         // door, bed and box vector coords
-        Vector doorV = topLeft.add(size.getX() / 2, 0);
-        Vector bedV = bottomRight.sub(1, 1);
-        Vector boxV = doorV.add(1,1);
+        Vec2 doorV = topLeft.add(size.getX() / 2, 0);
+        Vec2 bedV = bottomRight.sub(1, 1);
+        Vec2 boxV = doorV.add(1,1);
         
         // floor
         level.fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
@@ -759,8 +758,8 @@ public class GameEngine {
     private void generateDirtPatch(){
         // farm plot generation 
         // size (width, height) -> (x, y)
-        Vector size = new Vector(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
-        Vector topLeft = new Vector(rng.nextInt(LEVEL_WIDTH-size.getX()), 
+        Vec2 size = new Vec2(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
+        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-size.getX()), 
                                        rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
 
         level.fillRect(TileType.DIRT, topLeft, topLeft.add(size));
@@ -769,7 +768,7 @@ public class GameEngine {
         //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
         //level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
         
-        Vector boxV = new Vector(topLeft.getX()+size.getX()/2, topLeft.getY());
+        Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
         level.fillTile(TileType.HOE_BOX, boxV);
         level.fillTile(TileType.SEED_BOX, boxV.left());
     }
@@ -780,7 +779,7 @@ public class GameEngine {
      * @param e Entity[] containing objects with class or child of Entity 
      * @return 
      */
-    private int getEntity(Vector v){
+    private int getEntity(Vec2 v){
         for(int i = 0; i<debris.length; i++){
             Entity e = debris[i];
             

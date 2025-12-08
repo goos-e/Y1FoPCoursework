@@ -33,7 +33,8 @@ public class Tile {
     public enum TileType {
         AXE_BOX, BED, CROP, DIRT,
         HOE_BOX, HOUSE_FLOOR, PICKAXE_BOX, SEED_BOX,
-        SOWED_DIRT, STONE_GROUND, TILLED_DIRT, WALL;
+        SOWED_DIRT, STONE_GROUND, TILLED_DIRT, WALL,
+        DOOR;
     }
     
     /**

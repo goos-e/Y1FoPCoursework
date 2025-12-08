@@ -154,7 +154,7 @@ public class GameEngine {
      * @param direction the direction of movement based on the arrow key that was pressed:
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
-    public void movePlayer(int direction) {
+    private void movePlayer(int direction) {
         // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
         /*
         int currentX = player.getX();
@@ -218,7 +218,7 @@ public class GameEngine {
      * @param direction the direction of movement based on the arrow key that was pressed:
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
-    public void betterMovePlayer(int direction) {
+    private void betterMovePlayer(int direction) {
         // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
         /*
         int currentX = player.getX();
@@ -397,7 +397,7 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
-        Vec2 currentCoords = new Vec2(player.getX(), player.getY());
+        Vec2 currentCoords = player.getPosition();
         
         Vec2 nextCoords = null;
         
@@ -596,7 +596,7 @@ public class GameEngine {
         int x  = v.getX();
         int y = v.getY();
         
-        return (level.isWithinLevel(v) && !level.getTile(v).isCollidable() && !hasDebris(v));
+        return (level.isWithinLevel(v) && !level.getTile(v).isCollidable() && !hasEntity(v, debris));
     }
     
     /**
@@ -606,56 +606,16 @@ public class GameEngine {
      * @return true if there is at least 1 entity with the same (x,y) coordinates
      * as the vector
      */
-    private boolean hasDebris(Vec2 v){
-        for (Entity entity : debris){
+    private boolean hasEntity(Vec2 v, Entity[] entityArray){
+        for (Entity entity : entityArray){
             if(entity!=null){
-                int entityX = entity.getX();
-                int entityY = entity.getY();
-                int vX = v.getX();
-                int vY = v.getY();
                 
-                if(entityX == vX && entityY == vY){
+                if(v.equals(entity.getPosition())){
                     return true;
                 }
             }
         }
         return false;
-    }
-    
-    /**
-     * Logic for deciding which item to set the player's holding attribute to,
-     * depending on what the TileType of the passed tile is, ie AXE_BOX, HOE_BOX
-     * etc.
-     * @param tile 
-     */
-    private void updatePlayerItem(Tile tile){
-        
-        TileType t = tile.getType();
-        Item holding = player.getHeldItem();
-        
-        if(holding != null){
-            if(holding.getDurability() <= 0){
-                player.checkHeldDurability();
-            }
-        }
-        
-        if(t != null)
-            switch (t){
-            case HOE_BOX:
-                player.setHeldItem(new Hoe());
-                break;
-            case SEED_BOX:
-                player.setHeldItem(new SeedBag());
-                break;
-            case AXE_BOX:
-                player.setHeldItem(new Axe());
-                break;
-            case PICKAXE_BOX:
-                player.setHeldItem(new Pickaxe());
-                break;
-            default:
-                break;
-        }
     }
     
     /**
@@ -668,11 +628,11 @@ public class GameEngine {
         Tile tile = level.getTile(v);
         TileType type = tile.getType();
         
-        updatePlayerItem(tile);
+        player.updatePlayerItem(type);
         Item holding = player.getHeldItem();
         
         // checks if tile has debris on it -> preventing interaction
-        if (hasDebris(v)){
+        if (hasEntity(v, debris)){
             if(holding != null){
                 int debrisIndex = getEntity(v);
                 Entity e = debris[debrisIndex];
@@ -739,8 +699,8 @@ public class GameEngine {
         level.fillLine(TileType.WALL, topRight, bottomRight);
         level.fillLine(TileType.WALL, bottomLeft, bottomRight);
         
-        // 'door' - empty tile
-        level.fillTile(TileType.HOUSE_FLOOR, doorV);
+        // door
+        level.fillTile(TileType.DOOR, doorV);
         
         // place bed
         level.fillTile(TileType.BED, bedV);

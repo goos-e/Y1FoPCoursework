@@ -1,6 +1,8 @@
 package uk.ac.bradford.farmgame.entity;
 
-import uk.ac.bradford.farmgame.item.Item;
+import uk.ac.bradford.farmgame.item.*;
+import uk.ac.bradford.farmgame.item.Hand;
+import uk.ac.bradford.farmgame.Tile.TileType;
 import uk.ac.bradford.farmgame.Vec2;
 
 /**
@@ -15,7 +17,7 @@ public class Player extends Entity {
    /**
     * Item object for what the player is holding
     */
-    private Item holding = null;
+    private Item holding;
     
     /**
      * This constructor is used to create a Player object to use in the game
@@ -25,6 +27,7 @@ public class Player extends Entity {
      */
     public Player(Vec2 v) {
         setPosition(v);
+        this.holding = new Hand();
     }
 
     /**
@@ -56,13 +59,46 @@ public class Player extends Entity {
      */
     private void removeHeldItem(){
         if(holding!=null){
-            this.holding = null;
+            this.holding = new Hand();
         }
     }
     
     public void checkHeldDurability(){
         if(holding.getDurability() <= 0){
             removeHeldItem();
+        }
+    }    
+    
+    /**
+     * Logic for deciding which item to set the player's holding attribute to,
+     * depending on what the TileType of the passed tile is, ie AXE_BOX, HOE_BOX
+     * etc.
+     * @param tile 
+     */
+    public void updatePlayerItem(TileType t){
+        
+        if(this.holding != null){
+            if(this.holding.getDurability() <= 0){
+                checkHeldDurability();
+            }
+        }
+        
+        if(t != null)
+            switch (t){
+            case HOE_BOX:
+                setHeldItem(new Hoe());
+                break;
+            case SEED_BOX:
+                setHeldItem(new SeedBag());
+                break;
+            case AXE_BOX:
+                setHeldItem(new Axe());
+                break;
+            case PICKAXE_BOX:
+                setHeldItem(new Pickaxe());
+                break;
+            default:
+                break;
         }
     }
 }

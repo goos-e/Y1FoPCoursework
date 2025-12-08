@@ -83,22 +83,14 @@ public class Player extends Entity {
             }
         }
         
-        if(t != null)
-            switch (t){
-            case HOE_BOX:
-                setHeldItem(new Hoe());
-                break;
-            case SEED_BOX:
-                setHeldItem(new SeedBag());
-                break;
-            case AXE_BOX:
-                setHeldItem(new Axe());
-                break;
-            case PICKAXE_BOX:
-                setHeldItem(new Pickaxe());
-                break;
-            default:
-                break;
+        if(t != null){
+            switch(t){
+                case HOE_BOX->setHeldItem(new Hoe());
+                case SEED_BOX->setHeldItem(new SeedBag());
+                case AXE_BOX->setHeldItem(new Axe());
+                case PICKAXE_BOX->setHeldItem(new Pickaxe());
+                case WATERINGCAN_BOX->setHeldItem(new WateringCan());
+            }
         }
     }
 }

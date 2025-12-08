@@ -113,31 +113,36 @@ public class GameGUI extends JFrame {
  * @author prtrundl
  */
 class Canvas extends JPanel {
-
+    
+    // tiles
     private BufferedImage axeBox;
     private BufferedImage bed;
     private BufferedImage crop;
     private BufferedImage dirt;
     private BufferedImage hoeBox;
     private BufferedImage houseFloor;
-    private BufferedImage pest;
     private BufferedImage pickaxeBox;
-    private BufferedImage player;
-    private BufferedImage axe;
-    private BufferedImage hoe;
-    private BufferedImage pickaxe;
-    private BufferedImage seedbag;
-    private BufferedImage rock;
+    private BufferedImage door;
     private BufferedImage seedBox;
     private BufferedImage sowedDirt;
     private BufferedImage stoneGround;
     private BufferedImage tilledDirt;
-    private BufferedImage tree;
     private BufferedImage wall;
-    // i added
+    private BufferedImage sowedDirtWatered;
+    private BufferedImage wateringcanBox;
+    // items
+    private BufferedImage axe;
+    private BufferedImage hoe;
+    private BufferedImage pickaxe;
+    private BufferedImage seedbag;
+    private BufferedImage wateringcan;
+    // entities
     private BufferedImage npc;
-    private BufferedImage door;
-
+    private BufferedImage player;
+    private BufferedImage pest;
+    private BufferedImage rock;
+    private BufferedImage tree;
+    
     Tile[][] currentTiles;      //the current 2D array of tiles to display
     Entity[] currentDebris;     //the current array of debris objects (e.g. trees, rocks)
     Player currentPlayer;       //the current player object to be drawn
@@ -227,6 +232,15 @@ class Canvas extends JPanel {
             door = ImageIO.read(new File("assets/door.png"));
             assert door.getHeight() == GameGUI.TILE_HEIGHT
                     && door.getWidth() == GameGUI.TILE_WIDTH;
+            wateringcan = ImageIO.read(new File("assets/wateringcan.png"));
+            assert wateringcan.getHeight() == GameGUI.TILE_HEIGHT
+                    && wateringcan.getWidth() == GameGUI.TILE_WIDTH;
+            wateringcanBox = ImageIO.read(new File("assets/wateringcanBox.png"));
+            assert wateringcanBox.getHeight() == GameGUI.TILE_HEIGHT
+                    && wateringcanBox.getWidth() == GameGUI.TILE_WIDTH;
+            sowedDirtWatered = ImageIO.read(new File("assets/sowedDirtWatered.png"));
+            assert sowedDirtWatered.getHeight() == GameGUI.TILE_HEIGHT
+                    && sowedDirtWatered.getWidth() == GameGUI.TILE_WIDTH;
 
         } catch (IOException e) {
             System.out.println("Exception loading images: " + e.getMessage());
@@ -304,6 +318,10 @@ class Canvas extends JPanel {
                                 g2.drawImage(wall, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
                             case DOOR ->
                                 g2.drawImage(door, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                            case SOWED_DIRT_WATERED ->
+                                g2.drawImage(sowedDirtWatered, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                            case WATERINGCAN_BOX ->
+                                g2.drawImage(wateringcanBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
                         }
                     }
                 }
@@ -328,6 +346,9 @@ class Canvas extends JPanel {
                 }
                 if(currentPlayer.getHeldItem() instanceof Pickaxe){
                     g2.drawImage(pickaxe, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(currentPlayer.getHeldItem() instanceof WateringCan){
+                    g2.drawImage(wateringcan, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
             }
             g2.drawImage(player, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);

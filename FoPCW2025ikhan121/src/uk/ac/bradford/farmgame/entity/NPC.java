@@ -12,4 +12,8 @@ public class NPC extends Entity{
         setPosition(v);
         setHealth(100);
     }
+    
+    public void interact(Player player){
+        System.out.println("good evening..");
+    }
 }

@@ -34,7 +34,7 @@ public class Tile {
         AXE_BOX, BED, CROP, DIRT,
         HOE_BOX, HOUSE_FLOOR, PICKAXE_BOX, SEED_BOX,
         SOWED_DIRT, STONE_GROUND, TILLED_DIRT, WALL,
-        DOOR;
+        DOOR, SOWED_DIRT_WATERED, WATERINGCAN_BOX;
     }
     
     /**
@@ -53,6 +53,7 @@ public class Tile {
             case TileType.AXE_BOX:
             case TileType.PICKAXE_BOX:
             case TileType.BED:
+            case TileType.WATERINGCAN_BOX:
                 collidable = true;
                 break;
             default:

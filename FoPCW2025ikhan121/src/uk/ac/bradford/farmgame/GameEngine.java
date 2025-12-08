@@ -153,31 +153,14 @@ public class GameEngine {
     private void moveNPC(){
         if(npc == null){return;}
         
-        Vec2 currentCoords = npc.getPosition();
-        Vec2 nextCoords = null;
+        Vec2 start = npc.getPosition();
+        Vec2 playerPos = player.getPosition();
         
-        while(!isValid(nextCoords)){
-            switch(rng.nextInt(5)){
-                case 1 -> {
-                    // up
-                    nextCoords = currentCoords.up();
-                }
-                case 2 -> {
-                    // right
-                    nextCoords = currentCoords.right();
-                }
-                case 3 -> {
-                    // down
-                    nextCoords = currentCoords.down();
-                }
-                case 4 -> {
-                    // left
-                    nextCoords = currentCoords.left();
-                }
-            }
+        if(start.equals(playerPos)){
+            System.out.println("good evening..");
         }
         
-        npc.setPosition(nextCoords);
+        npc.moveTowards(playerPos);
     }
     
     /**
@@ -422,6 +405,7 @@ public class GameEngine {
         }
     }
     
+    
     /**
      * This method is used in an even later task to improve the movement logic for the player.
      * You should remove the line of code in this method and replace it with your own code.
@@ -489,11 +473,10 @@ public class GameEngine {
      * create more complex movement rules if you wish!)
      */
     private void movePest() {
-        Vec2 start = pest.getPosition();
         
-        Vec2 closest = level.findClosest(TileType.CROP, start);
+        Vec2 closestCrop = level.findClosest(TileType.CROP, pest.getPosition());
         
-        pest.moveTowards(closest);
+        pest.moveTowards(closestCrop);
     }
     
     /**
@@ -682,7 +665,7 @@ public class GameEngine {
         }
     }
     
-
+    
     /**
      * Generates the floor and walls of the house for generateEvenBetterFarm()
      */
@@ -743,6 +726,7 @@ public class GameEngine {
         
         Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
         level.fillTile(TileType.HOE_BOX, boxV);
+        level.fillTile(TileType.WATERINGCAN_BOX, boxV.right());
         level.fillTile(TileType.SEED_BOX, boxV.left());
     }
     

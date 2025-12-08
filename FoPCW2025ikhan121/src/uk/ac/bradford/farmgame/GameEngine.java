@@ -369,7 +369,7 @@ public class GameEngine {
      */
     public void growCrops() {
         soilDecay();
-        Vec2[] sowedCoords = level.findTiles(TileType.SOWED_DIRT);
+        Vec2[] sowedCoords = level.findTiles(TileType.SOWED_DIRT_WATERED);
         
         if (sowedCoords.length>0){
             

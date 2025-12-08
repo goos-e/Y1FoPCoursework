@@ -1,6 +1,6 @@
-package uk.ac.bradford.farmgame.Entities;
+package uk.ac.bradford.farmgame.entity;
 
-import uk.ac.bradford.farmgame.Items.Item;
+import uk.ac.bradford.farmgame.item.Item;
 import uk.ac.bradford.farmgame.Vector;
 
 /**

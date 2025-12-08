@@ -1,6 +1,6 @@
-package uk.ac.bradford.farmgame.Items;
+package uk.ac.bradford.farmgame.item;
 
-import uk.ac.bradford.farmgame.Entities.Entity;
+import uk.ac.bradford.farmgame.entity.Entity;
 import uk.ac.bradford.farmgame.Tile;
 import uk.ac.bradford.farmgame.Tile.TileType;
 
@@ -8,9 +8,9 @@ import uk.ac.bradford.farmgame.Tile.TileType;
  *
  * @author goose
  */
-public class SeedBag extends Item{
-    public SeedBag(){
-        super("SeedBag", 2, 1);
+public class Hoe extends Item{
+    public Hoe(){
+        super("Hoe", 1, 15);
     }
     
     @Override
@@ -24,8 +24,8 @@ public class SeedBag extends Item{
     
     @Override
     public void use(Tile t){
-        if (t.getType() == TileType.TILLED_DIRT){
-            t.setType(TileType.SOWED_DIRT);
+        if (t.getType() == TileType.DIRT){
+            t.setType(TileType.TILLED_DIRT);
             this.reduceDurability(0.5);
         }
     }

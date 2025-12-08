@@ -1,6 +1,6 @@
-package uk.ac.bradford.farmgame.Entities;
+package uk.ac.bradford.farmgame.entity;
 
-import uk.ac.bradford.farmgame.Entities.Entity;
+import uk.ac.bradford.farmgame.entity.Entity;
 import uk.ac.bradford.farmgame.Vector;
 
 /**The Pest class is a subclass of Entity and implements the

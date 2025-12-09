@@ -37,6 +37,9 @@ public class Level {
         this.entities = new EntityManager();
     }
         
+    public void init(){
+        fillRect(TileType.STONE_GROUND, new Vec2(), new Vec2(this.LEVEL_WIDTH, this.LEVEL_HEIGHT));
+    }
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
      * It should instantiate the debris array with a sensible length and then fill
@@ -275,7 +278,39 @@ public class Level {
     public EntityManager getEntityManager() {
         return entities;
     }
-
+        
+    /**
+     * Randomly generates a Vec2 coordinate for a point on the edge of the map
+     * that is valid for non-static entities to stand on.
+     * @return Vec2 edgePoint containing x,y coordinates of a point on the edge of the map
+     */
+    public Vec2 getPointOnEdge(){
+        Vec2 edgePoint = null;
+        
+        while (!isValid(edgePoint)){
+                switch(rng.nextInt(1,5)){
+                    case 1->{
+                        // (0, y) left
+                        edgePoint = new Vec2(0, rng.nextInt(LEVEL_HEIGHT-1));
+                        }
+                    case 2->{
+                        // (x, 0) top
+                        edgePoint = new Vec2(rng.nextInt(LEVEL_WIDTH-1), 0);
+                        }
+                    case 3->{
+                        // (LEVEL_WIDTH-1, y) right
+                        edgePoint = new Vec2(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
+                        }
+                    case 4->{
+                        // (x, LEVEL_HEIGHT-1) bottom
+                        edgePoint = new Vec2(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
+                        }
+                }
+            }
+        
+        return edgePoint;
+    }
+    
     public void setEntityManager(EntityManager entityManager) {
         this.entities = entityManager;
     }

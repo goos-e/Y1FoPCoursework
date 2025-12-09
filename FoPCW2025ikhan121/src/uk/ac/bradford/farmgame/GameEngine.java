@@ -1,5 +1,6 @@
 package uk.ac.bradford.farmgame;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import uk.ac.bradford.farmgame.item.*;
@@ -63,9 +64,9 @@ public class GameEngine {
      */
     private GameGUI gui;
 
-
-    private Level level;
-    private EntityManager entities;    
+    private ArrayList<Level> levels;
+    private Level currentLevel;
+    private EntityManager currentEntities;    
     
     /**
      * Constructor that creates a GameEngine object and connects it with a
@@ -85,25 +86,18 @@ public class GameEngine {
      * class.
      */
     private void createPlayer() {
-        if(entities.hasEntityOfType(Player.class)){return;}
+        if(currentEntities.hasEntityOfType(Player.class)){return;}
         
-        Vec2 playerSpawn = new Vec2(-1, -1);
+        Vec2 playerSpawn = currentLevel.findTiles(TileType.BED)[0];
         
-        while(!level.isValid(playerSpawn)){
-            int x = rng.nextInt(0, LEVEL_WIDTH);
-            int y = rng.nextInt(0, LEVEL_HEIGHT);
-            
-            playerSpawn = new Vec2(x, y);
-        }
-        
-        entities.addEntity(new Player(playerSpawn));
+        currentEntities.addEntity(new Player(playerSpawn));
     }
     
     private void createNPC(){
-        if(entities.hasEntityOfType(NPC.class)){return;}
+        if(currentEntities.hasEntityOfType(NPC.class)){return;}
         
-        Vec2 npcSpawn = getRandomEdgePoint();
-        entities.addEntity(new NPC(npcSpawn));
+        Vec2 npcSpawn = currentLevel.getPointOnEdge();
+        currentEntities.addEntity(new NPC(npcSpawn));
     }
     
     /**
@@ -112,11 +106,11 @@ public class GameEngine {
      * make the position of the Pest dynamic i.e. it is randomly selected in some way.
      */
     private void createPest() {
-        if(entities.hasEntityOfType(Pest.class)){return;}
+        if(currentEntities.hasEntityOfType(Pest.class)){return;}
         
-        Vec2 pestSpawn = getRandomEdgePoint();
+        Vec2 pestSpawn = currentLevel.getPointOnEdge();
         
-        entities.addEntity(new Pest(pestSpawn));
+        currentEntities.addEntity(new Pest(pestSpawn));
     }
     
     /**
@@ -128,20 +122,20 @@ public class GameEngine {
      * create more complex movement rules if you wish!)
      */
     private void movePest() {
-        Pest pest = entities.getPest();
+        Pest pest = currentEntities.getPest();
         if(pest == null){return;}
         
-        Vec2 closestCrop = level.findClosest(TileType.CROP, pest.getPosition());
+        Vec2 closestCrop = currentLevel.findClosest(TileType.CROP, pest.getPosition());
         
         pest.moveTowards(closestCrop);
     }
     
     private void moveNPC(){
-        NPC npc = entities.getNPC();
+        NPC npc = currentEntities.getNPC();
         if(npc == null){return;}
         
         Vec2 start = npc.getPosition();
-        Vec2 playerPos = entities.getEntityOfType(Player.class).getPosition();
+        Vec2 playerPos = currentEntities.getEntityOfType(Player.class).getPosition();
         
         if(start.equals(playerPos)){
             System.out.println("good evening..");
@@ -335,18 +329,15 @@ public class GameEngine {
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
     private void evenBetterGenerateFarm() {
-        level = new Level(LEVEL_SIZE, rng);
-        entities = level.getEntityManager();
+        generateNewLevel(0);
         
-        // create default stone ground map
-        // Vector() defaults to (0,0) 
-        level.fillRect(TileType.STONE_GROUND, new Vec2(), LEVEL_SIZE);
+        
         // spawn a dirt patch ie farm plot
         generateDirtPatch();
         // spawn the house
         generateHouse();
         // generate debris layer
-        level.addDebris(); 
+        currentLevel.addDebris(); 
     }
     
     /**
@@ -361,21 +352,21 @@ public class GameEngine {
      */
     public void growCrops() {
         soilDecay();
-        Vec2[] sowedCoords = level.findTiles(TileType.SOWED_DIRT_WATERED);
+        Vec2[] sowedCoords = currentLevel.findTiles(TileType.SOWED_DIRT_WATERED);
         
         if (sowedCoords.length>0){
             
-            if(!entities.hasEntityOfType(Pest.class)){
+            if(!currentEntities.hasEntityOfType(Pest.class)){
                 createPest();
             }
 
             for (Vec2 v : sowedCoords){
                 
                 if(rng.nextDouble() > 0.05){
-                    level.fillTile(TileType.CROP, v);
+                    currentLevel.fillTile(TileType.CROP, v);
                 }
                 else{
-                    level.fillTile(TileType.TILLED_DIRT, v);
+                    currentLevel.fillTile(TileType.TILLED_DIRT, v);
                 }
             }
         }
@@ -386,12 +377,12 @@ public class GameEngine {
      * on tilled soil. The % is hard coded but this may change ?
      */
     private void soilDecay(){
-        Vec2 [] tilledCoords = level.findTiles(TileType.TILLED_DIRT);
+        Vec2 [] tilledCoords = currentLevel.findTiles(TileType.TILLED_DIRT);
         
         if(tilledCoords.length > 0){
             for(Vec2 v : tilledCoords){
                 if(rng.nextDouble() <= 0.33){
-                    level.fillTile(TileType.DIRT, v);
+                    currentLevel.fillTile(TileType.DIRT, v);
                 }
             }
         }
@@ -411,7 +402,7 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
-        Vec2 currentCoords = entities.getPlayer().getPosition();
+        Vec2 currentCoords = currentEntities.getPlayer().getPosition();
         
         Vec2 nextCoords = null;
         
@@ -432,20 +423,33 @@ public class GameEngine {
                 // left
                 nextCoords = currentCoords.left();
             }
-        } 
+        }
         
-
         
-        if(level.isWithinLevel(nextCoords)){
+        if(currentLevel.isWithinLevel(nextCoords)){
             //System.out.println("Moving to: " + level[nextCoords.getX()][nextCoords.getY()].getType());
             handlePlayerInteraction(nextCoords);
-        }        
-        
-        if(level.isValid(nextCoords)){
-            entities.getPlayer().setPosition(nextCoords);
+        }
+        else{
+            generateNewLevel(direction);
+        }
+        if(currentLevel.isValid(nextCoords)){
+            currentEntities.getPlayer().setPosition(nextCoords);
         }
     }
-
+    /**
+     * Generates a new Level object and adds to the global levels ArrayList
+     * 
+     * @param direction to be used for determining which side the player should spawn on
+     */
+    private void generateNewLevel(int direction){
+        currentLevel = new Level(LEVEL_SIZE, rng);
+        currentEntities = currentLevel.getEntityManager();
+        currentLevel.init();
+        currentEntities.addEntity(new Player(currentLevel.getPointOnEdge()));
+        levels.add(currentLevel);
+    }
+    
     /**
      * A method to trigger the night animation for the game when the player enters
      * a BED tile. You can call this method to start the night animation and the growth
@@ -454,6 +458,10 @@ public class GameEngine {
     private void triggerNight() {
         growCrops();
         gui.doNight(this);
+        
+        if(rng.nextBoolean()){
+            createNPC();
+        }
     }
     
     /**
@@ -473,13 +481,13 @@ public class GameEngine {
      */
     public void doTurn() {
         turnNumber++;
-        if (turnNumber % 4 == 0 && entities.getPest() != null) {
+        if (turnNumber % 4 == 0 && currentEntities.getPest() != null) {
             movePest();
         }
-        if (turnNumber % 6 == 0 && entities.getNPC() != null) {
+        if (turnNumber % 6 == 0 && currentEntities.getNPC() != null) {
             moveNPC();
         }
-        gui.updateDisplay(level);
+        gui.updateDisplay(currentLevel);
     }
 
     /**
@@ -488,10 +496,10 @@ public class GameEngine {
      * passed to it.
      */
     public void startGame() {
+        levels = new ArrayList<Level>();
         evenBetterGenerateFarm();
         createPlayer();
-        createNPC();
-        gui.updateDisplay(level);
+        gui.updateDisplay(currentLevel);
     }
     
     
@@ -502,22 +510,22 @@ public class GameEngine {
      */
     private void handlePlayerInteraction(Vec2 v){
         
-        Tile tile = level.getTile(v);
+        Tile tile = currentLevel.getTile(v);
         TileType type = tile.getType();
-        int entityIndex = entities.getEntityIndexAt(v);
-        Player player = entities.getPlayer();
+        int entityIndex = currentEntities.getEntityIndexAt(v);
+        Player player = currentEntities.getPlayer();
         
         player.updatePlayerItem(type);
         Item holding = player.getHeldItem();
         
         // checks if tile has entity on it -> forcing entity interaction
         if(entityIndex != -1){
-            Entity entity = entities.getEntity(entityIndex);
+            Entity entity = currentEntities.getEntity(entityIndex);
             
             holding.use(entity);
             
             if(entity.getHealth() <= 0){
-                entities.removeEntity(entityIndex);
+                currentEntities.removeEntity(entityIndex);
             }
             
             return;
@@ -529,7 +537,7 @@ public class GameEngine {
                 triggerNight();
             }
             case CROP->{
-                level.fillTile(TileType.DIRT, v);
+                currentLevel.fillTile(TileType.DIRT, v);
                 System.out.printf("MONEY: $%d + $5%n",money);
                 money += 5;
             }
@@ -561,23 +569,23 @@ public class GameEngine {
         Vec2 boxV = doorV.add(1,1);
         
         // floor
-        level.fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
+        currentLevel.fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
         
         // walls
-        level.fillLine(TileType.WALL, topLeft, topRight);
-        level.fillLine(TileType.WALL, topLeft, bottomLeft);
-        level.fillLine(TileType.WALL, topRight, bottomRight);
-        level.fillLine(TileType.WALL, bottomLeft, bottomRight);
+        currentLevel.fillLine(TileType.WALL, topLeft, topRight);
+        currentLevel.fillLine(TileType.WALL, topLeft, bottomLeft);
+        currentLevel.fillLine(TileType.WALL, topRight, bottomRight);
+        currentLevel.fillLine(TileType.WALL, bottomLeft, bottomRight);
         
         // door
-        level.fillTile(TileType.DOOR, doorV);
+        currentLevel.fillTile(TileType.DOOR, doorV);
         
         // place bed
-        level.fillTile(TileType.BED, bedV);
+        currentLevel.fillTile(TileType.BED, bedV);
         
         // place boxes
-        level.fillTile(TileType.AXE_BOX, boxV);
-        level.fillTile(TileType.PICKAXE_BOX, boxV.right());
+        currentLevel.fillTile(TileType.AXE_BOX, boxV);
+        currentLevel.fillTile(TileType.PICKAXE_BOX, boxV.right());
     }
     
 
@@ -592,50 +600,20 @@ public class GameEngine {
         Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-size.getX()), 
                                        rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
 
-        level.fillRect(TileType.DIRT, topLeft, topLeft.add(size));
+        currentLevel.fillRect(TileType.DIRT, topLeft, topLeft.add(size));
         
         // place item boxes
         //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
         //level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
         
         Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
-        level.fillTile(TileType.HOE_BOX, boxV);
-        level.fillTile(TileType.WATERINGCAN_BOX, boxV.right());
-        level.fillTile(TileType.SEED_BOX, boxV.left());
+        currentLevel.fillTile(TileType.HOE_BOX, boxV);
+        currentLevel.fillTile(TileType.WATERINGCAN_BOX, boxV.right());
+        currentLevel.fillTile(TileType.SEED_BOX, boxV.left());
     }
     
 
-    
-    /**
-     * Randomly generates a Vec2 coordinate for a point on the edge of the map
-     * that is valid for non-static entities to stand on.
-     * @return Vec2 edgePoint containing x,y coordinates of a point on the edge of the map
-     */
-    private Vec2 getRandomEdgePoint(){
-        Vec2 edgePoint = null;
-        
-        while (!level.isValid(edgePoint)){
-                switch(rng.nextInt(1,5)){
-                    case 1->{
-                        // (0, y) left
-                        edgePoint = new Vec2(0, rng.nextInt(LEVEL_HEIGHT-1));
-                        }
-                    case 2->{
-                        // (x, 0) top
-                        edgePoint = new Vec2(rng.nextInt(LEVEL_WIDTH-1), 0);
-                        }
-                    case 3->{
-                        // (LEVEL_WIDTH-1, y) right
-                        edgePoint = new Vec2(LEVEL_WIDTH-1, rng.nextInt(LEVEL_HEIGHT-1));
-                        }
-                    case 4->{
-                        // (x, LEVEL_HEIGHT-1) bottom
-                        edgePoint = new Vec2(rng.nextInt(LEVEL_WIDTH-1), LEVEL_HEIGHT-1);
-                        }
-                }
-            }
-        return edgePoint;
-    }
+
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 
     // AND ARE TO BE REMOVED LATER

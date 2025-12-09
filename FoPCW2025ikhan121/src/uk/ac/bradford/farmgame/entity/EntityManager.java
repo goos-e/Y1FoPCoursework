@@ -68,4 +68,20 @@ public class EntityManager {
         return debrisArray.toArray(new Entity[0]);
     }
     
+    /**
+     * Traverses the entities array and checks against a generic class as an input
+     * parameter, T. If at least one entity is an instance of that class, the method
+     * returns true, otherwise false.
+     * 
+     * @param c class to check if an entity is an instance of
+     * @return true if there is at least one instance of that class, false otherwise
+     */
+    public boolean hasEntityOfType(Class<?> c){
+        for(Entity e : entities){
+            if(c.isInstance(e)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

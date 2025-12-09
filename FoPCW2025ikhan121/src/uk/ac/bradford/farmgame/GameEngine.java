@@ -63,53 +63,17 @@ public class GameEngine {
      */
     private GameGUI gui;
 
-    /**
-     * The 2 dimensional array of tiles that represent the current level. The
-     * size of this array should use the LEVEL_WIDTH (X dimension!) and LEVEL_HEIGHT
-     * (Y dimension!) attributes when it is created. This is the array that is used
-     * to draw images to the screen by the GUI class, and by you to check what a specific
-     * Tile contains by checking the content of specific elements of the array and
-     * using the getType() method to determine the type of the Tile.
-     * 
-     * For example:
-     * 
-     * level[10][15].getType() == TileType.DIRT
-     * 
-     * would return the value true if the tile at position 10,15 was a DIRT tile.
-     * 
-     * 
-     * ive changed this but yet to amend the javadoc: forgive me
-     */
-    private Level level;
-    
-    /**
-     * A Player object that is the current player. This object stores the state
-     * information for the player, including the current position
-     * (which is a pair of co-ordinates that corresponds to a tile in the
-     * current level - see the Entity class for more information on the
-     * co-ordinate system used as well as the coursework specification
-     * document).
-     */
-    private Player player;
 
-    /**
-     * A Pest object used to create the pest when crops grow. The object
-     * has position information stored via its attributes, and methods to check
-     * and update the position of the pest.
-     */
-    private Pest pest;
+    private Level level;
+    private EntityManager entities;
     
+    // old entities
+    private Player player;
+    private Pest pest;    
     private NPC npc;
     
-    /**
-     * An array of Entity objects that is used to store Tree and Rock objects for
-     * one of the coursework tasks. New Tree and Rock objects should be created and
-     * stored in this array for e.g. checking player movement as these objects
-     * should block player movement into the tile that they are in.
-     */
-    //private Entity[] debris;
     
-    private EntityManager entities;
+    
     
     /**
      * Constructor that creates a GameEngine object and connects it with a

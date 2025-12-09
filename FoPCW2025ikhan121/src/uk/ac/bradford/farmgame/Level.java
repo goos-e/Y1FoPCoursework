@@ -6,14 +6,18 @@ package uk.ac.bradford.farmgame;
 import java.util.ArrayList;
 import java.util.List;
 import uk.ac.bradford.farmgame.Tile.TileType;
+import uk.ac.bradford.farmgame.entity.EntityManager;
+
 /**
  *
  * @author goose
  */
 public class Level {
     private Tile[][] level;
-    private int LEVEL_WIDTH = 0;
-    private int LEVEL_HEIGHT = 0;
+    public EntityManager entityManager;
+    
+    private int LEVEL_WIDTH;
+    private int LEVEL_HEIGHT;
     
     
     /**
@@ -25,6 +29,8 @@ public class Level {
         this.LEVEL_WIDTH = width;
         this.LEVEL_HEIGHT = height;
         level = new Tile[this.LEVEL_WIDTH][this.LEVEL_HEIGHT];
+        
+        this.entityManager = new EntityManager();
     }
     
     /**
@@ -35,6 +41,17 @@ public class Level {
     public Tile getTile(Vec2 v){
         int x = v.getX();
         int y = v.getY();
+        
+        return level[x][y];
+    }
+    
+    /**
+     * Gets the Tile object in the Tile[][] array coordinate (x,y) 
+     * @param x x coordiante of Tile object in Tile[][] array
+     * @param y y coordinate of Tile object in Tile[][] array
+     * @return the Tile object at level[x][y]
+     */
+    public Tile getTile(int x, int y){
         
         return level[x][y];
     }
@@ -184,5 +201,46 @@ public class Level {
     
     public Tile[][] toArray(){
         return level;
+    }    
+    
+    /**
+     * Check if coordinate location on level is valid for entity to stand on by 
+     * checking if location exists on map, and if yes, is the tile at that location 
+     * collidable. 
+     * 
+     * @param v vector containing coordinates to check
+     * @return true if coordinates are valid for movement
+     */
+    public boolean isValid(Vec2 v){
+        if(v == null){
+            return false;
+        }
+        
+        return (isWithinLevel(v) && !getTile(v).isCollidable() && !entityManager.hasEntityAt(v));
     }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public int getLEVEL_WIDTH() {
+        return LEVEL_WIDTH;
+    }
+
+    public void setLEVEL_WIDTH(int LEVEL_WIDTH) {
+        this.LEVEL_WIDTH = LEVEL_WIDTH;
+    }
+
+    public int getLEVEL_HEIGHT() {
+        return LEVEL_HEIGHT;
+    }
+
+    public void setLEVEL_HEIGHT(int LEVEL_HEIGHT) {
+        this.LEVEL_HEIGHT = LEVEL_HEIGHT;
+    }
+    
 }

@@ -30,7 +30,7 @@ public class WateringCan extends Item{
     public void use(Tile t) {
         if(t.getType() == TileType.SOWED_DIRT){
             t.setType(TileType.SOWED_DIRT_WATERED);
-            this.reduceDurability();
+            this.reduceDurability(0.2);
         }
     }
     

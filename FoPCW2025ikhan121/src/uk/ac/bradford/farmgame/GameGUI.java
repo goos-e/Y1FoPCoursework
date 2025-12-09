@@ -148,6 +148,8 @@ class Canvas extends JPanel {
     Player currentPlayer;       //the current player object to be drawn
     Pest currentPest;           //the current pest to draw
     NPC currentNPC;
+    
+    Level currentLevel;
 
     private boolean night = false;  //boolean to track night animation status
     private float alpha = 0.0f;     //transparency of the night effect to simulate dark/light levels

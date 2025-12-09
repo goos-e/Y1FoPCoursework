@@ -1,10 +1,11 @@
 package uk.ac.bradford.farmgame;
 
+import java.util.Random;
+
 import uk.ac.bradford.farmgame.item.*;
 import uk.ac.bradford.farmgame.entity.*;
-
-import java.util.Random;
 import uk.ac.bradford.farmgame.Tile.TileType;
+
 
 /**
  * The GameEngine class is responsible for managing information about the game,
@@ -106,7 +107,9 @@ public class GameEngine {
      * stored in this array for e.g. checking player movement as these objects
      * should block player movement into the tile that they are in.
      */
-    private Entity[] debris;
+    //private Entity[] debris;
+    
+    private EntityManager entities;
     
     /**
      * Constructor that creates a GameEngine object and connects it with a
@@ -132,7 +135,7 @@ public class GameEngine {
         
         Vec2 playerSpawnPoint = new Vec2(-1, -1);
         
-        while(!isValid(playerSpawnPoint)){
+        while(!level.isValid(playerSpawnPoint)){
             int x = rng.nextInt(0, LEVEL_WIDTH);
             int y = rng.nextInt(0, LEVEL_HEIGHT);
             
@@ -140,6 +143,8 @@ public class GameEngine {
         }
         
         player = new Player(playerSpawnPoint);
+        
+        entities.addEntity(player);
     }
     
     
@@ -148,6 +153,8 @@ public class GameEngine {
         
         Vec2 npcSpawn = getRandomEdgePoint();
         npc = new NPC(npcSpawn);
+        
+        entities.addEntity(npc);
     }
     
     private void moveNPC(){
@@ -175,6 +182,7 @@ public class GameEngine {
      * @param direction the direction of movement based on the arrow key that was pressed:
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
+    @SuppressWarnings("unused")
     private void movePlayer(int direction) {
         // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
         /*
@@ -215,6 +223,7 @@ public class GameEngine {
      * For this method you should use just Tile objects with the type STONE_GROUND.
      *
      */
+    @SuppressWarnings("unused")
     private void generateFarm() {
         // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
         /*
@@ -239,6 +248,7 @@ public class GameEngine {
      * @param direction the direction of movement based on the arrow key that was pressed:
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
+    @SuppressWarnings("unused")
     private void betterMovePlayer(int direction) {
         // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
         /*
@@ -295,6 +305,7 @@ public class GameEngine {
      * should be dynamically placed i.e. its position and size is determined randomly
      * each time this method is called so it is different every time the game is started.
      */
+    @SuppressWarnings("unused")
     private void betterGenerateFarm() {
         // CODE IS DEPRECATED AND CAUSES SYNTAX ERRORS
         /*
@@ -345,6 +356,7 @@ public class GameEngine {
      */
     private void evenBetterGenerateFarm() {
         level = new Level(LEVEL_WIDTH, LEVEL_HEIGHT);
+        entities = level.getEntityManager();
         
         // create default stone ground map
         // Vector() defaults to (0,0) 
@@ -353,8 +365,8 @@ public class GameEngine {
         generateDirtPatch();
         // spawn the house
         generateHouse();
-        // generates the debris layer 
-        addDebris();
+        // generate debris layer
+        addDebris(); 
     }
     
     /**
@@ -442,7 +454,7 @@ public class GameEngine {
             }
         } 
         
-        if(isValid(nextCoords)){
+        if(level.isValid(nextCoords)){
             player.setPosition(nextCoords);
         }
         
@@ -491,27 +503,28 @@ public class GameEngine {
      * player movement method (depends on which tasks you have already completed!)
      */
     private void addDebris() {
-        debris = new Entity[100];
+       
+        int maxDebris = 100;
         
-        for(int i = 0; i<debris.length; i++){
+        for(int i = 0; i<maxDebris; i++){
             int x = rng.nextInt(LEVEL_WIDTH);
             int y = rng.nextInt(LEVEL_HEIGHT);
             
             Vec2 v = new Vec2(x, y);
             
-            if(!isValid(v)){continue;}
+            if(!level.isValid(v)){continue;}
             
             TileType type = level.getTile(v).getType();
             Vec2[] adjacent = v.getNeighbours4();
             
-            boolean valid = type != TileType.HOUSE_FLOOR;
+            boolean valid = (type != TileType.HOUSE_FLOOR) && (type!= TileType.DOOR);
             
             for(Vec2 adj : adjacent){
-                if(!isValid(adj)){continue;}
+                if(!level.isValid(adj)){continue;}
                 
                 TileType adjType = level.getTile(adj).getType();
                 
-                if(adjType == TileType.HOUSE_FLOOR){
+                if(adjType == TileType.DOOR || adjType == TileType.DOOR){
                     valid = false;
                     break;
                 }
@@ -519,10 +532,10 @@ public class GameEngine {
             
             if(valid){
                 if(rng.nextBoolean()){
-                    debris[i] = new Tree(v);
+                    entities.addEntity(new Tree(v));
                 }
                 else{
-                    debris[i] = new Rock(v);
+                    entities.addEntity(new Rock(v));
                 }
             }
         }
@@ -558,10 +571,10 @@ public class GameEngine {
         if (turnNumber % 4 == 0 && pest != null) {
             movePest();
         }
-        if (turnNumber % 2 == 0 && npc != null) {
+        if (turnNumber % 6 == 0 && npc != null) {
             moveNPC();
         }
-        gui.updateDisplay(level.toArray(), debris, player, pest, npc);
+        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), player, pest, npc);
     }
 
     /**
@@ -571,48 +584,11 @@ public class GameEngine {
      */
     public void startGame() {
         evenBetterGenerateFarm();
-        createPlayer(); 
+        createPlayer();
         createNPC();
-        gui.updateDisplay(level.toArray(), debris, player, pest, npc);
+        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), player, pest, npc);
     }
     
-    /**
-     * Check if coordinate location on level is valid for entity to stand on by 
-     * checking if location exists on map, and if yes, is the tile at that location 
-     * collidable. 
-     * 
-     * @param v vector containing coordinates to check
-     * @return true if coordinates are valid for movement
-     */
-    private boolean isValid(Vec2 v){
-        if(v == null){
-            return false;
-        }
-        
-        int x  = v.getX();
-        int y = v.getY();
-        
-        return (level.isWithinLevel(v) && !level.getTile(v).isCollidable() && !hasEntity(v, debris));
-    }
-    
-    /**
-     * Traversed debris array to check whether an entity has the same x,y
-     * as the passed vector.
-     * @param v vector object to check against each entity in the debris array
-     * @return true if there is at least 1 entity with the same (x,y) coordinates
-     * as the vector
-     */
-    private boolean hasEntity(Vec2 v, Entity[] entityArray){
-        for (Entity entity : entityArray){
-            if(entity!=null){
-                
-                if(v.equals(entity.getPosition())){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
     
     /**
      * Handles the interaction between the level array and the player, for example
@@ -627,16 +603,16 @@ public class GameEngine {
         player.updatePlayerItem(type);
         Item holding = player.getHeldItem();
         
-        // checks if tile has debris on it -> preventing interaction
-        if (hasEntity(v, debris)){
+        // checks if tile has entity on it -> forcing entity interaction
+        if (entities.hasEntityAt(v)){
             if(holding != null){
-                int debrisIndex = getEntity(v);
-                Entity e = debris[debrisIndex];
+                int entityIndex = entities.getEntityIndexAt(v);
+                Entity entity = entities.getEntity(entityIndex);
                 
-                holding.use(e);
+                holding.use(entity);
                 // System.out.printf("Entity hp is at: %d%n", e.getHealth());
-                if(e.getHealth() <= 0){
-                    debris[debrisIndex] = null;
+                if(entity.getHealth() <= 0){
+                    entities.removeEntity(entityIndex);
                 }
             }
             return;
@@ -730,23 +706,7 @@ public class GameEngine {
         level.fillTile(TileType.SEED_BOX, boxV.left());
     }
     
-    /**
-     * Gets the Entity object at the coordinate v, stored in the Entity[] debris
-     * @param v Vector object containing coordinates to find index
-     * @param e Entity[] containing objects with class or child of Entity 
-     * @return 
-     */
-    private int getEntity(Vec2 v){
-        for(int i = 0; i<debris.length; i++){
-            Entity e = debris[i];
-            
-            if(e == null){continue;}
-            if(e.getPosition().equals(v)){
-                return i;
-            }
-        }
-        return 0;
-    }
+
     
     /**
      * Randomly generates a Vec2 coordinate for a point on the edge of the map
@@ -756,7 +716,7 @@ public class GameEngine {
     private Vec2 getRandomEdgePoint(){
         Vec2 edgePoint = null;
         
-        while (!isValid(edgePoint)){
+        while (!level.isValid(edgePoint)){
                 switch(rng.nextInt(1,5)){
                     case 1->{
                         // (0, y) left
@@ -781,4 +741,6 @@ public class GameEngine {
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 
     // AND ARE TO BE REMOVED LATER
+    
+
 }

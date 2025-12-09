@@ -9,9 +9,7 @@ import uk.ac.bradford.farmgame.Vec2;
  */
 public class EntityManager {
     private ArrayList<Entity> entities;
-    private Player player;
-    private Pest pest;
-    private NPC npc;
+    Player player;
     
     public EntityManager(){
         entities = new ArrayList<Entity>();
@@ -20,14 +18,8 @@ public class EntityManager {
     
     public void addEntity(Entity e){
         entities.add(e);
-        if(e instanceof Player player){
-            this.player = player;
-        }
-        else if(e instanceof NPC npc){
-            this.npc = npc;
-        }
-        else if(e instanceof Pest pest){
-            this.pest = pest;
+        if(e instanceof Player){
+            this.player = ((Player) e);
         }
     }
     
@@ -79,18 +71,6 @@ public class EntityManager {
         }
         
         return isOccupied;
-    }
-    
-    public Entity[] getDebrisArray(){
-        ArrayList<Entity> debrisArray = new ArrayList<Entity>();
-        
-        for(Entity e : entities){
-            if(e instanceof Tree || e instanceof Rock){
-                debrisArray.add(e);
-            }
-        }
-        
-        return debrisArray.toArray(new Entity[0]);
     }
     
     /**

@@ -92,8 +92,6 @@ public class GameEngine {
      * Player class by creating an object using the appropriate constructor. The
      * created object should then be assigned to the "player" attribute of this
      * class.
-     *
-     * This method should use fixed X and Y values for the player's position.
      */
     private void createPlayer() {
         if(entities.hasEntityOfType(Player.class)){return;}
@@ -116,7 +114,6 @@ public class GameEngine {
         Vec2 npcSpawn = getRandomEdgePoint();
         entities.addEntity(new NPC(npcSpawn));
     }
-    
     
     /**
      * Adds a pest to the current level. This method should create a new Pest object

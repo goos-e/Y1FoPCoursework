@@ -68,10 +68,11 @@ public class GameEngine {
     private EntityManager entities;
     
     // old entities
+    /*
     private Player player;
     private Pest pest;    
     private NPC npc;
-    
+    */
     
     
     
@@ -95,37 +96,64 @@ public class GameEngine {
      * This method should use fixed X and Y values for the player's position.
      */
     private void createPlayer() {
-        if(player != null){return;}
+        if(entities.hasEntityOfType(Player.class)){return;}
         
-        Vec2 playerSpawnPoint = new Vec2(-1, -1);
+        Vec2 playerSpawn = new Vec2(-1, -1);
         
-        while(!level.isValid(playerSpawnPoint)){
+        while(!level.isValid(playerSpawn)){
             int x = rng.nextInt(0, LEVEL_WIDTH);
             int y = rng.nextInt(0, LEVEL_HEIGHT);
             
-            playerSpawnPoint = new Vec2(x, y);
+            playerSpawn = new Vec2(x, y);
         }
         
-        player = new Player(playerSpawnPoint);
+        entities.addEntity(new Player(playerSpawn));
+    }
+    
+    private void createNPC(){
+        if(entities.hasEntityOfType(NPC.class)){return;}
         
-        entities.addEntity(player);
+        Vec2 npcSpawn = getRandomEdgePoint();
+        entities.addEntity(new NPC(npcSpawn));
     }
     
     
-    private void createNPC(){
-        if(npc != null){return;}
+    /**
+     * Adds a pest to the current level. This method should create a new Pest object
+     * and assign it to the pest attribute of this class. For top marks you should
+     * make the position of the Pest dynamic i.e. it is randomly selected in some way.
+     */
+    private void createPest() {
+        if(entities.hasEntityOfType(Pest.class)){return;}
         
-        Vec2 npcSpawn = getRandomEdgePoint();
-        npc = new NPC(npcSpawn);
+        Vec2 pestSpawn = getRandomEdgePoint();
         
-        entities.addEntity(npc);
+        entities.addEntity(new Pest(pestSpawn));
+    }
+    
+    /**
+     * Moves the pest object within the level. This method should change the pest objects
+     * X and Y positions so that it moves towards the nearest crop in the level. You will
+     * need to write code to find the nearest crop to the pest. You should then change the
+     * pests position so that it moves closer to the nearest crop. The pest should not
+     * be blocked by any tile types nor by Trees or Rocks (though you can add code to
+     * create more complex movement rules if you wish!)
+     */
+    private void movePest() {
+        Pest pest = entities.getPest();
+        if(pest == null){return;}
+        
+        Vec2 closestCrop = level.findClosest(TileType.CROP, pest.getPosition());
+        
+        pest.moveTowards(closestCrop);
     }
     
     private void moveNPC(){
+        NPC npc = entities.getNPC();
         if(npc == null){return;}
         
         Vec2 start = npc.getPosition();
-        Vec2 playerPos = player.getPosition();
+        Vec2 playerPos = entities.getEntityOfType(Player.class).getPosition();
         
         if(start.equals(playerPos)){
             System.out.println("good evening..");
@@ -349,7 +377,7 @@ public class GameEngine {
         
         if (sowedCoords.length>0){
             
-            if(pest==null){
+            if(!entities.hasEntityOfType(Pest.class)){
                 createPest();
             }
 
@@ -395,7 +423,7 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
-        Vec2 currentCoords = player.getPosition();
+        Vec2 currentCoords = entities.getPlayer().getPosition();
         
         Vec2 nextCoords = null;
         
@@ -418,42 +446,19 @@ public class GameEngine {
             }
         } 
         
-        if(level.isValid(nextCoords)){
-            player.setPosition(nextCoords);
-        }
+
         
         if(level.isWithinLevel(nextCoords)){
             //System.out.println("Moving to: " + level[nextCoords.getX()][nextCoords.getY()].getType());
             handlePlayerInteraction(nextCoords);
+        }        
+        
+        if(level.isValid(nextCoords)){
+            entities.getPlayer().setPosition(nextCoords);
         }
     }
     
-    /**
-     * Adds a pest to the current level. This method should create a new Pest object
-     * and assign it to the pest attribute of this class. For top marks you should
-     * make the position of the Pest dynamic i.e. it is randomly selected in some way.
-     */
-    private void createPest() {
-        if (pest != null){return;}
-        
-        Vec2 pestCoords = getRandomEdgePoint();
-        pest = new Pest(pestCoords);
-    }
     
-    /**
-     * Moves the pest object within the level. This method should change the pest objects
-     * X and Y positions so that it moves towards the nearest crop in the level. You will
-     * need to write code to find the nearest crop to the pest. You should then change the
-     * pests position so that it moves closer to the nearest crop. The pest should not
-     * be blocked by any tile types nor by Trees or Rocks (though you can add code to
-     * create more complex movement rules if you wish!)
-     */
-    private void movePest() {
-        
-        Vec2 closestCrop = level.findClosest(TileType.CROP, pest.getPosition());
-        
-        pest.moveTowards(closestCrop);
-    }
     
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
@@ -532,13 +537,13 @@ public class GameEngine {
      */
     public void doTurn() {
         turnNumber++;
-        if (turnNumber % 4 == 0 && pest != null) {
+        if (turnNumber % 4 == 0 && entities.getPest() != null) {
             movePest();
         }
-        if (turnNumber % 6 == 0 && npc != null) {
+        if (turnNumber % 6 == 0 && entities.getNPC() != null) {
             moveNPC();
         }
-        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), player, pest, npc);
+        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), entities.getPlayer(), entities.getPest(), entities.getNPC());
     }
 
     /**
@@ -550,7 +555,7 @@ public class GameEngine {
         evenBetterGenerateFarm();
         createPlayer();
         createNPC();
-        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), player, pest, npc);
+        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), entities.getPlayer(), entities.getPest(), entities.getNPC());
     }
     
     
@@ -563,26 +568,26 @@ public class GameEngine {
         
         Tile tile = level.getTile(v);
         TileType type = tile.getType();
+        int entityIndex = entities.getEntityIndexAt(v);
+        Player player = entities.getPlayer();
         
         player.updatePlayerItem(type);
         Item holding = player.getHeldItem();
         
         // checks if tile has entity on it -> forcing entity interaction
-        if (entities.hasEntityAt(v)){
-            if(holding != null){
-                int entityIndex = entities.getEntityIndexAt(v);
-                Entity entity = entities.getEntity(entityIndex);
-                
-                holding.use(entity);
-                // System.out.printf("Entity hp is at: %d%n", e.getHealth());
-                if(entity.getHealth() <= 0){
-                    entities.removeEntity(entityIndex);
-                }
+        if(entityIndex != -1){
+            Entity entity = entities.getEntity(entityIndex);
+            
+            holding.use(entity);
+            
+            if(entity.getHealth() <= 0){
+                entities.removeEntity(entityIndex);
             }
+            
             return;
         }
 
-        // no prerequisites
+        // tile interactions
         switch(type){
             case BED->{
                 triggerNight();
@@ -592,16 +597,9 @@ public class GameEngine {
                 System.out.printf("MONEY: $%d + $5%n",money);
                 money += 5;
             }
-        }
-        
-        // interactions with pest
-        if(pest!=null && pest.getPosition().equals(v)){
-            pest=null;
-        }
-        
-        // item interactions with world
-        if(holding!=null){
-            holding.use(tile);
+            default->{
+                holding.use(tile);
+            }
         }
     }
     

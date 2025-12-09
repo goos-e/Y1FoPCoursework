@@ -227,19 +227,19 @@ public class Level {
         this.entityManager = entityManager;
     }
 
-    public int getLEVEL_WIDTH() {
+    public int getWidth() {
         return LEVEL_WIDTH;
     }
 
-    public void setLEVEL_WIDTH(int LEVEL_WIDTH) {
+    public void setWidth(int LEVEL_WIDTH) {
         this.LEVEL_WIDTH = LEVEL_WIDTH;
     }
 
-    public int getLEVEL_HEIGHT() {
+    public int getHeight() {
         return LEVEL_HEIGHT;
     }
 
-    public void setLEVEL_HEIGHT(int LEVEL_HEIGHT) {
+    public void setHeight(int LEVEL_HEIGHT) {
         this.LEVEL_HEIGHT = LEVEL_HEIGHT;
     }
     

@@ -8,7 +8,7 @@ import uk.ac.bradford.farmgame.Vec2;
  * @author goose
  */
 public class EntityManager {
-    ArrayList<Entity> entities;
+    private ArrayList<Entity> entities;
     private Player player;
     private Pest pest;
     private NPC npc;
@@ -125,6 +125,14 @@ public class EntityManager {
             }
         }
         return null;
+    }
+    
+    public int getSize(){
+        return this.entities.size();
+    }
+    
+    public Entity[] getEntities(){
+        return this.entities.toArray(Entity[]::new);
     }
     
     public Player getPlayer(){

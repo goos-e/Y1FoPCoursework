@@ -83,8 +83,8 @@ public class GameGUI extends JFrame {
      * @param pest A Pest object that is processed to draw the pest. null
      * can be passed for this argument in which case no pest will be drawn.
      */
-    public void updateDisplay(Tile[][] tiles, Entity[] debris, Player player, Pest pest, NPC npc) {
-        canvas.update(tiles, debris, player, pest, npc);
+    public void updateDisplay(Level currentLevel) {
+        canvas.update(currentLevel);
     }
 
     /**
@@ -143,14 +143,11 @@ class Canvas extends JPanel {
     private BufferedImage rock;
     private BufferedImage tree;
     
-    Tile[][] currentTiles;      //the current 2D array of tiles to display
-    Entity[] currentDebris;     //the current array of debris objects (e.g. trees, rocks)
-    Player currentPlayer;       //the current player object to be drawn
-    Pest currentPest;           //the current pest to draw
-    NPC currentNPC;
+    
     
     Level currentLevel;
-
+    EntityManager currentEntities;
+    
     private boolean night = false;  //boolean to track night animation status
     private float alpha = 0.0f;     //transparency of the night effect to simulate dark/light levels
     private float dAlpha = 0.1f;    //change in transparency, for use with the animation Timer
@@ -186,30 +183,9 @@ class Canvas extends JPanel {
             houseFloor = ImageIO.read(new File("assets/houseFloor.png"));
             assert houseFloor.getHeight() == GameGUI.TILE_HEIGHT
                     && houseFloor.getWidth() == GameGUI.TILE_WIDTH;
-            pest = ImageIO.read(new File("assets/pest.png"));
-            assert pest.getHeight() == GameGUI.TILE_HEIGHT
-                    && pest.getWidth() == GameGUI.TILE_WIDTH;
             pickaxeBox = ImageIO.read(new File("assets/pickBox.png"));
             assert pickaxeBox.getHeight() == GameGUI.TILE_HEIGHT
                     && pickaxeBox.getWidth() == GameGUI.TILE_WIDTH;
-            player = ImageIO.read(new File("assets/player.png"));
-            assert player.getHeight() == GameGUI.TILE_HEIGHT
-                    && player.getWidth() == GameGUI.TILE_WIDTH;
-            axe = ImageIO.read(new File("assets/axe.png"));
-            assert axe.getHeight() == GameGUI.TILE_HEIGHT
-                    && axe.getWidth() == GameGUI.TILE_WIDTH;
-            hoe = ImageIO.read(new File("assets/hoe.png"));
-            assert hoe.getHeight() == GameGUI.TILE_HEIGHT
-                    && hoe.getWidth() == GameGUI.TILE_WIDTH;
-            pickaxe = ImageIO.read(new File("assets/pickaxe.png"));
-            assert pickaxe.getHeight() == GameGUI.TILE_HEIGHT
-                    && pickaxe.getWidth() == GameGUI.TILE_WIDTH;
-            seedbag = ImageIO.read(new File("assets/seedbag.png"));
-            assert seedbag.getHeight() == GameGUI.TILE_HEIGHT
-                    && seedbag.getWidth() == GameGUI.TILE_WIDTH;
-            rock = ImageIO.read(new File("assets/rock.png"));
-            assert rock.getHeight() == GameGUI.TILE_HEIGHT
-                    && rock.getWidth() == GameGUI.TILE_WIDTH;
             seedBox = ImageIO.read(new File("assets/seedBox.png"));
             assert seedBox.getHeight() == GameGUI.TILE_HEIGHT
                     && seedBox.getWidth() == GameGUI.TILE_WIDTH;
@@ -222,27 +198,50 @@ class Canvas extends JPanel {
             tilledDirt = ImageIO.read(new File("assets/tilledDirt.png"));
             assert tilledDirt.getHeight() == GameGUI.TILE_HEIGHT
                     && tilledDirt.getWidth() == GameGUI.TILE_WIDTH;
-            tree = ImageIO.read(new File("assets/tree.png"));
-            assert tree.getHeight() == GameGUI.TILE_HEIGHT
-                    && tree.getWidth() == GameGUI.TILE_WIDTH;
             wall = ImageIO.read(new File("assets/wall.png"));
             assert wall.getHeight() == GameGUI.TILE_HEIGHT
                     && wall.getWidth() == GameGUI.TILE_WIDTH;
-            npc = ImageIO.read(new File("assets/npc.png"));
-            assert npc.getHeight() == GameGUI.TILE_HEIGHT
-                    && npc.getWidth() == GameGUI.TILE_WIDTH;
             door = ImageIO.read(new File("assets/door.png"));
             assert door.getHeight() == GameGUI.TILE_HEIGHT
                     && door.getWidth() == GameGUI.TILE_WIDTH;
-            wateringcan = ImageIO.read(new File("assets/wateringcan.png"));
-            assert wateringcan.getHeight() == GameGUI.TILE_HEIGHT
-                    && wateringcan.getWidth() == GameGUI.TILE_WIDTH;
             wateringcanBox = ImageIO.read(new File("assets/wateringcanBox.png"));
             assert wateringcanBox.getHeight() == GameGUI.TILE_HEIGHT
                     && wateringcanBox.getWidth() == GameGUI.TILE_WIDTH;
             sowedDirtWatered = ImageIO.read(new File("assets/sowedDirtWatered.png"));
             assert sowedDirtWatered.getHeight() == GameGUI.TILE_HEIGHT
                     && sowedDirtWatered.getWidth() == GameGUI.TILE_WIDTH;
+            // ITEMS
+            axe = ImageIO.read(new File("assets/axe.png"));
+            assert axe.getHeight() == GameGUI.TILE_HEIGHT
+                    && axe.getWidth() == GameGUI.TILE_WIDTH;
+            hoe = ImageIO.read(new File("assets/hoe.png"));
+            assert hoe.getHeight() == GameGUI.TILE_HEIGHT
+                    && hoe.getWidth() == GameGUI.TILE_WIDTH;
+            pickaxe = ImageIO.read(new File("assets/pickaxe.png"));
+            assert pickaxe.getHeight() == GameGUI.TILE_HEIGHT
+                    && pickaxe.getWidth() == GameGUI.TILE_WIDTH;
+            seedbag = ImageIO.read(new File("assets/seedbag.png"));
+            assert seedbag.getHeight() == GameGUI.TILE_HEIGHT
+                    && seedbag.getWidth() == GameGUI.TILE_WIDTH;
+            wateringcan = ImageIO.read(new File("assets/wateringcan.png"));
+            assert wateringcan.getHeight() == GameGUI.TILE_HEIGHT
+                    && wateringcan.getWidth() == GameGUI.TILE_WIDTH;
+            // ENTITIES
+            player = ImageIO.read(new File("assets/player.png"));
+            assert player.getHeight() == GameGUI.TILE_HEIGHT
+                    && player.getWidth() == GameGUI.TILE_WIDTH;
+            rock = ImageIO.read(new File("assets/rock.png"));
+            assert rock.getHeight() == GameGUI.TILE_HEIGHT
+                    && rock.getWidth() == GameGUI.TILE_WIDTH;
+            tree = ImageIO.read(new File("assets/tree.png"));
+            assert tree.getHeight() == GameGUI.TILE_HEIGHT
+                    && tree.getWidth() == GameGUI.TILE_WIDTH;
+            npc = ImageIO.read(new File("assets/npc.png"));
+            assert npc.getHeight() == GameGUI.TILE_HEIGHT
+                    && npc.getWidth() == GameGUI.TILE_WIDTH;
+            pest = ImageIO.read(new File("assets/pest.png"));
+            assert pest.getHeight() == GameGUI.TILE_HEIGHT
+                    && pest.getWidth() == GameGUI.TILE_WIDTH;
 
         } catch (IOException e) {
             System.out.println("Exception loading images: " + e.getMessage());
@@ -259,12 +258,9 @@ class Canvas extends JPanel {
      * @param player The current player object, used to draw the player
      * @param pest The pest to display on the level
      */
-    public void update(Tile[][] t, Entity[] debris, Player player, Pest pest, NPC npc) {
-        currentTiles = t;
-        currentPlayer = player;
-        currentPest = pest;
-        currentDebris = debris;
-        currentNPC = npc;
+    public void update(Level level) {
+        currentLevel = level;
+        currentEntities = level.getEntityManager();
         repaint();
     }
 
@@ -289,76 +285,73 @@ class Canvas extends JPanel {
      */
     private void drawLevel(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-        if (currentTiles != null) {
-            for (int i = 0; i < currentTiles.length; i++) {
-                for (int j = 0; j < currentTiles[i].length; j++) {
-                    if (currentTiles[i][j] != null) {
-                        switch (currentTiles[i][j].getType()) {
-                            case AXE_BOX ->
-                                g2.drawImage(axeBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case BED ->
-                                g2.drawImage(bed, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case CROP ->
-                                g2.drawImage(crop, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case DIRT ->
-                                g2.drawImage(dirt, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case HOE_BOX ->
-                                g2.drawImage(hoeBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case HOUSE_FLOOR ->
-                                g2.drawImage(houseFloor, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case PICKAXE_BOX ->
-                                g2.drawImage(pickaxeBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case SEED_BOX ->
-                                g2.drawImage(seedBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case SOWED_DIRT ->
-                                g2.drawImage(sowedDirt, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case STONE_GROUND ->
-                                g2.drawImage(stoneGround, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case TILLED_DIRT ->
-                                g2.drawImage(tilledDirt, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case WALL ->
-                                g2.drawImage(wall, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case DOOR ->
-                                g2.drawImage(door, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case SOWED_DIRT_WATERED ->
-                                g2.drawImage(sowedDirtWatered, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                            case WATERINGCAN_BOX ->
-                                g2.drawImage(wateringcanBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
-                        }
-                    }
+        if(currentLevel == null){return;}
+        for(int i = 0; i<currentLevel.getWidth(); i++){
+            for(int j = 0; j<currentLevel.getHeight(); j++){
+                switch(currentLevel.getTile(i, j).getType()){
+                    case AXE_BOX ->
+                        g2.drawImage(axeBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case BED ->
+                        g2.drawImage(bed, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case CROP ->
+                        g2.drawImage(crop, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case DIRT ->
+                        g2.drawImage(dirt, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case HOE_BOX ->
+                        g2.drawImage(hoeBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case HOUSE_FLOOR ->
+                        g2.drawImage(houseFloor, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case PICKAXE_BOX ->
+                        g2.drawImage(pickaxeBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case SEED_BOX ->
+                        g2.drawImage(seedBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case SOWED_DIRT ->
+                        g2.drawImage(sowedDirt, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case STONE_GROUND ->
+                        g2.drawImage(stoneGround, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case TILLED_DIRT ->
+                        g2.drawImage(tilledDirt, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case WALL ->
+                        g2.drawImage(wall, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case DOOR ->
+                        g2.drawImage(door, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case SOWED_DIRT_WATERED ->
+                        g2.drawImage(sowedDirtWatered, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
+                    case WATERINGCAN_BOX ->
+                        g2.drawImage(wateringcanBox, i * GameGUI.TILE_WIDTH, j * GameGUI.TILE_HEIGHT, null);
                 }
             }
         }
-        if (currentPest != null) {
-            g2.drawImage(pest, currentPest.getX() * GameGUI.TILE_WIDTH, currentPest.getY() * GameGUI.TILE_HEIGHT, null);
-        }
-        if (currentNPC != null){
-            g2.drawImage(npc, currentNPC.getX() * GameGUI.TILE_WIDTH, currentNPC.getY() * GameGUI.TILE_HEIGHT, null);
-        }
-        if (currentPlayer != null) {
-            if(currentPlayer.getHeldItem() != null){
-                if(currentPlayer.getHeldItem() instanceof Hoe){
-                    g2.drawImage(hoe, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(currentPlayer.getHeldItem() instanceof SeedBag){
-                    g2.drawImage(seedbag, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(currentPlayer.getHeldItem() instanceof Axe){
-                    g2.drawImage(axe, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(currentPlayer.getHeldItem() instanceof Pickaxe){
-                    g2.drawImage(pickaxe, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(currentPlayer.getHeldItem() instanceof WateringCan){
-                    g2.drawImage(wateringcan, (currentTiles.length-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
+        for(Entity e : currentEntities.getEntities()){
+            if(e instanceof Tree){
+                g2.drawImage(tree, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
             }
-            g2.drawImage(player, currentPlayer.getX() * GameGUI.TILE_WIDTH, currentPlayer.getY() * GameGUI.TILE_HEIGHT, null);
-        }
-        if (currentDebris != null) {
-            for (Entity e : currentDebris) {
-                if (e != null) {
-                    g2.drawImage(e instanceof Tree ? tree : rock, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
+            else if(e instanceof Rock){
+                g2.drawImage(rock, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
+            }
+            else if(e instanceof Pest){
+                g2.drawImage(pest, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
+            }
+            else if(e instanceof NPC){
+                g2.drawImage(npc, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
+            }
+            else if(e instanceof Player){
+                g2.drawImage(player, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
+                
+                if(((Player) e).getHeldItem() instanceof Hoe){
+                    g2.drawImage(hoe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(((Player) e).getHeldItem() instanceof SeedBag){
+                    g2.drawImage(seedbag, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(((Player) e).getHeldItem() instanceof Axe){
+                    g2.drawImage(axe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(((Player) e).getHeldItem() instanceof Pickaxe){
+                    g2.drawImage(pickaxe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(((Player) e).getHeldItem() instanceof WateringCan){
+                    g2.drawImage(wateringcan, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
             }
         }

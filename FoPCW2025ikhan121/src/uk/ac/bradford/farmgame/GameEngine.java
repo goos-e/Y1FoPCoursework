@@ -543,7 +543,7 @@ public class GameEngine {
         if (turnNumber % 6 == 0 && entities.getNPC() != null) {
             moveNPC();
         }
-        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), entities.getPlayer(), entities.getPest(), entities.getNPC());
+        gui.updateDisplay(level);
     }
 
     /**
@@ -555,7 +555,7 @@ public class GameEngine {
         evenBetterGenerateFarm();
         createPlayer();
         createNPC();
-        gui.updateDisplay(level.toArray(), entities.getDebrisArray(), entities.getPlayer(), entities.getPest(), entities.getNPC());
+        gui.updateDisplay(level);
     }
     
     

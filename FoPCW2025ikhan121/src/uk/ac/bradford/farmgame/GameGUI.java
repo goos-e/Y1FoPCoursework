@@ -260,7 +260,7 @@ class Canvas extends JPanel {
      */
     public void update(Level level) {
         currentLevel = level;
-        currentEntities = level.getEntityManager();
+        currentEntities = level.getEntities();
         repaint();
     }
 

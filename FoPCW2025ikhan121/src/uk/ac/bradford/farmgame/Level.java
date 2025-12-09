@@ -14,9 +14,10 @@ import uk.ac.bradford.farmgame.entity.*;
  * @author goose
  */
 public class Level {
+    private Vec2 globalPosition;
     private Tile[][] level;
     private Random rng;
-    public EntityManager entities;
+    private EntityManager entities;
     
     
     private int LEVEL_WIDTH;
@@ -28,9 +29,10 @@ public class Level {
      * @param size: Vec2 containing the (width, height) of the level
      * @param rng: seeded Random object 
      */
-    public Level(Vec2 size, Random rng){
+    public Level(Vec2 size, Vec2 position, Random rng){
         this.LEVEL_WIDTH = size.getX();
         this.LEVEL_HEIGHT = size.getY();
+        this.globalPosition = position;
         this.rng = rng;
         
         level = new Tile[this.LEVEL_WIDTH][this.LEVEL_HEIGHT];
@@ -188,6 +190,7 @@ public class Level {
         
         for(int i = 0; i<this.LEVEL_WIDTH; i++){
             for (int j = 0; j<this.LEVEL_HEIGHT; j++){
+                if(level[i][j] == null){continue;}
                 if(level[i][j].getType() == t){
                     coords.add(new Vec2(i, j));
                 }
@@ -196,8 +199,12 @@ public class Level {
         
         // Vector[] result = coords.toArray(new Vector[coords.size()]);
         Vec2[] result = coords.toArray(Vec2[]::new);
-        
-        return result;
+        if(result.length > 0){
+            return result;
+        }
+        else{
+            return null;
+        }
     }
     
     /**
@@ -275,9 +282,6 @@ public class Level {
         return (isWithinLevel(v) && !getTile(v).isCollidable() && !entities.hasEntityAt(v));
     }
     
-    public EntityManager getEntityManager() {
-        return entities;
-    }
         
     /**
      * Randomly generates a Vec2 coordinate for a point on the edge of the map
@@ -311,7 +315,18 @@ public class Level {
         return edgePoint;
     }
     
-    public void setEntityManager(EntityManager entityManager) {
+    public Vec2 getGlobalPosition(){
+        return this.globalPosition;
+    }
+    
+    public void setGlobalPosition(Vec2 v){
+        this.globalPosition = v;
+    }
+    public EntityManager getEntities() {
+        return entities;
+    }
+    
+    public void setEntities(EntityManager entityManager) {
         this.entities = entityManager;
     }
 

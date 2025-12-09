@@ -11,6 +11,21 @@ public final class Vec2 {
     private final int x;
     private final int y;
     
+    public Vec2(){
+        this.x = 0;
+        this.y = 0;
+    }
+    
+    public Vec2(int x, int y){
+        this.x = x;
+        this.y = y;
+    }
+    
+    public Vec2(Vec2 v){
+        this.x = v.getX();
+        this.y = v.getY();
+    }
+    
     public int getX(){
         return x;
     }
@@ -19,15 +34,7 @@ public final class Vec2 {
         return y;
     }
     
-    public Vec2(int x, int y){
-        this.x = x;
-        this.y = y;
-    }
-    
-    public Vec2(){
-        this.x = 0;
-        this.y = 0;
-    }
+
     
     public Vec2 add(Vec2 v){
         return new Vec2(this.x+v.x, this.y+v.y);

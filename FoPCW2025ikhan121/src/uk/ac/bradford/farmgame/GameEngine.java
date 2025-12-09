@@ -66,7 +66,8 @@ public class GameEngine {
 
     private ArrayList<Level> levels;
     private Level currentLevel;
-    private EntityManager currentEntities;    
+    private EntityManager currentEntities;
+    private Player currentPlayer;
     
     /**
      * Constructor that creates a GameEngine object and connects it with a
@@ -86,11 +87,17 @@ public class GameEngine {
      * class.
      */
     private void createPlayer() {
-        if(currentEntities.hasEntityOfType(Player.class)){return;}
+        if(currentEntities.hasEntityOfType(Player.class)){
+            currentPlayer = currentEntities.getPlayer();
+            return;
+        }
         
-        Vec2 playerSpawn = currentLevel.findTiles(TileType.BED)[0];
+        Vec2 bed = currentLevel.findClosest(TileType.BED, new Vec2());
         
+        Vec2 playerSpawn = new Vec2(bed);
         currentEntities.addEntity(new Player(playerSpawn));
+        
+        currentPlayer = currentEntities.getPlayer();
     }
     
     private void createNPC(){
@@ -329,8 +336,7 @@ public class GameEngine {
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
     private void evenBetterGenerateFarm() {
-        generateNewLevel(0);
-        
+        generateLevel(0);
         
         // spawn a dirt patch ie farm plot
         generateDirtPatch();
@@ -354,7 +360,7 @@ public class GameEngine {
         soilDecay();
         Vec2[] sowedCoords = currentLevel.findTiles(TileType.SOWED_DIRT_WATERED);
         
-        if (sowedCoords.length>0){
+        if (sowedCoords != null){
             
             if(!currentEntities.hasEntityOfType(Pest.class)){
                 createPest();
@@ -379,7 +385,7 @@ public class GameEngine {
     private void soilDecay(){
         Vec2 [] tilledCoords = currentLevel.findTiles(TileType.TILLED_DIRT);
         
-        if(tilledCoords.length > 0){
+        if(tilledCoords != null){
             for(Vec2 v : tilledCoords){
                 if(rng.nextDouble() <= 0.33){
                     currentLevel.fillTile(TileType.DIRT, v);
@@ -428,26 +434,76 @@ public class GameEngine {
         
         if(currentLevel.isWithinLevel(nextCoords)){
             //System.out.println("Moving to: " + level[nextCoords.getX()][nextCoords.getY()].getType());
-            handlePlayerInteraction(nextCoords);
+            handlePlayer(nextCoords);
         }
         else{
-            generateNewLevel(direction);
+            generateLevel(direction);
         }
+        
         if(currentLevel.isValid(nextCoords)){
-            currentEntities.getPlayer().setPosition(nextCoords);
+            currentPlayer.setPosition(nextCoords);
         }
     }
     /**
      * Generates a new Level object and adds to the global levels ArrayList
      * 
      * @param direction to be used for determining which side the player should spawn on
+     * 1 is up, 2 is right, 3 is down, 4 is left
      */
-    private void generateNewLevel(int direction){
-        currentLevel = new Level(LEVEL_SIZE, rng);
-        currentEntities = currentLevel.getEntityManager();
+    private void generateLevel(int direction){
+        Vec2 globalLevelPosition;
+        Vec2 playerSpawn = new Vec2(LEVEL_WIDTH/2, LEVEL_HEIGHT/2);
+        // check if first map being generated -> globalLevelPosition should be (0,0)
+        // if not, globalLevelPosition is offset by direction
+        if(currentLevel == null){
+            globalLevelPosition = new Vec2();
+            currentPlayer = new Player(playerSpawn);
+        }
+        else{
+            globalLevelPosition = new Vec2(currentLevel.getGlobalPosition());
+            switch(direction){
+                case 1-> {
+                    globalLevelPosition = globalLevelPosition.up();
+                    playerSpawn = new Vec2(LEVEL_WIDTH/2, LEVEL_HEIGHT-1);
+                }
+                case 2-> {
+                    globalLevelPosition = globalLevelPosition.right();
+                    playerSpawn = new Vec2(0, LEVEL_HEIGHT/2);
+                }
+                case 3-> {
+                    globalLevelPosition = globalLevelPosition.down();
+                    playerSpawn = new Vec2(LEVEL_WIDTH/2, 0);
+                }
+                case 4-> {
+                    globalLevelPosition = globalLevelPosition.left();
+                    playerSpawn = new Vec2(LEVEL_WIDTH-1, LEVEL_HEIGHT/2);
+                }
+            }
+        }
+        
+        // checks for level with same level position, compares against each level
+        // if yes, load it in
+        for(Level level : levels){
+            if(level.getGlobalPosition().equals(globalLevelPosition)){
+                currentLevel = level;
+                currentEntities = currentLevel.getEntities();
+                currentPlayer = currentEntities.getPlayer();
+                currentPlayer.setPosition(playerSpawn);
+                return;
+            }
+        }
+        
+        // if no level exists, create one
+        // transfer player to new level, while removing from old one
+        
+        currentLevel = new Level(LEVEL_SIZE, globalLevelPosition, rng);
+        levels.add(currentLevel); // add to global map of levels
+        currentEntities = currentLevel.getEntities();
+        currentEntities.addEntity(currentPlayer);
+        currentPlayer = currentEntities.getPlayer();
+        currentPlayer.setPosition(playerSpawn);
         currentLevel.init();
-        currentEntities.addEntity(new Player(currentLevel.getPointOnEdge()));
-        levels.add(currentLevel);
+        currentLevel.addDebris();
     }
     
     /**
@@ -498,7 +554,7 @@ public class GameEngine {
     public void startGame() {
         levels = new ArrayList<Level>();
         evenBetterGenerateFarm();
-        createPlayer();
+        //createPlayer();
         gui.updateDisplay(currentLevel);
     }
     
@@ -508,15 +564,14 @@ public class GameEngine {
      * tilling the ground if the player is holding a hoe.
      * @param v vector object of tile coordinate player is attemping to interact with
      */
-    private void handlePlayerInteraction(Vec2 v){
+    private void handlePlayer(Vec2 v){
         
         Tile tile = currentLevel.getTile(v);
         TileType type = tile.getType();
         int entityIndex = currentEntities.getEntityIndexAt(v);
-        Player player = currentEntities.getPlayer();
         
-        player.updatePlayerItem(type);
-        Item holding = player.getHeldItem();
+        currentPlayer.updatePlayerItem(type);
+        Item holding = currentPlayer.getHeldItem();
         
         // checks if tile has entity on it -> forcing entity interaction
         if(entityIndex != -1){

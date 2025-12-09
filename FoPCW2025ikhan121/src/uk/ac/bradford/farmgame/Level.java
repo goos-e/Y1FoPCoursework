@@ -4,9 +4,10 @@
  */
 package uk.ac.bradford.farmgame;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
+
 import uk.ac.bradford.farmgame.Tile.TileType;
-import uk.ac.bradford.farmgame.entity.EntityManager;
+import uk.ac.bradford.farmgame.entity.*;
 
 /**
  *
@@ -14,7 +15,9 @@ import uk.ac.bradford.farmgame.entity.EntityManager;
  */
 public class Level {
     private Tile[][] level;
-    public EntityManager entityManager;
+    private Random rng;
+    public EntityManager entities;
+    
     
     private int LEVEL_WIDTH;
     private int LEVEL_HEIGHT;
@@ -22,17 +25,67 @@ public class Level {
     
     /**
      * Constructor for Level object, creates an empty Tile[][] array of dimension w * h
-     * @param width width (number of columns; x axis) of the 2d tile array
-     * @param height height (number of rows; y axis) of the 2d tile array
+     * @param size: Vec2 containing the (width, height) of the level
+     * @param rng: seeded Random object 
      */
-    public Level(int width, int height){
-        this.LEVEL_WIDTH = width;
-        this.LEVEL_HEIGHT = height;
-        level = new Tile[this.LEVEL_WIDTH][this.LEVEL_HEIGHT];
+    public Level(Vec2 size, Random rng){
+        this.LEVEL_WIDTH = size.getX();
+        this.LEVEL_HEIGHT = size.getY();
+        this.rng = rng;
         
-        this.entityManager = new EntityManager();
+        level = new Tile[this.LEVEL_WIDTH][this.LEVEL_HEIGHT];
+        this.entities = new EntityManager();
     }
-    
+        
+    /**
+     * This method should add debris to the game in the form of Tree and Rock objects.
+     * It should instantiate the debris array with a sensible length and then fill
+     * the array with instances of the Tree and Rock classes that you create in this
+     * method. For top marks in this task the objects should be randomly placed so
+     * that their position is different each game. Ideally they should not be placed
+     * in a way that prevents the player from playing the game (e.g. should not be placed
+     * in a way that blocks the door to the farmhouse!)
+     * Rocks and Trees should block player movement; add code to your newest
+     * player movement method (depends on which tasks you have already completed!)
+     */
+    public void addDebris() {
+       
+        int maxDebris = 100;
+        
+        for(int i = 0; i<maxDebris; i++){
+            int x = rng.nextInt(LEVEL_WIDTH);
+            int y = rng.nextInt(LEVEL_HEIGHT);
+            
+            Vec2 v = new Vec2(x, y);
+            
+            if(!isValid(v)){continue;}
+            
+            TileType type = getTile(v).getType();
+            Vec2[] adjacent = v.getNeighbours4();
+            
+            boolean valid = (type != TileType.HOUSE_FLOOR) && (type!= TileType.DOOR);
+            
+            for(Vec2 adj : adjacent){
+                if(!isValid(adj)){continue;}
+                
+                TileType adjType = getTile(adj).getType();
+                
+                if(adjType == TileType.DOOR || adjType == TileType.DOOR){
+                    valid = false;
+                    break;
+                }
+            }
+            
+            if(valid){
+                if(rng.nextBoolean()){
+                    entities.addEntity(new Tree(v));
+                }
+                else{
+                    entities.addEntity(new Rock(v));
+                }
+            }
+        }
+    }
     /**
      * get method for the Tile object at coordinate (x,y) according to Vector v
      * @param v Vector object for the Tile object at coords (x,y)
@@ -128,7 +181,7 @@ public class Level {
      * none found
      */
     public Vec2[] findTiles(TileType t){
-        List<Vec2> coords = new ArrayList<>();
+        ArrayList<Vec2> coords = new ArrayList<>();
         
         for(int i = 0; i<this.LEVEL_WIDTH; i++){
             for (int j = 0; j<this.LEVEL_HEIGHT; j++){
@@ -216,15 +269,15 @@ public class Level {
             return false;
         }
         
-        return (isWithinLevel(v) && !getTile(v).isCollidable() && !entityManager.hasEntityAt(v));
+        return (isWithinLevel(v) && !getTile(v).isCollidable() && !entities.hasEntityAt(v));
     }
-
+    
     public EntityManager getEntityManager() {
-        return entityManager;
+        return entities;
     }
 
     public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+        this.entities = entityManager;
     }
 
     public int getWidth() {

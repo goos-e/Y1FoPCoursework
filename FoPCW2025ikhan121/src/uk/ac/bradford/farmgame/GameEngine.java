@@ -65,16 +65,7 @@ public class GameEngine {
 
 
     private Level level;
-    private EntityManager entities;
-    
-    // old entities
-    /*
-    private Player player;
-    private Pest pest;    
-    private NPC npc;
-    */
-    
-    
+    private EntityManager entities;    
     
     /**
      * Constructor that creates a GameEngine object and connects it with a
@@ -344,7 +335,7 @@ public class GameEngine {
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
     private void evenBetterGenerateFarm() {
-        level = new Level(LEVEL_WIDTH, LEVEL_HEIGHT);
+        level = new Level(LEVEL_SIZE, rng);
         entities = level.getEntityManager();
         
         // create default stone ground map
@@ -355,7 +346,7 @@ public class GameEngine {
         // spawn the house
         generateHouse();
         // generate debris layer
-        addDebris(); 
+        level.addDebris(); 
     }
     
     /**
@@ -452,58 +443,6 @@ public class GameEngine {
         
         if(level.isValid(nextCoords)){
             entities.getPlayer().setPosition(nextCoords);
-        }
-    }
-    
-    
-    
-    /**
-     * This method should add debris to the game in the form of Tree and Rock objects.
-     * It should instantiate the debris array with a sensible length and then fill
-     * the array with instances of the Tree and Rock classes that you create in this
-     * method. For top marks in this task the objects should be randomly placed so
-     * that their position is different each game. Ideally they should not be placed
-     * in a way that prevents the player from playing the game (e.g. should not be placed
-     * in a way that blocks the door to the farmhouse!)
-     * Rocks and Trees should block player movement; add code to your newest
-     * player movement method (depends on which tasks you have already completed!)
-     */
-    private void addDebris() {
-       
-        int maxDebris = 100;
-        
-        for(int i = 0; i<maxDebris; i++){
-            int x = rng.nextInt(LEVEL_WIDTH);
-            int y = rng.nextInt(LEVEL_HEIGHT);
-            
-            Vec2 v = new Vec2(x, y);
-            
-            if(!level.isValid(v)){continue;}
-            
-            TileType type = level.getTile(v).getType();
-            Vec2[] adjacent = v.getNeighbours4();
-            
-            boolean valid = (type != TileType.HOUSE_FLOOR) && (type!= TileType.DOOR);
-            
-            for(Vec2 adj : adjacent){
-                if(!level.isValid(adj)){continue;}
-                
-                TileType adjType = level.getTile(adj).getType();
-                
-                if(adjType == TileType.DOOR || adjType == TileType.DOOR){
-                    valid = false;
-                    break;
-                }
-            }
-            
-            if(valid){
-                if(rng.nextBoolean()){
-                    entities.addEntity(new Tree(v));
-                }
-                else{
-                    entities.addEntity(new Rock(v));
-                }
-            }
         }
     }
 

@@ -42,7 +42,7 @@ public class Level {
         
     public void init(){
         fillRect(TileType.STONE_GROUND, new Vec2(), new Vec2(this.LEVEL_WIDTH, this.LEVEL_HEIGHT));
-        
+        generateDirtPatch();
     }
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
@@ -169,7 +169,7 @@ public class Level {
      */
     public void fillCircle(TileType t, Vec2 mid, int rad){
         /*
-        circle equation used: (x - a)^2 + (y - b) <= r, where (a,b) is centre
+        circle equation used: (x - a)^2 + (y - b)^2 <= r^2, where (a,b) is centre
         note the sign '<=' indicates the points ON and INSIDE the circle
         cardinal points are: (a+r, b), (a-r, b), (a, b+r), (a, b-r)
         every point p in circle MUST satisfy:
@@ -182,7 +182,7 @@ public class Level {
         int b = mid.getY();
         
         for(int i = a-rad; i <= a+rad; i++){
-            for(int j = b-rad; j <= j+rad; j++){
+            for(int j = b-rad; j <= b+rad; j++){
                 Vec2 currentV = new Vec2(i, j);
                 
                 if(!isWithinLevel(currentV)){continue;}
@@ -422,22 +422,14 @@ public class Level {
      */
     public void generateDirtPatch(){
         // farm plot generation 
-        // size (width, height) -> (x, y)
-        Vec2 size = new Vec2(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
-        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-size.getX()), 
-                                       rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
-
-        fillRect(TileType.DIRT, topLeft, topLeft.add(size));
-        //fillCircle(TileType.DIRT, new Vec2(12,12), 2);
+        int dirtPatchCount = rng.nextInt(6, 12);
+        for (int i = 0; i <= dirtPatchCount; i++){
+            int radius = rng.nextInt(0, 5);
+            int a = rng.nextInt(0, LEVEL_WIDTH);
+            int b = rng.nextInt(0, LEVEL_HEIGHT);
+            fillCircle(TileType.DIRT, new Vec2(a,b), radius);
+        }
         
-        // place item boxes
-        //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
-        //level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
-        
-        //Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
-        //fillTile(TileType.HOE_BOX, boxV);
-        //fillTile(TileType.WATERINGCAN_BOX, boxV.right());
-        //fillTile(TileType.SEED_BOX, boxV.left());
     }
     
     public Vec2 getGlobalPosition(){

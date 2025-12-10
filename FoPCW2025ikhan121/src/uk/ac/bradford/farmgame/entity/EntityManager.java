@@ -95,7 +95,6 @@ public class EntityManager {
      * parameter, clazz. If at least one entity is an instance of that class, the method
      * returns that entity, otherwise null.
      * 
-     * @param <T>
      * @param clazz class to check if each entity is an instance of
      * @return the first entity of that type, cast as type T
      */
@@ -113,7 +112,6 @@ public class EntityManager {
      * the generic class parameter, clazz. Each one that matches is added to a temporary
      * ArrayList of type clazz, which is returned as a regular array.
      * 
-     * @param <T>
      * @param clazz class to check if each entity is an instance of 
      * @return 
      */

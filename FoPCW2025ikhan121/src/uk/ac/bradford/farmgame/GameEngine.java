@@ -134,7 +134,7 @@ public class GameEngine {
         Vec2 start = npc.getPosition();
         Vec2 playerPos = currentEntities.getEntityOfType(Player.class).getPosition();
         
-        if(start.isAdjacentTo(playerPos)){
+        if(start.isAdjacent(playerPos)){
             System.out.println("good evening..");
         }
         else{
@@ -328,7 +328,7 @@ public class GameEngine {
      */
     private void evenBetterGenerateFarm() {
         // spawn a dirt patch ie farm plot
-        currentLevel.generateDirtPatch();
+        // currentLevel.generateDirtPatch();
         // spawn the house
         currentLevel.generateHouse();
     }
@@ -642,11 +642,6 @@ public class GameEngine {
                 holding.use(tile);
             }
         }
-    }
-    
-    private Vec2 findPlayerSpawn(){
-        if(currentLevel == null){return null;}
-        return null;
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

@@ -96,12 +96,12 @@ public final class Vec2 {
     }
     
     /**
-     * Checks if current and passed vector are adjacent: makes adjacency array 
+     * Checks if passed vector is adjacent to current: makes adjacency array 
      * for current and traverses, comparing each to passed vector.
      * @param v Vec2 object to check against each adjacent to current vector
      * @return True if v is among adjacent vectors, false otherwise
      */
-    public boolean isAdjacentTo(Vec2 v){
+    public boolean isAdjacent(Vec2 v){
         Vec2[] neighbours = this.getNeighbours4();
         
         for(Vec2 adj : neighbours){

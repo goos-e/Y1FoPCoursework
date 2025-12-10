@@ -15,7 +15,6 @@ public class EntityManager {
         entities = new ArrayList<Entity>();
     }
     
-    
     public void addEntity(Entity e){
         entities.add(e);
         if(e instanceof Player){
@@ -42,6 +41,7 @@ public class EntityManager {
      * 
      * @param v Vec2 coordinate to check against each entity in the entities array
      * @return Entity object which has the same position as the passed coordinate
+     * returns null if no entity exists at that coordinate
      */
     public Entity getEntityAt(Vec2 v){
         for(Entity e : entities){
@@ -92,26 +92,48 @@ public class EntityManager {
     
     /**
      * Traverses the entities array and checks against a generic class as an input
-     * parameter, T. If at least one entity is an instance of that class, the method
-     * returns true, otherwise false.
+     * parameter, clazz. If at least one entity is an instance of that class, the method
+     * returns that entity, otherwise null.
      * 
-     * @param c class to check if an entity is an instance of
-     * @return true if there is at least one instance of that class, false otherwise
+     * @param <T>
+     * @param clazz class to check if each entity is an instance of
+     * @return the first entity of that type, cast as type T
      */
-    public <T extends Entity> T getEntityOfType(Class<T> c){
+    public <T extends Entity> T getEntityOfType(Class<T> clazz){
         for(Entity e : entities){
-            if(c.isInstance(e)){
-                return c.cast(e);
+            if(clazz.isInstance(e)){
+                return clazz.cast(e);
             }
         }
         return null;
+    }
+    
+    /**
+     * Traverses the entities array and checks if each instance is an instance of
+     * the generic class parameter, clazz. Each one that matches is added to a temporary
+     * ArrayList of type clazz, which is returned as a regular array.
+     * 
+     * @param <T>
+     * @param clazz class to check if each entity is an instance of 
+     * @return 
+     */
+    public <T extends Entity> ArrayList<T> getEntitiesOfType(Class<T> clazz){
+        ArrayList<T> typedEntities = new ArrayList<T>();
+        
+        for(Entity e : entities){
+            if(clazz.isInstance(e)){
+                typedEntities.add(clazz.cast(e));
+            }
+        }
+        
+        return typedEntities;
     }
     
     public int getSize(){
         return this.entities.size();
     }
     
-    public Entity[] getEntities(){
+    public Entity[] asArray(){
         return this.entities.toArray(Entity[]::new);
     }
     

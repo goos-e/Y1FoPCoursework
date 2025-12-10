@@ -5,6 +5,7 @@
 package uk.ac.bradford.farmgame;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.Predicate;
 
 import uk.ac.bradford.farmgame.Tile.TileType;
 import uk.ac.bradford.farmgame.entity.*;
@@ -42,8 +43,6 @@ public class Level {
     public void init(){
         fillRect(TileType.STONE_GROUND, new Vec2(), new Vec2(this.LEVEL_WIDTH, this.LEVEL_HEIGHT));
         
-        
-        
     }
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
@@ -66,25 +65,7 @@ public class Level {
             
             Vec2 v = new Vec2(x, y);
             
-            if(!isValid(v)){continue;}
-            
-            TileType type = getTile(v).getType();
-            Vec2[] adjacent = v.getNeighbours4();
-            
-            boolean valid = (type != TileType.HOUSE_FLOOR) && (type!= TileType.DOOR);
-            
-            for(Vec2 adj : adjacent){
-                if(!isValid(adj)){continue;}
-                
-                TileType adjType = getTile(adj).getType();
-                
-                if(adjType == TileType.DOOR || adjType == TileType.DOOR){
-                    valid = false;
-                    break;
-                }
-            }
-            
-            if(valid){
+            if(isValidSpawn(v)){
                 if(rng.nextBoolean()){
                     entities.addEntity(new Tree(v));
                 }
@@ -94,12 +75,16 @@ public class Level {
             }
         }
     }
+    
+    
     /**
      * get method for the Tile object at coordinate (x,y) according to Vector v
      * @param v Vector object for the Tile object at coords (x,y)
      * @return the Tile object at level[x][y]
      */
     public Tile getTile(Vec2 v){
+        if(!isWithinLevel(v)){return null;}
+        
         int x = v.getX();
         int y = v.getY();
         
@@ -113,6 +98,7 @@ public class Level {
      * @return the Tile object at level[x][y]
      */
     public Tile getTile(int x, int y){
+        if(!isWithinLevel(new Vec2(x, y))){return null;}
         
         return level[x][y];
     }
@@ -138,17 +124,19 @@ public class Level {
      * @param v2 vector object for endpoint of line
      */
     public void fillLine(TileType t, Vec2 v1, Vec2 v2){
+        Vec2 tileCoord;
         if(v1.getX() == v2.getX()){
-            // draw vertical line
+            // draw vertical line; keep the x value the same as v1.getX()
             for(int j = v1.getY(); j<=v2.getY(); j++){
-                level[v1.getX()][j] = new Tile(t);
+                tileCoord = v1.withX(j);
+                fillTile(t, tileCoord);
             }
         }
         else{
-            // draw horizontal
+            // draw horizontal; keep the y value the same as v1.getY()
             for(int i = v1.getX(); i<=v2.getX(); i++){
-                
-                level[i][v1.getY()] = new Tile(t);
+                tileCoord = v1.withY(i);
+                fillTile(t, tileCoord);
             }
         }
     }
@@ -162,9 +150,11 @@ public class Level {
      */
     public void fillRect(TileType t, Vec2 v1, Vec2 v2){
         // default terrain generation: TileType.t
+        Vec2 tileCoord;
         for (int i = v1.getX(); i < v2.getX(); i++){ //cols (x)
             for (int j = v1.getY(); j < v2.getY();  j++){ //rows (y)
-                level[i][j] = new Tile(t);
+                tileCoord = new Vec2(i, j);
+                fillTile(t, tileCoord);
             }
         }
         // System.out.printf("v1 = (%d,%d)%nv2 = (%d,%d)%n",v1.getX(),v1.getY(),v2.getX(),v2.getY());
@@ -178,7 +168,33 @@ public class Level {
      * @param rad 
      */
     public void fillCircle(TileType t, Vec2 mid, int rad){
+        /*
+        circle equation used: (x - a)^2 + (y - b) <= r, where (a,b) is centre
+        note the sign '<=' indicates the points ON and INSIDE the circle
+        cardinal points are: (a+r, b), (a-r, b), (a, b+r), (a, b-r)
+        every point p in circle MUST satisfy:
+            1. isWithinLevel(p)
+            2. (centre - rad) <= p <= (centre + rad)
+            3. the above equation
+        */
         
+        int a = mid.getX();
+        int b = mid.getY();
+        
+        for(int i = a-rad; i <= a+rad; i++){
+            for(int j = b-rad; j <= j+rad; j++){
+                Vec2 currentV = new Vec2(i, j);
+                
+                if(!isWithinLevel(currentV)){continue;}
+                
+                int dx = (i-a);
+                int dy = (j-b);
+                
+                if( dx*dx + dy*dy <= rad*rad){
+                    fillTile(t, currentV);
+                }
+            }
+        }
     }
     
     /**
@@ -188,13 +204,13 @@ public class Level {
      * @return int[][] 2D array of coordinate pairs of found tiles, empty if 
      * none found
      */
-    public Vec2[] findTiles(TileType t){
+    public Vec2[] findTiles(TileType type){
         ArrayList<Vec2> coords = new ArrayList<>();
         
         for(int i = 0; i<this.LEVEL_WIDTH; i++){
             for (int j = 0; j<this.LEVEL_HEIGHT; j++){
-                if(level[i][j] == null){continue;}
-                if(level[i][j].getType() == t){
+                Tile currentTile = getTile(i, j);
+                if(currentTile.getType() == type){
                     coords.add(new Vec2(i, j));
                 }
             }
@@ -251,9 +267,8 @@ public class Level {
      * @return false if the tile coordinate exceeds the map, true if not
      */
     public boolean isWithinLevel(Vec2 v){
-        if(v == null){
-            return false;
-        }
+        if(v == null){return false;}
+        
         int x = v.getX();
         int y = v.getY();
         
@@ -278,11 +293,49 @@ public class Level {
      * @return true if coordinates are valid for movement
      */
     public boolean isValid(Vec2 v){
-        if(v == null){
-            return false;
-        }
+        if(v == null){return false;}
         
         return (isWithinLevel(v) && !getTile(v).isCollidable() && !entities.hasEntityAt(v));
+    }
+    
+    /**
+     * Check if the location is a valid spawn location. At present, this checks 
+     * if the tile beneath or adjacent are of type HOUSE_FLOOR, or DOOR. This
+     * can be updated to include more 'no spawning' tile types. 
+     * @param v
+     * @return 
+     */
+    public boolean isValidSpawn(Vec2 v){
+        // very neat thing i found that lets me store a logic function as a variable
+        // i couldve just made into a separate function, but ive never seen this before
+        Predicate<TileType> canEntitySpawnHere = t -> (
+                t != TileType.HOUSE_FLOOR &&
+                t != TileType.DOOR
+                );
+        
+        
+        if(v == null){return false;}
+        if(!isValid(v)){return false;}
+        
+        
+        TileType type = getTile(v).getType();
+        Vec2[] adjacent = v.getNeighbours4();
+        
+        boolean valid = canEntitySpawnHere.test(type);
+        
+        if(valid){
+            for(Vec2 adj : adjacent){
+                if(!isValid(adj)){continue;}
+                
+                TileType adjType = getTile(adj).getType();
+                if(!canEntitySpawnHere.test(adjType)){
+                    valid = false;
+                    break;
+                }
+            }
+        }
+        
+        return valid;
     }
     
         
@@ -354,6 +407,10 @@ public class Level {
         fillTile(TileType.BED, bedV);
         
         // place boxes
+        // this is the most JANK code ever
+        fillTile(TileType.WATERINGCAN_BOX, doorV.up().right());
+        fillTile(TileType.HOE_BOX, doorV.up().right().right());
+        fillTile(TileType.SEED_BOX, doorV.up().right().right().right());
         fillTile(TileType.AXE_BOX, boxV);
         fillTile(TileType.PICKAXE_BOX, boxV.right());
     }
@@ -371,15 +428,16 @@ public class Level {
                                        rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
 
         fillRect(TileType.DIRT, topLeft, topLeft.add(size));
+        //fillCircle(TileType.DIRT, new Vec2(12,12), 2);
         
         // place item boxes
         //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
         //level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
         
-        Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
-        fillTile(TileType.HOE_BOX, boxV);
-        fillTile(TileType.WATERINGCAN_BOX, boxV.right());
-        fillTile(TileType.SEED_BOX, boxV.left());
+        //Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
+        //fillTile(TileType.HOE_BOX, boxV);
+        //fillTile(TileType.WATERINGCAN_BOX, boxV.right());
+        //fillTile(TileType.SEED_BOX, boxV.left());
     }
     
     public Vec2 getGlobalPosition(){

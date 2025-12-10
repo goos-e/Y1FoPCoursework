@@ -78,14 +78,14 @@ public abstract class Entity {
     /**
      * Move towards the coordinate passed by the vector closest, currently
      * ignores terrain
-     * @param closest Vector containing coordinates for entity to move towards
+     * @param v Vector containing coordinates for entity to move towards
      */
-    public void moveTowards(Vec2 closest){
+    public void moveTowards(Vec2 v){
         Vec2 start = this.position;
         
-        if(closest != null){
-            if (start != closest) {
-                    Vec2 delta = closest.sub(start);
+        if(v != null){
+            if (start != v) {
+                    Vec2 delta = v.sub(start);
                     int dX = delta.getX();
                     int dY = delta.getY();
                     

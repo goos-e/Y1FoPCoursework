@@ -53,12 +53,6 @@ public class GameEngine {
     private int turnNumber = 1;
 
     /**
-     * The amount of money the player has in the current game. Money is gained by
-     * harvesting crops.
-     */
-    private int money = 0;
-
-    /**
      * The GUI associated with this GameEngine object. This link allows the
      * engine to pass level and entity information to the GUI to be drawn.
      */
@@ -94,7 +88,6 @@ public class GameEngine {
         
         Vec2 bed = currentLevel.findClosest(TileType.BED, new Vec2());
         
-        
         Vec2 playerSpawn = new Vec2(bed);
         currentEntities.addEntity(new Player(playerSpawn));
         
@@ -102,7 +95,7 @@ public class GameEngine {
     }
     
     private void createNPC(){
-        if(currentEntities.hasEntityOfType(NPC.class)){return;}
+        if(currentEntities.getEntitiesOfType(NPC.class).size() >= 1){return;}
         
         Vec2 npcSpawn = currentLevel.getPointOnEdge();
         currentEntities.addEntity(new NPC(npcSpawn));
@@ -114,10 +107,9 @@ public class GameEngine {
      * make the position of the Pest dynamic i.e. it is randomly selected in some way.
      */
     private void createPest() {
-        if(currentEntities.hasEntityOfType(Pest.class)){return;}
+        if(currentEntities.getEntitiesOfType(Pest.class).size() >= 3){return;}
         
         Vec2 pestSpawn = currentLevel.getPointOnEdge();
-        
         currentEntities.addEntity(new Pest(pestSpawn));
     }
     
@@ -129,27 +121,25 @@ public class GameEngine {
      * be blocked by any tile types nor by Trees or Rocks (though you can add code to
      * create more complex movement rules if you wish!)
      */
-    private void movePest() {
-        Pest pest = currentEntities.getPest();
+    private void movePest(Pest pest) {
         if(pest == null){return;}
         
         Vec2 closestCrop = currentLevel.findClosest(TileType.CROP, pest.getPosition());
-        
         pest.moveTowards(closestCrop);
     }
     
-    private void moveNPC(){
-        NPC npc = currentEntities.getNPC();
+    private void moveNPC(NPC npc){
         if(npc == null){return;}
         
         Vec2 start = npc.getPosition();
         Vec2 playerPos = currentEntities.getEntityOfType(Player.class).getPosition();
         
-        if(start.equals(playerPos)){
+        if(start.isAdjacentTo(playerPos)){
             System.out.println("good evening..");
         }
-        
-        npc.moveTowards(playerPos);
+        else{
+            npc.moveTowards(playerPos);
+        }
     }
     
     /**
@@ -337,14 +327,10 @@ public class GameEngine {
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
     private void evenBetterGenerateFarm() {
-        // level.fillRect() call was moved inside generateLevel(), as level.init()
-        createNewLevel(0);
         // spawn a dirt patch ie farm plot
         currentLevel.generateDirtPatch();
         // spawn the house
         currentLevel.generateHouse();
-        // generate debris layer
-        currentLevel.addDebris(); 
     }
     
     /**
@@ -363,9 +349,7 @@ public class GameEngine {
         
         if (sowedCoords != null){
             
-            if(!currentEntities.hasEntityOfType(Pest.class)){
-                createPest();
-            }
+            createPest();
 
             for (Vec2 v : sowedCoords){
                 
@@ -445,6 +429,7 @@ public class GameEngine {
             currentPlayer.setPosition(nextCoords);
         }
     }
+    
     /**
      * Generates a new Level object and adds to the global levels ArrayList
      * 
@@ -482,16 +467,27 @@ public class GameEngine {
             }
         }
         
-        // check if player exists and transfer to new level and remove from old
         currentLevel = new Level(LEVEL_SIZE, globalLevelPosition, rng);
         levels.add(currentLevel); // add to global map of levels
         currentEntities = currentLevel.getEntities();
+        
+        // check if player exists and transfer to new level and remove from old
         if(currentPlayer != null){
             currentEntities.addEntity(currentPlayer);
             currentPlayer = currentEntities.getPlayer();
             currentPlayer.setPosition(playerSpawn);
         }
+        
         currentLevel.init();
+        
+        // CALL THE TILE WRITING FUNCTIONS HERE
+        if(direction == 0){
+            evenBetterGenerateFarm();
+        }
+        else{
+        }
+        
+        currentLevel.addDebris();
     }
     
     public void changeLevel(int direction){
@@ -527,7 +523,7 @@ public class GameEngine {
             }
         }
         
-        // System.out.printf("Updated global coords: %d,%d%n", globalLevelPosition.getX(), globalLevelPosition.getY());
+        System.out.printf("Current global coords: %d,%d%n", globalLevelPosition.getX(), globalLevelPosition.getY());
         // traverses world map to see if level exists
         // if level does exist, transfer player and load new level
         for(Level level : levels){
@@ -576,10 +572,16 @@ public class GameEngine {
     public void doTurn() {
         turnNumber++;
         if (turnNumber % 4 == 0 && currentEntities.getPest() != null) {
-            movePest();
+            ArrayList<Pest> pests = currentEntities.getEntitiesOfType(Pest.class);
+            for(Pest pest : pests){
+                movePest(pest);
+            }
         }
-        if (turnNumber % 6 == 0 && currentEntities.getNPC() != null) {
-            moveNPC();
+        if (turnNumber % 2 == 0 && currentEntities.getNPC() != null) {
+            ArrayList<NPC> NPCs = currentEntities.getEntitiesOfType(NPC.class);
+            for(NPC npc : NPCs){
+                moveNPC(npc);
+            }
         }
         gui.updateDisplay(currentLevel);
     }
@@ -591,7 +593,8 @@ public class GameEngine {
      */
     public void startGame() {
         levels = new ArrayList<Level>();
-        evenBetterGenerateFarm();
+        createNewLevel(0);
+        //evenBetterGenerateFarm();
         createPlayer();
         gui.updateDisplay(currentLevel);
     }
@@ -630,9 +633,10 @@ public class GameEngine {
                 triggerNight();
             }
             case CROP->{
+                int currentMoney = currentPlayer.getMoney();
                 currentLevel.fillTile(TileType.DIRT, v);
-                System.out.printf("MONEY: $%d + $5%n",money);
-                money += 5;
+                //System.out.printf("MONEY: $%d + $5%n",currentMoney);
+                currentPlayer.setMoney(currentMoney + 5);
             }
             default->{
                 holding.use(tile);
@@ -642,7 +646,6 @@ public class GameEngine {
     
     private Vec2 findPlayerSpawn(){
         if(currentLevel == null){return null;}
-        
         return null;
     }
     

@@ -14,10 +14,12 @@ import uk.ac.bradford.farmgame.Vec2;
  */
 public class Player extends Entity {
     
-   /**
+    /**
     * Item object for what the player is holding
     */
     private Item holding;
+    
+    private int money;
     
     /**
      * This constructor is used to create a Player object to use in the game
@@ -28,6 +30,7 @@ public class Player extends Entity {
     public Player(Vec2 v) {
         setPosition(v);
         this.holding = new Hand();
+        this.money = 0;
     }
 
     /**
@@ -40,27 +43,6 @@ public class Player extends Entity {
      */
     public Item getHeldItem() {
         return holding;
-    }
-    
-    /**
-     * A setter to change the held item for the player. Used for actions that
-     * require the player to be holding a certain items to perform them e.g. 
-     * planting seeds that requires a seed bag.
-     * @param a the numerical value representing the item the player will now hold: 0 is no item, 1 is
-     * the how to till dirt, 2 is the seed bag to sow seeds, 3 is the axe to cut trees and 4 is
-     * the pickaxe to break rocks.
-     */
-    public void setHeldItem(Item a) {
-        holding = a;
-    }
-    
-    /**
-     * A setter to change the held item to null, so the item is destroyed.
-     */
-    private void removeHeldItem(){
-        if(holding!=null){
-            this.holding = new Hand();
-        }
     }
     
     public void checkHeldDurability(){
@@ -91,6 +73,33 @@ public class Player extends Entity {
                 case PICKAXE_BOX->setHeldItem(new Pickaxe());
                 case WATERINGCAN_BOX->setHeldItem(new WateringCan());
             }
+        }
+    }
+    
+    public int getMoney(){
+        return this.money;
+    }
+    
+    public void setMoney(int a){
+        this.money = a;
+    }
+    
+    /**
+     * A setter to change the held item for the player. Used for actions that
+     * require the player to be holding a certain items to perform them e.g. 
+     * planting seeds that requires a seed bag.
+     * @param a The Item object to set the player's held item to. E.g. Axe, Hoe, WateringCan
+     */
+    public void setHeldItem(Item a) {
+        holding = a;
+    }
+    
+    /**
+     * A setter to change the held item to null, so the item is destroyed.
+     */
+    private void removeHeldItem(){
+        if(holding!=null){
+            this.holding = new Hand();
         }
     }
 }

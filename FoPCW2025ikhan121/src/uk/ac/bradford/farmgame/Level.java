@@ -41,6 +41,9 @@ public class Level {
         
     public void init(){
         fillRect(TileType.STONE_GROUND, new Vec2(), new Vec2(this.LEVEL_WIDTH, this.LEVEL_HEIGHT));
+        
+        
+        
     }
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
@@ -58,8 +61,8 @@ public class Level {
         int maxDebris = 100;
         
         for(int i = 0; i<maxDebris; i++){
-            int x = rng.nextInt(LEVEL_WIDTH);
-            int y = rng.nextInt(LEVEL_HEIGHT);
+            int x = rng.nextInt(1, LEVEL_WIDTH-1);
+            int y = rng.nextInt(1, LEVEL_HEIGHT-1);
             
             Vec2 v = new Vec2(x, y);
             
@@ -313,6 +316,70 @@ public class Level {
             }
         
         return edgePoint;
+    }
+    
+    /**
+     * Generates the floor and walls of the house for generateEvenBetterFarm()
+     */
+    public void generateHouse(){
+        // house floor generation
+        // size (width, height) -> (x, y)
+        Vec2 size = new Vec2(rng.nextInt(5, 7), rng.nextInt(4, 6));
+        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
+                                        rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
+        
+        // calculate all corners
+        Vec2 bottomRight = topLeft.add(size);
+        Vec2 topRight = topLeft.add(size.getX(), 0);
+        Vec2 bottomLeft = topLeft.add(0, size.getY());
+        
+        // door, bed and box vector coords
+        Vec2 doorV = topLeft.add(size.getX() / 2, 0);
+        Vec2 bedV = bottomRight.sub(1, 1);
+        Vec2 boxV = doorV.add(1,1);
+        
+        // floor
+        fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
+        
+        // walls
+        fillLine(TileType.WALL, topLeft, topRight);
+        fillLine(TileType.WALL, topLeft, bottomLeft);
+        fillLine(TileType.WALL, topRight, bottomRight);
+        fillLine(TileType.WALL, bottomLeft, bottomRight);
+        
+        // door
+        fillTile(TileType.DOOR, doorV);
+        
+        // place bed
+        fillTile(TileType.BED, bedV);
+        
+        // place boxes
+        fillTile(TileType.AXE_BOX, boxV);
+        fillTile(TileType.PICKAXE_BOX, boxV.right());
+    }
+    
+
+    /**
+     * Generates the dirt patch for generateEvenBetterFarm() and places the 
+     * hoe and seed box alongside
+     */
+    public void generateDirtPatch(){
+        // farm plot generation 
+        // size (width, height) -> (x, y)
+        Vec2 size = new Vec2(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
+        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-size.getX()), 
+                                       rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
+
+        fillRect(TileType.DIRT, topLeft, topLeft.add(size));
+        
+        // place item boxes
+        //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
+        //level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
+        
+        Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
+        fillTile(TileType.HOE_BOX, boxV);
+        fillTile(TileType.WATERINGCAN_BOX, boxV.right());
+        fillTile(TileType.SEED_BOX, boxV.left());
     }
     
     public Vec2 getGlobalPosition(){

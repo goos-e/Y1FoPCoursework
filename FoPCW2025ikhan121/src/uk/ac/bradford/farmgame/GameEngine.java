@@ -94,6 +94,7 @@ public class GameEngine {
         
         Vec2 bed = currentLevel.findClosest(TileType.BED, new Vec2());
         
+        
         Vec2 playerSpawn = new Vec2(bed);
         currentEntities.addEntity(new Player(playerSpawn));
         
@@ -336,12 +337,12 @@ public class GameEngine {
      * is different each game, and ideally it should avoid overwriting the dirt patch previously created.
      */
     private void evenBetterGenerateFarm() {
-        generateLevel(0);
-        
+        // level.fillRect() call was moved inside generateLevel(), as level.init()
+        createNewLevel(0);
         // spawn a dirt patch ie farm plot
-        generateDirtPatch();
+        currentLevel.generateDirtPatch();
         // spawn the house
-        generateHouse();
+        currentLevel.generateHouse();
         // generate debris layer
         currentLevel.addDebris(); 
     }
@@ -437,7 +438,7 @@ public class GameEngine {
             handlePlayer(nextCoords);
         }
         else{
-            generateLevel(direction);
+            changeLevel(direction);
         }
         
         if(currentLevel.isValid(nextCoords)){
@@ -450,60 +451,97 @@ public class GameEngine {
      * @param direction to be used for determining which side the player should spawn on
      * 1 is up, 2 is right, 3 is down, 4 is left
      */
-    private void generateLevel(int direction){
-        Vec2 globalLevelPosition;
-        Vec2 playerSpawn = new Vec2(LEVEL_WIDTH/2, LEVEL_HEIGHT/2);
-        // check if first map being generated -> globalLevelPosition should be (0,0)
-        // if not, globalLevelPosition is offset by direction
-        if(currentLevel == null){
-            globalLevelPosition = new Vec2();
-            currentPlayer = new Player(playerSpawn);
-        }
-        else{
-            globalLevelPosition = new Vec2(currentLevel.getGlobalPosition());
-            switch(direction){
-                case 1-> {
-                    globalLevelPosition = globalLevelPosition.up();
-                    playerSpawn = new Vec2(LEVEL_WIDTH/2, LEVEL_HEIGHT-1);
-                }
-                case 2-> {
-                    globalLevelPosition = globalLevelPosition.right();
-                    playerSpawn = new Vec2(0, LEVEL_HEIGHT/2);
-                }
-                case 3-> {
-                    globalLevelPosition = globalLevelPosition.down();
-                    playerSpawn = new Vec2(LEVEL_WIDTH/2, 0);
-                }
-                case 4-> {
-                    globalLevelPosition = globalLevelPosition.left();
-                    playerSpawn = new Vec2(LEVEL_WIDTH-1, LEVEL_HEIGHT/2);
-                }
+    private void createNewLevel(int direction){
+        
+        // the point the player 'enters' the level from, player's position is set
+        // to this value
+        Vec2 playerSpawn = new Vec2(); 
+        Vec2 globalLevelPosition = new Vec2();
+        // position in world map
+        
+        switch(direction){
+            case 0-> {
+                // do nothing to globalLevelPosition, direction 0 is first call and generates
+                // a level at the 'centre' of the world map
+            }
+            case 1-> {
+                globalLevelPosition = currentLevel.getGlobalPosition().up();
+                playerSpawn = new Vec2(LEVEL_WIDTH/2, LEVEL_HEIGHT-1);
+            }
+            case 2-> {
+                globalLevelPosition = currentLevel.getGlobalPosition().right();
+                playerSpawn = new Vec2(0, LEVEL_HEIGHT/2);
+            }
+            case 3-> {
+                globalLevelPosition = currentLevel.getGlobalPosition().down();
+                playerSpawn = new Vec2(LEVEL_WIDTH/2, 0);
+            }
+            case 4-> {
+                globalLevelPosition = currentLevel.getGlobalPosition().left();
+                playerSpawn = new Vec2(LEVEL_WIDTH-1, LEVEL_HEIGHT/2);
             }
         }
         
-        // checks for level with same level position, compares against each level
-        // if yes, load it in
+        // check if player exists and transfer to new level and remove from old
+        currentLevel = new Level(LEVEL_SIZE, globalLevelPosition, rng);
+        levels.add(currentLevel); // add to global map of levels
+        currentEntities = currentLevel.getEntities();
+        if(currentPlayer != null){
+            currentEntities.addEntity(currentPlayer);
+            currentPlayer = currentEntities.getPlayer();
+            currentPlayer.setPosition(playerSpawn);
+        }
+        currentLevel.init();
+    }
+    
+    public void changeLevel(int direction){
+        Vec2 playerSpawn = new Vec2(LEVEL_WIDTH/2, LEVEL_HEIGHT/2); // default to center of map
+        
+        // position in world map
+        Vec2 globalLevelPosition = currentLevel.getGlobalPosition();
+        // 1 is up, 2 is right, 3 is down, 4 is left
+        switch(direction){
+            case 0-> {
+                // do nothing to globalLevelPosition, direction 0 is first call and generates
+                // a level at the 'centre' of the world map
+            }
+            case 1-> {
+                //System.out.println("GOING UP");
+                globalLevelPosition = globalLevelPosition.up();
+                playerSpawn = new Vec2(LEVEL_WIDTH/2, LEVEL_HEIGHT-1);
+            }
+            case 2-> {
+                //System.out.println("GOING RIGHT");
+                globalLevelPosition = globalLevelPosition.right();
+                playerSpawn = new Vec2(0, LEVEL_HEIGHT/2);
+            }
+            case 3-> {
+                //System.out.println("GOING DOWN");
+                globalLevelPosition = globalLevelPosition.down();
+                playerSpawn = new Vec2(LEVEL_WIDTH/2, 0);
+            }
+            case 4-> {
+                //System.out.println("GOING LEFT");
+                globalLevelPosition = globalLevelPosition.left();
+                playerSpawn = new Vec2(LEVEL_WIDTH-1, LEVEL_HEIGHT/2);
+            }
+        }
+        
+        // System.out.printf("Updated global coords: %d,%d%n", globalLevelPosition.getX(), globalLevelPosition.getY());
+        // traverses world map to see if level exists
+        // if level does exist, transfer player and load new level
         for(Level level : levels){
             if(level.getGlobalPosition().equals(globalLevelPosition)){
+                currentEntities.removeEntity(currentPlayer);
                 currentLevel = level;
                 currentEntities = currentLevel.getEntities();
-                currentPlayer = currentEntities.getPlayer();
+                currentEntities.addEntity(currentPlayer);
                 currentPlayer.setPosition(playerSpawn);
                 return;
             }
         }
         
-        // if no level exists, create one
-        // transfer player to new level, while removing from old one
-        
-        currentLevel = new Level(LEVEL_SIZE, globalLevelPosition, rng);
-        levels.add(currentLevel); // add to global map of levels
-        currentEntities = currentLevel.getEntities();
-        currentEntities.addEntity(currentPlayer);
-        currentPlayer = currentEntities.getPlayer();
-        currentPlayer.setPosition(playerSpawn);
-        currentLevel.init();
-        currentLevel.addDebris();
+        createNewLevel(direction);
     }
     
     /**
@@ -554,7 +592,7 @@ public class GameEngine {
     public void startGame() {
         levels = new ArrayList<Level>();
         evenBetterGenerateFarm();
-        //createPlayer();
+        createPlayer();
         gui.updateDisplay(currentLevel);
     }
     
@@ -602,76 +640,12 @@ public class GameEngine {
         }
     }
     
-    
-    /**
-     * Generates the floor and walls of the house for generateEvenBetterFarm()
-     */
-    private void generateHouse(){
-        // house floor generation
-        // size (width, height) -> (x, y)
-        Vec2 size = new Vec2(rng.nextInt(5, 7), rng.nextInt(4, 6));
-        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
-                                        rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
+    private Vec2 findPlayerSpawn(){
+        if(currentLevel == null){return null;}
         
-        // calculate all corners
-        Vec2 bottomRight = topLeft.add(size);
-        Vec2 topRight = topLeft.add(size.getX(), 0);
-        Vec2 bottomLeft = topLeft.add(0, size.getY());
-        
-        // door, bed and box vector coords
-        Vec2 doorV = topLeft.add(size.getX() / 2, 0);
-        Vec2 bedV = bottomRight.sub(1, 1);
-        Vec2 boxV = doorV.add(1,1);
-        
-        // floor
-        currentLevel.fillRect(TileType.HOUSE_FLOOR, topLeft, topLeft.add(size));
-        
-        // walls
-        currentLevel.fillLine(TileType.WALL, topLeft, topRight);
-        currentLevel.fillLine(TileType.WALL, topLeft, bottomLeft);
-        currentLevel.fillLine(TileType.WALL, topRight, bottomRight);
-        currentLevel.fillLine(TileType.WALL, bottomLeft, bottomRight);
-        
-        // door
-        currentLevel.fillTile(TileType.DOOR, doorV);
-        
-        // place bed
-        currentLevel.fillTile(TileType.BED, bedV);
-        
-        // place boxes
-        currentLevel.fillTile(TileType.AXE_BOX, boxV);
-        currentLevel.fillTile(TileType.PICKAXE_BOX, boxV.right());
+        return null;
     }
-    
-
-    /**
-     * Generates the dirt patch for generateEvenBetterFarm() and places the 
-     * hoe and seed box alongside
-     */
-    private void generateDirtPatch(){
-        // farm plot generation 
-        // size (width, height) -> (x, y)
-        Vec2 size = new Vec2(rng.nextInt(5, 26), rng.nextInt(3,LEVEL_HEIGHT/2));
-        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-size.getX()), 
-                                       rng.nextInt(LEVEL_HEIGHT/2-size.getY()));
-
-        currentLevel.fillRect(TileType.DIRT, topLeft, topLeft.add(size));
-        
-        // place item boxes
-        //level[topLeft.getX()+size.getX()/2][topLeft.getY()] = new Tile(TileType.HOE_BOX, true);
-        //level[topLeft.getX()+size.getX()/2-2][topLeft.getY()] = new Tile(TileType.SEED_BOX, true);
-        
-        Vec2 boxV = new Vec2(topLeft.getX()+size.getX()/2, topLeft.getY());
-        currentLevel.fillTile(TileType.HOE_BOX, boxV);
-        currentLevel.fillTile(TileType.WATERINGCAN_BOX, boxV.right());
-        currentLevel.fillTile(TileType.SEED_BOX, boxV.left());
-    }
-    
-
-
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 
     // AND ARE TO BE REMOVED LATER
-    
-
 }

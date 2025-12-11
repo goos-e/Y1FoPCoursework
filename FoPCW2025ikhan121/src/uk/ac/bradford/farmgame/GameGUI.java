@@ -377,6 +377,13 @@ class Canvas extends JPanel {
             }
         }
         for(Entity e : currentEntities.asArray()){
+            // render the health if its less than 75, should later make this scale according to 75% hp
+            if(e.getHealth() <= 75){
+                g2.setColor(new Color(35, 35, 35));
+                g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, GameGUI.TILE_WIDTH, 10);
+                g2.setColor(new Color(255, 0 ,30));
+                g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, GameGUI.TILE_WIDTH, 10);
+            }
             if(e instanceof Tree){
                 g2.drawImage(tree, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
             }

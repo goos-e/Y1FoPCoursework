@@ -9,8 +9,7 @@ import uk.ac.bradford.farmgame.Vec2;
 public class NPC extends Entity{
     
     public NPC(Vec2 v){
-        setPosition(v);
-        setHealth(100);
+        super(v);
     }
     
     public void interact(Player player){

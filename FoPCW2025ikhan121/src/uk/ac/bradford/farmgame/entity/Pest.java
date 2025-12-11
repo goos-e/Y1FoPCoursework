@@ -17,7 +17,6 @@ public class Pest extends Entity {
      * Vector object (x,y)
      */
     public Pest(Vec2 v) {
-        setPosition(v);
-        setHealth(100);
+        super(v);
     }
 }

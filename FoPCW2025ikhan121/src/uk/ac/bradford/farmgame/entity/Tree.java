@@ -14,7 +14,6 @@ public class Tree extends Entity {
      * Vector object (x,y)
      */
     public Tree(Vec2 v) {
-        setPosition(v);
-        setHealth(100);
+        super(v, 200, 200);
     }
 }

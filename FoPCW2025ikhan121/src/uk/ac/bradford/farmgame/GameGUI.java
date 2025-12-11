@@ -76,12 +76,8 @@ public class GameGUI extends JFrame {
      * method requires three arguments and displays corresponding information on
      * the screen.
      *
-     * @param tiles A 2-dimensional array of TileTypes. This is the tiles of the
-     * current game level that should be drawn to the screen.
-     * @param player A Player object. This object is used to draw the player in
-     * the right tile. null can be passed for this argument, in which case no player will be drawn.
-     * @param pest A Pest object that is processed to draw the pest. null
-     * can be passed for this argument in which case no pest will be drawn.
+     * @param currentLevel the current level that is being rendered, contains the
+     * entity array and tile map
      */
     public void updateDisplay(Level currentLevel) {
         canvas.update(currentLevel);

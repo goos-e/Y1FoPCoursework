@@ -330,6 +330,12 @@ public class GameEngine {
         // spawn a dirt patch ie farm plot
         // currentLevel.generateDirtPatch();
         // spawn the house
+        
+        /**
+         * this method has been altered significantly due to task 19 for multiple
+         * levels, it USED to call all the necessary level generation functions
+         */
+        
         currentLevel.generateHouse();
     }
     
@@ -444,10 +450,13 @@ public class GameEngine {
         Vec2 globalLevelPosition = new Vec2();
         // position in world map
         
+        // modify the globalLevelPosition and playerSpawn if there exists a passed direction via 
+        // changeLevel(), otherwise initialise with (0,0)
         switch(direction){
             case 0-> {
                 // do nothing to globalLevelPosition, direction 0 is first call and generates
                 // a level at the 'centre' of the world map
+                // this is pointless, but exists to clarify the intent
             }
             case 1-> {
                 globalLevelPosition = currentLevel.getGlobalPosition().up();

@@ -14,7 +14,6 @@ public class Rock extends Entity {
      * Vector object (x,y)
      */
     public Rock(Vec2 v) {
-        setPosition(v);
-        setHealth(100);
+        super(v, 200, 200);
     }
 }

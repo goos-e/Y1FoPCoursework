@@ -12,15 +12,36 @@ import uk.ac.bradford.farmgame.Vec2;
 public abstract class Entity {
     
     /**
-     * Total health of this entity, 100 is 'full' and 0 is 'dead'
+     * Total health of this entity, a value of 0 means entity is dead.
      */
     private double health;
+    
+    /**
+     * Max health of this entity. The health attribute should not exceed this.
+     */
+    private double maxHealth;
     
     /**
      * position is the Vector object containing the x,y coordinates in the game
      * for this entity. 
      */
     protected Vec2 position;
+    
+    public Entity(Vec2 position, double health, double maxHealth){
+        this.position = position;
+        this.health = health;
+        this.maxHealth = maxHealth;
+    }
+    
+    /**
+     * Default constructor which only takes position and health/maxhealth default to 100.0
+     * @param position 
+     */
+    public Entity(Vec2 position){
+        this.position = position;
+        this.health = 100.0;
+        this.maxHealth = 100.0;
+    }
     
     /**
      * This method returns the current X position for this entity in the game
@@ -60,6 +81,9 @@ public abstract class Entity {
     }
     
     public void setHealth(double health){
+        if(this.health + health >= maxHealth){
+            this.health = maxHealth;
+        }
         this.health = health;
     }
     
@@ -99,8 +123,6 @@ public abstract class Entity {
                     }
 
                     this.setPosition(end);
-            }
-            else{
             }
         }
     }

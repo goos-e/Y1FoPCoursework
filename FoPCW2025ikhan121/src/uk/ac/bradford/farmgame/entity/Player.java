@@ -28,8 +28,7 @@ public class Player extends Entity {
      * Vector object (x,y)
      */
     public Player(Vec2 v) {
-        setPosition(v);
-        setHealth(100);
+        super(v);
         this.holding = new Hand();
         this.money = 0;
     }

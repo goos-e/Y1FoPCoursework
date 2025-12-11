@@ -253,6 +253,11 @@ class Canvas extends JPanel {
                 assert numerals[i].getHeight() == GameGUI.TILE_HEIGHT
                         && numerals[i].getWidth() == GameGUI.TILE_WIDTH;
             }
+            for(int i = 0; i < 26; i++){
+                alphabet[i] = ImageIO.read(new File("assets/alpha" + i + ".png"));
+                assert alphabet[i].getHeight() == GameGUI.TILE_HEIGHT
+                        && alphabet[i].getWidth() == GameGUI.TILE_WIDTH;
+            }
             credits = ImageIO.read(new File("assets/credits.png"));
             assert credits.getHeight() == GameGUI.TILE_HEIGHT
                     && credits.getWidth() == GameGUI.TILE_WIDTH;
@@ -423,10 +428,24 @@ class Canvas extends JPanel {
                     
                     g2.drawImage(numerals[digit], (i+1) * GameGUI.TILE_WIDTH, 0, null);
                 }
+                String test = "WELCOME TO SUNMIST PLATEAU";
+                
+                drawText(g2, test, 4, 0);
             }
         }
         
         g2.drawImage(credits, 0, 0, null);
+    }
+    
+    
+    public void drawText(Graphics2D g2, String text, int x, int y){
+        for(int i = 0; i < text.length(); i++){
+            char c = text.charAt(i);
+            int asciiPosition = (int)c;
+            // System.out.println("Current char: " + c + " : " + asciiPosition);
+            if(asciiPosition == 32){continue;}
+            g2.drawImage(alphabet[asciiPosition-65], (i+x) * GameGUI.TILE_WIDTH, y, null);
+        }
     }
     
     /**

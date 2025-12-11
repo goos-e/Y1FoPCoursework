@@ -61,7 +61,7 @@ public class GameEngine {
     private ArrayList<Level> levels;
     private Level currentLevel;
     private EntityManager currentEntities;
-    private Player currentPlayer;
+    private Player player;
     
     /**
      * Constructor that creates a GameEngine object and connects it with a
@@ -82,7 +82,7 @@ public class GameEngine {
      */
     private void createPlayer() {
         if(currentEntities.hasEntityOfType(Player.class)){
-            currentPlayer = currentEntities.getPlayer();
+            player = currentEntities.getPlayer();
             return;
         }
         
@@ -91,7 +91,7 @@ public class GameEngine {
         Vec2 playerSpawn = new Vec2(bed);
         currentEntities.addEntity(new Player(playerSpawn));
         
-        currentPlayer = currentEntities.getPlayer();
+        player = currentEntities.getPlayer();
     }
     
     private void createNPC(){
@@ -135,7 +135,7 @@ public class GameEngine {
         Vec2 playerPos = currentEntities.getEntityOfType(Player.class).getPosition();
         
         if(start.isAdjacent(playerPos)){
-            handleDialogue();
+            beginDialogue(npc);
         }
         else{
             npc.moveTowards(playerPos);
@@ -401,6 +401,12 @@ public class GameEngine {
      * 1 is up, 2 is right, 3 is down and 4 is left.
      */
     public void evenBetterMovePlayer(int direction) {
+        
+        if(player.getTalking()){
+            handleDialogue(direction);
+            return;
+        }
+        
         Vec2 currentCoords = currentEntities.getPlayer().getPosition();
         
         Vec2 nextCoords = null;
@@ -434,7 +440,7 @@ public class GameEngine {
         }
         
         if(currentLevel.isValid(nextCoords)){
-            currentPlayer.setPosition(nextCoords);
+            player.setPosition(nextCoords);
         }
     }
     
@@ -483,10 +489,10 @@ public class GameEngine {
         currentEntities = currentLevel.getEntities();
         
         // check if player exists and transfer to new level and remove from old
-        if(currentPlayer != null){
-            currentEntities.addEntity(currentPlayer);
-            currentPlayer = currentEntities.getPlayer();
-            currentPlayer.setPosition(playerSpawn);
+        if(player != null){
+            currentEntities.addEntity(player);
+            player = currentEntities.getPlayer();
+            player.setPosition(playerSpawn);
         }
         
         currentLevel.init();
@@ -539,11 +545,11 @@ public class GameEngine {
         // if level does exist, transfer player and load new level
         for(Level level : levels){
             if(level.getGlobalPosition().equals(globalLevelPosition)){
-                currentEntities.removeEntity(currentPlayer);
+                currentEntities.removeEntity(player);
                 currentLevel = level;
                 currentEntities = currentLevel.getEntities();
-                currentEntities.addEntity(currentPlayer);
-                currentPlayer.setPosition(playerSpawn);
+                currentEntities.addEntity(player);
+                player.setPosition(playerSpawn);
                 return;
             }
         }
@@ -622,8 +628,8 @@ public class GameEngine {
         TileType type = tile.getType();
         int entityIndex = currentEntities.getEntityIndexAt(v);
         
-        currentPlayer.updatePlayerItem(type);
-        Item holding = currentPlayer.getHeldItem();
+        player.updatePlayerItem(type);
+        Item holding = player.getHeldItem();
         
         // checks if tile has entity on it -> forcing entity interaction
         if(entityIndex != -1){
@@ -632,7 +638,7 @@ public class GameEngine {
             // check if player is attemping to interact with an NPC
             
             if(entity instanceof NPC){
-                handleDialogue();
+                beginDialogue((NPC)entity);
                 return;
             }
             
@@ -651,10 +657,10 @@ public class GameEngine {
                 triggerNight();
             }
             case CROP->{
-                int currentMoney = currentPlayer.getMoney();
+                int currentMoney = player.getMoney();
                 currentLevel.fillTile(TileType.DIRT, v);
                 //System.out.printf("MONEY: $%d + $5%n",currentMoney);
-                currentPlayer.setMoney(currentMoney + 5);
+                player.setMoney(currentMoney + 5);
             }
             default->{
                 holding.use(tile);
@@ -663,8 +669,15 @@ public class GameEngine {
     }
     
     
-    private void handleDialogue(){
+    private void beginDialogue(NPC npc){
+        player.setTalking(true);
         
+        System.out.println("HELLO THERE");
+        currentEntities.removeEntity(npc);
+    }
+    
+    private void handleDialogue(int direction){
+        player.setTalking(false);
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

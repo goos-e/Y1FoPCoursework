@@ -378,8 +378,8 @@ public class Level {
         // house floor generation
         // size (width, height) -> (x, y)
         Vec2 size = new Vec2(rng.nextInt(5, 7), rng.nextInt(4, 6));
-        Vec2 topLeft = new Vec2(rng.nextInt(LEVEL_WIDTH-1-size.getX()),
-                                        rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()));
+        Vec2 topLeft = new Vec2(rng.nextInt(1, LEVEL_WIDTH-1-size.getX()),
+                                        rng.nextInt(LEVEL_HEIGHT/2, LEVEL_HEIGHT-size.getY()-1));
         
         // calculate all corners
         Vec2 bottomRight = topLeft.add(size);

@@ -14,7 +14,7 @@ public class Hand extends Item{
     
     @Override
     public void use(Entity e){
-        e.hurtEntity(this.damage);
+        e.hurtEntity(this.getDamage());
     }
     
     @Override

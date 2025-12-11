@@ -15,32 +15,59 @@ public abstract class Item {
      * the max durability is calculated by 100*durabilityModifier
      */
     private double durability;
-    private double durabilityModifier;
+    private double durabilityLossOnUse;
+    private double maxDurability;
     
-    protected double damage;
+    private double damage;
     
-    public Item(String name, int durabilityModifier, int damage){
+    public Item(String name, double durability, double damage){
         this.name = name;
-        this.durabilityModifier = durabilityModifier;
-        this.durability = 100 * durabilityModifier;
+        this.durability = durability;
+        this.maxDurability = durability;
+        this.durabilityLossOnUse = 10;
         this.damage = damage;
     }
     
-    protected void reduceDurability(){
-        this.durability = this.durability - 10.0;
-    }
     
-    
-    /**
-     * overloaded method for durability loss modifier
-     * @param m 
-     */
-    protected void reduceDurability(double m){
-        this.durability = this.durability - 10.0*m;
+    protected void reduceDurability(double d){
+        this.durability = this.durability - d;
     }
     
     public double getDurability(){
         return this.durability;
+    }
+    
+    public void setDurability(double d){
+        if(d >= this.maxDurability){
+            this.durability = maxDurability;
+        }
+        else{
+            this.durability = d;
+        }
+    }
+    
+    public double getDurabilityLoss(){
+        return this.durabilityLossOnUse;
+    }
+    
+    public void setDurabilityLoss(double d){
+        this.durabilityLossOnUse = d;
+    }
+    
+    public double getDamage(){
+        return this.damage;
+    }
+    
+    public void setDamage(double d){
+        this.damage = d;
+    }
+    
+    public double getMaxDurability(){
+        return this.maxDurability;
+    }
+    
+    public void setMaxDurability(double d){
+        this.maxDurability = d;
     }
     
     public String getName(){

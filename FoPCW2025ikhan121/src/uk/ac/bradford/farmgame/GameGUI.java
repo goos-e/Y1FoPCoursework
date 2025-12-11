@@ -141,16 +141,8 @@ class Canvas extends JPanel {
     private BufferedImage tree;
     
     // text/icons
-    private BufferedImage numOne;
-    private BufferedImage numTwo;
-    private BufferedImage numThree;
-    private BufferedImage numFour;
-    private BufferedImage numFive;
-    private BufferedImage numSix;
-    private BufferedImage numSeven;
-    private BufferedImage numEight;
-    private BufferedImage numNine;
-    private BufferedImage numZero;
+    private BufferedImage[] numerals = new BufferedImage[10];
+    private BufferedImage[] alphabet = new BufferedImage[26];
     private BufferedImage credits;
     private BufferedImage colon;
     
@@ -254,43 +246,20 @@ class Canvas extends JPanel {
             pest = ImageIO.read(new File("assets/pest.png"));
             assert pest.getHeight() == GameGUI.TILE_HEIGHT
                     && pest.getWidth() == GameGUI.TILE_WIDTH;
-            // ICONS/SYMBOLS
-            numOne = ImageIO.read(new File("assets/numOne.png"));
-            assert numOne.getHeight() == GameGUI.TILE_HEIGHT
-                    && numOne.getWidth() == GameGUI.TILE_WIDTH;
-            numTwo = ImageIO.read(new File("assets/numTwo.png"));
-            assert numTwo.getHeight() == GameGUI.TILE_HEIGHT
-                    && numTwo.getWidth() == GameGUI.TILE_WIDTH;
-            numThree = ImageIO.read(new File("assets/numThree.png"));
-            assert numThree.getHeight() == GameGUI.TILE_HEIGHT
-                    && numThree.getWidth() == GameGUI.TILE_WIDTH;
-            numFour = ImageIO.read(new File("assets/numFour.png"));
-            assert numFour.getHeight() == GameGUI.TILE_HEIGHT
-                    && numFour.getWidth() == GameGUI.TILE_WIDTH;
-            numFive = ImageIO.read(new File("assets/numFive.png"));
-            assert numFive.getHeight() == GameGUI.TILE_HEIGHT
-                    && numFive.getWidth() == GameGUI.TILE_WIDTH;
-            numSix = ImageIO.read(new File("assets/numSix.png"));
-            assert numSix.getHeight() == GameGUI.TILE_HEIGHT
-                    && numSix.getWidth() == GameGUI.TILE_WIDTH;
-            numSeven = ImageIO.read(new File("assets/numSeven.png"));
-            assert numSeven.getHeight() == GameGUI.TILE_HEIGHT
-                    && numSeven.getWidth() == GameGUI.TILE_WIDTH;
-            numEight = ImageIO.read(new File("assets/numEight.png"));
-            assert numEight.getHeight() == GameGUI.TILE_HEIGHT
-                    && numEight.getWidth() == GameGUI.TILE_WIDTH;
-            numNine = ImageIO.read(new File("assets/numNine.png"));
-            assert numNine.getHeight() == GameGUI.TILE_HEIGHT
-                    && numNine.getWidth() == GameGUI.TILE_WIDTH;
-            numZero = ImageIO.read(new File("assets/numZero.png"));
-            assert numZero.getHeight() == GameGUI.TILE_HEIGHT
-                    && numZero.getWidth() == GameGUI.TILE_WIDTH;
+            
+            // ALPHANUMERICS/SYMBOLS
+            for(int i = 0; i < 10; i++){
+                numerals[i] = ImageIO.read(new File("assets/num" + i + ".png"));
+                assert numerals[i].getHeight() == GameGUI.TILE_HEIGHT
+                        && numerals[i].getWidth() == GameGUI.TILE_WIDTH;
+            }
             credits = ImageIO.read(new File("assets/credits.png"));
             assert credits.getHeight() == GameGUI.TILE_HEIGHT
                     && credits.getWidth() == GameGUI.TILE_WIDTH;
             colon = ImageIO.read(new File("assets/colon.png"));
             assert colon.getHeight() == GameGUI.TILE_HEIGHT
                     && colon.getWidth() == GameGUI.TILE_WIDTH;
+            
         } catch (IOException e) {
             System.out.println("Exception loading images: " + e.getMessage());
             e.printStackTrace(System.out);
@@ -321,7 +290,9 @@ class Canvas extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        drawLevel(g);
+        Graphics2D g2 = (Graphics2D)g;
+        drawLevel(g2);
+        drawMenu(g2);
     }
 
     /**
@@ -331,8 +302,7 @@ class Canvas extends JPanel {
      *
      * @param g
      */
-    private void drawLevel(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
+    private void drawLevel(Graphics2D g2) {
         if(currentLevel == null){return;}
         for(int i = 0; i<currentLevel.getWidth(); i++){
             for(int j = 0; j<currentLevel.getHeight(); j++){
@@ -373,13 +343,6 @@ class Canvas extends JPanel {
             }
         }
         for(Entity e : currentEntities.asArray()){
-            // render the health if its less than 75, should later make this scale according to 75% hp
-            if(e.getHealth() <= 75){
-                g2.setColor(new Color(35, 35, 35));
-                g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, GameGUI.TILE_WIDTH, 10);
-                g2.setColor(new Color(255, 0 ,30));
-                g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, GameGUI.TILE_WIDTH, 10);
-            }
             if(e instanceof Tree){
                 g2.drawImage(tree, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
             }
@@ -394,66 +357,76 @@ class Canvas extends JPanel {
             }
             else if(e instanceof Player){
                 g2.drawImage(player, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
-                Player p = (Player) e;
-                String money = "" + p.getMoney();
-                if(p.getHeldItem() instanceof Hoe){
-                    g2.drawImage(hoe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(p.getHeldItem() instanceof SeedBag){
-                    g2.drawImage(seedbag, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(p.getHeldItem() instanceof Axe){
-                    g2.drawImage(axe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(p.getHeldItem() instanceof Pickaxe){
-                    g2.drawImage(pickaxe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                if(p.getHeldItem() instanceof WateringCan){
-                    g2.drawImage(wateringcan, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
-                }
-                for(int i = 0; i < money.length(); i++){
-                    char currentChar = money.charAt(i);
-                    if(currentChar == '0'){
-                        g2.drawImage(numZero, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '1'){
-                        g2.drawImage(numOne, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '2'){
-                        g2.drawImage(numTwo, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '3'){
-                        g2.drawImage(numThree, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '4'){
-                        g2.drawImage(numFour, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '5'){
-                        g2.drawImage(numFive, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '6'){
-                        g2.drawImage(numSix, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '7'){
-                        g2.drawImage(numSeven, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '8'){
-                        g2.drawImage(numEight, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                    if(currentChar == '9'){
-                        g2.drawImage(numNine, (i+1)*GameGUI.TILE_HEIGHT, 0,null);
-                    }
-                }
+                
             }
         }
-        g2.drawImage(credits, 0, 0, null);
+        
         if (night) {
             int width = this.getSize().width;
             int height = this.getSize().height;
             g2.setColor(new Color(0, 0, 0, alpha));
             g2.fillRect(0, 0, width, height);
         }
-        g2.dispose();
+    }
+    
+    public void drawMenu(Graphics2D g2){
+        if(currentEntities == null){return;}
+        for(Entity e : currentEntities.asArray()){
+            // render the health if its less than 75% of max
+            // gonna repeat this for durability also, same idea
+            if(e.getHealth() / e.getMaxHealth() <= 0.75){
+                // splits the hp bar into 'blocks' relative to max hp
+                double oneScale = (double)GameGUI.TILE_WIDTH / e.getMaxHealth();
+                double hpBarValue = oneScale * e.getHealth();
+                
+                // black background + border for the hp 
+                g2.setColor(new Color(35, 35, 35));
+                g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, GameGUI.TILE_WIDTH, 10);
+                
+                // GREEN HEALTH -> IS HOW MUCH CURRENT HP THE ENTITY HAS
+                g2.setColor(new Color(255, 0 ,30));
+                g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, (int)hpBarValue , 10);
+            }
+            if(e instanceof Player){
+                Player p = (Player) e;
+                String money = "" + p.getMoney();
+                Item holding = p.getHeldItem();
+                double oneScale = (double) GameGUI.TILE_WIDTH / holding.getMaxDurability();
+                double durabilityBarValue = oneScale * holding.getDurability();
+                
+                if(holding instanceof Hoe){
+                    g2.drawImage(hoe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(holding instanceof SeedBag){
+                    g2.drawImage(seedbag, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(holding instanceof Axe){
+                    g2.drawImage(axe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(holding instanceof Pickaxe){
+                    g2.drawImage(pickaxe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(holding instanceof WateringCan){
+                    g2.drawImage(wateringcan, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                if(!(holding instanceof Hand)){
+                    // black background + border
+                    g2.setColor(new Color(35, 35, 35));
+                    g2.fillRect((currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, GameGUI.TILE_HEIGHT, GameGUI.TILE_WIDTH, 10);
+                    // white item durability
+                    g2.setColor(new Color(207, 198, 184));
+                    g2.fillRect((currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, GameGUI.TILE_HEIGHT, (int)durabilityBarValue, 10);
+                }
+                for(int i = 0; i < money.length(); i++){
+                    char currentChar = money.charAt(i);
+                    int digit = currentChar - '0';
+                    
+                    g2.drawImage(numerals[digit], (i+1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+            }
+        }
+        
+        g2.drawImage(credits, 0, 0, null);
     }
     
     /**

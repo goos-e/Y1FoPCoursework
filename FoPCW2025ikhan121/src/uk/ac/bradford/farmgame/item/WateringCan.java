@@ -14,23 +14,20 @@ import uk.ac.bradford.farmgame.entity.Entity;
  */
 public class WateringCan extends Item{
     public WateringCan(){
-        super("Watering Can", 1, 1);
+        super("Watering Can", 100, 1);
     }
     
     @Override
-    public void use(Entity e) {
-        double damageMod = 1.0;
-        double durabilityLossMod = 1.0;
-        
-        e.hurtEntity(this.damage * damageMod);
-        this.reduceDurability(durabilityLossMod);
+    public void use(Entity e){
+        e.hurtEntity(this.getDamage());
+        this.reduceDurability(this.getDurabilityLoss());
     }
 
     @Override
     public void use(Tile t) {
         if(t.getType() == TileType.SOWED_DIRT){
             t.setType(TileType.SOWED_DIRT_WATERED);
-            this.reduceDurability(0.2);
+            this.reduceDurability(this.getDurabilityLoss() / 2);
         }
     }
     

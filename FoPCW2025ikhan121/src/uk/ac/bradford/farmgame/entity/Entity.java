@@ -14,12 +14,12 @@ public abstract class Entity {
     /**
      * Total health of this entity, a value of 0 means entity is dead.
      */
-    private double health;
+    protected double health;
     
     /**
      * Max health of this entity. The health attribute should not exceed this.
      */
-    private double maxHealth;
+    protected double maxHealth;
     
     /**
      * position is the Vector object containing the x,y coordinates in the game
@@ -84,7 +84,17 @@ public abstract class Entity {
         if(this.health + health >= maxHealth){
             this.health = maxHealth;
         }
-        this.health = health;
+        else{
+            this.health = health;
+        }
+    }
+    
+    public double getMaxHealth(){
+        return this.maxHealth;
+    }
+    
+    public void setMaxHealth(double maxHealth){
+        this.maxHealth = maxHealth;
     }
     
     /**

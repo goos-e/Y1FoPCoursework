@@ -10,25 +10,22 @@ import uk.ac.bradford.farmgame.entity.Tree;
  */
 public class Axe extends Item{
     
-    
     public Axe(){
-        super("Axe", 1, 25);
+        super("Axe", 200, 25);
     }
-    
     
     @Override
     public void use(Entity e){
-        double damageMod = 1.0;
-        double durabilityLossMod = 1.0;
-        
-        if (e instanceof Tree){
-            damageMod = 2.0;
-            durabilityLossMod = 0.5;
+        if(e instanceof Tree){
+            e.hurtEntity(this.getDamage() * 2);
+            this.reduceDurability(this.getDurabilityLoss() / 2);
         }
-        
-        e.hurtEntity(this.damage * damageMod);
-        this.reduceDurability(durabilityLossMod);
+        else{
+            e.hurtEntity(this.getDamage());
+            this.reduceDurability(this.getDurabilityLoss());
+        }
     }
     
+    @Override
     public void use(Tile t){}
 }

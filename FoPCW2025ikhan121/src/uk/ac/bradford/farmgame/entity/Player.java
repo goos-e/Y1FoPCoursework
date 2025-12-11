@@ -21,6 +21,8 @@ public class Player extends Entity {
     
     private int money;
     
+    private boolean talking;
+    
     /**
      * This constructor is used to create a Player object to use in the game
      *
@@ -55,7 +57,7 @@ public class Player extends Entity {
      * Logic for deciding which item to set the player's holding attribute to,
      * depending on what the TileType of the passed tile is, ie AXE_BOX, HOE_BOX
      * etc.
-     * @param tile 
+     * @param t The TileType of tile the player is smacking
      */
     public void updatePlayerItem(TileType t){
         
@@ -74,6 +76,14 @@ public class Player extends Entity {
                 case WATERINGCAN_BOX->setHeldItem(new WateringCan());
             }
         }
+    }
+    
+    public boolean getTalking(){
+        return talking;
+    }
+    
+    public void setTalking(boolean t){
+        this.talking = t;
     }
     
     public int getMoney(){

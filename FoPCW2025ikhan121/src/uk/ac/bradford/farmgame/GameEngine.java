@@ -106,11 +106,11 @@ public class GameEngine {
      * and assign it to the pest attribute of this class. For top marks you should
      * make the position of the Pest dynamic i.e. it is randomly selected in some way.
      */
-    private void createPest() {
-        if(currentEntities.getEntitiesOfType(Pest.class).size() >= 3){return;}
+    private void createPest(Level level) {
+        if(level.getEntities().getEntitiesOfType(Pest.class).size() >= 3){return;}
         
-        Vec2 pestSpawn = currentLevel.getPointOnEdge();
-        currentEntities.addEntity(new Pest(pestSpawn));
+        Vec2 pestSpawn = level.getPointOnEdge();
+        level.getEntities().addEntity(new Pest(pestSpawn));
     }
     
     /**
@@ -135,7 +135,7 @@ public class GameEngine {
         Vec2 playerPos = currentEntities.getEntityOfType(Player.class).getPosition();
         
         if(start.isAdjacent(playerPos)){
-            System.out.println("good evening..");
+            handleDialogue();
         }
         else{
             npc.moveTowards(playerPos);
@@ -350,20 +350,22 @@ public class GameEngine {
      * whenever one or more crops are created.
      */
     public void growCrops() {
-        soilDecay();
-        Vec2[] sowedCoords = currentLevel.findTiles(TileType.SOWED_DIRT_WATERED);
-        
-        if (sowedCoords != null){
-            
-            createPest();
+        for(Level level : levels){
+            soilDecay(level);
+            Vec2[] sowedCoords = level.findTiles(TileType.SOWED_DIRT_WATERED);
 
-            for (Vec2 v : sowedCoords){
-                
-                if(rng.nextDouble() > 0.05){
-                    currentLevel.fillTile(TileType.CROP, v);
-                }
-                else{
-                    currentLevel.fillTile(TileType.TILLED_DIRT, v);
+            if (sowedCoords != null){
+
+                createPest(level);
+
+                for (Vec2 v : sowedCoords){
+
+                    if(rng.nextDouble() > 0.05){
+                        level.fillTile(TileType.CROP, v);
+                    }
+                    else{
+                        level.fillTile(TileType.TILLED_DIRT, v);
+                    }
                 }
             }
         }
@@ -373,13 +375,13 @@ public class GameEngine {
      * This method implements the possible soil decay if no seeds are sown
      * on tilled soil. The % is hard coded but this may change ?
      */
-    private void soilDecay(){
-        Vec2 [] tilledCoords = currentLevel.findTiles(TileType.TILLED_DIRT);
+    private void soilDecay(Level level){
+        Vec2 [] tilledCoords = level.findTiles(TileType.TILLED_DIRT);
         
         if(tilledCoords != null){
             for(Vec2 v : tilledCoords){
                 if(rng.nextDouble() <= 0.33){
-                    currentLevel.fillTile(TileType.DIRT, v);
+                    level.fillTile(TileType.DIRT, v);
                 }
             }
         }
@@ -627,6 +629,13 @@ public class GameEngine {
         if(entityIndex != -1){
             Entity entity = currentEntities.getEntity(entityIndex);
             
+            // check if player is attemping to interact with an NPC
+            
+            if(entity instanceof NPC){
+                handleDialogue();
+                return;
+            }
+            
             holding.use(entity);
             
             if(entity.getHealth() <= 0){
@@ -651,6 +660,11 @@ public class GameEngine {
                 holding.use(tile);
             }
         }
+    }
+    
+    
+    private void handleDialogue(){
+        
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

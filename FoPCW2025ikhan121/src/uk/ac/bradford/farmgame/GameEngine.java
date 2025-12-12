@@ -51,7 +51,6 @@ public class GameEngine {
      * effects that only occur on certain turn numbers.
      */
     private int turnNumber = 1;
-
     /**
      * The GUI associated with this GameEngine object. This link allows the
      * engine to pass level and entity information to the GUI to be drawn.
@@ -587,6 +586,10 @@ public class GameEngine {
      *
      */
     public void doTurn() {
+        if(player.getTalking()){
+            gui.updateDisplay(currentLevel);
+            return;
+        }
         turnNumber++;
         if (turnNumber % 4 == 0 && currentEntities.getPest() != null) {
             ArrayList<Pest> pests = currentEntities.getEntitiesOfType(Pest.class);
@@ -609,9 +612,8 @@ public class GameEngine {
      * passed to it.
      */
     public void startGame() {
-        levels = new ArrayList<Level>();
+        levels = new ArrayList<>();
         createNewLevel(0);
-        //evenBetterGenerateFarm();
         createPlayer();
         gui.updateDisplay(currentLevel);
     }
@@ -668,7 +670,6 @@ public class GameEngine {
         }
     }
     
-    
     private void beginDialogue(NPC npc){
         player.setTalking(true);
         
@@ -676,8 +677,14 @@ public class GameEngine {
         currentEntities.removeEntity(npc);
     }
     
+    /**
+     * 
+     * @param direction  1 is up, 2 is right, 3 is down, 4 is left
+     */
     private void handleDialogue(int direction){
-        player.setTalking(false);
+        if(direction == 2){
+            player.setTalking(false);
+        }
     }
     
     // ALL FUNCTIONS BELOW HERE ARE BEING SPLIT INTO OTHER CLASSSES 

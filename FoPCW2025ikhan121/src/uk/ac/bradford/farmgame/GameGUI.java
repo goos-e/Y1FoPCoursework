@@ -15,7 +15,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-
+import java.lang.Math;
 
 /**
  * The GameGUI class is responsible for rendering graphics to the screen to
@@ -127,6 +127,7 @@ class Canvas extends JPanel {
     private BufferedImage sowedDirtWatered;
     private BufferedImage wateringcanBox;
     private BufferedImage grass;
+    private BufferedImage grass2;
     // items
     private BufferedImage axe;
     private BufferedImage hoe;
@@ -145,9 +146,28 @@ class Canvas extends JPanel {
     private BufferedImage[] alphabet = new BufferedImage[26];
     private BufferedImage credits;
     private BufferedImage colon;
+    private BufferedImage dash;
+    private BufferedImage playerPortrait;
+    
+    // colours
+    private Color purple = new Color(71, 45, 60);
+    private Color black = new Color(48, 57, 71);
+    private Color white = new Color(207, 198, 184);
+    private Color red = new Color(230, 72, 46);
+            
+    
     
     Level currentLevel;
     EntityManager currentEntities;
+    
+    // counters
+    private int welcomeMessageCounter = 0;
+    
+    // menu sizes        
+    private int mMenuX;
+    private int mMenuY;
+    private int mMenuWidth;
+    private int mMenuHeight;
     
     private boolean night = false;  //boolean to track night animation status
     private float alpha = 0.0f;     //transparency of the night effect to simulate dark/light levels
@@ -264,6 +284,12 @@ class Canvas extends JPanel {
             colon = ImageIO.read(new File("assets/colon.png"));
             assert colon.getHeight() == GameGUI.TILE_HEIGHT
                     && colon.getWidth() == GameGUI.TILE_WIDTH;
+            dash = ImageIO.read(new File("assets/dash.png"));
+            assert dash.getHeight() == GameGUI.TILE_HEIGHT
+                    && dash.getWidth() == GameGUI.TILE_WIDTH;
+            playerPortrait = ImageIO.read(new File("assets/playerPortrait.png"));
+            assert playerPortrait.getHeight() == GameGUI.TILE_HEIGHT
+                    && playerPortrait.getWidth() == GameGUI.TILE_WIDTH;
             
         } catch (IOException e) {
             System.out.println("Exception loading images: " + e.getMessage());
@@ -283,6 +309,10 @@ class Canvas extends JPanel {
     public void update(Level level) {
         currentLevel = level;
         currentEntities = level.getEntities();
+        mMenuX = currentLevel.getWidth() / 4 * GameGUI.TILE_WIDTH;
+        mMenuY = currentLevel.getHeight() / 4 * GameGUI.TILE_HEIGHT;
+        mMenuWidth = mMenuX * 2;
+        mMenuHeight = mMenuY * 2;
         repaint();
     }
 
@@ -297,7 +327,7 @@ class Canvas extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
         drawLevel(g2);
-        drawMenu(g2);
+        drawUI(g2);
     }
 
     /**
@@ -348,9 +378,9 @@ class Canvas extends JPanel {
             }
         }
         for(Entity e : currentEntities.asArray()){
-            if(e instanceof Tree){
-                g2.drawImage(tree, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
-            }
+            if(e instanceof Tree){    
+                g2.drawImage(tree, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);        
+            }            
             else if(e instanceof Rock){
                 g2.drawImage(rock, e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT, null);
             }
@@ -374,7 +404,7 @@ class Canvas extends JPanel {
         }
     }
     
-    public void drawMenu(Graphics2D g2){
+    public void drawUI(Graphics2D g2){
         if(currentEntities == null){return;}
         for(Entity e : currentEntities.asArray()){
             // render the health if its less than 75% of max
@@ -385,11 +415,11 @@ class Canvas extends JPanel {
                 double hpBarValue = oneScale * e.getHealth();
                 
                 // black background + border for the hp 
-                g2.setColor(new Color(35, 35, 35));
+                g2.setColor(black);
                 g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, GameGUI.TILE_WIDTH, 10);
                 
-                // GREEN HEALTH -> IS HOW MUCH CURRENT HP THE ENTITY HAS
-                g2.setColor(new Color(255, 0 ,30));
+                // RED HEALTH -> IS HOW MUCH CURRENT HP THE ENTITY HAS
+                g2.setColor(red);
                 g2.fillRect(e.getX() * GameGUI.TILE_WIDTH, e.getY() * GameGUI.TILE_HEIGHT - 15, (int)hpBarValue , 10);
             }
             if(e instanceof Player){
@@ -399,6 +429,7 @@ class Canvas extends JPanel {
                 double oneScale = (double) GameGUI.TILE_WIDTH / holding.getMaxDurability();
                 double durabilityBarValue = oneScale * holding.getDurability();
                 
+                // render held item in top right corner of screen
                 if(holding instanceof Hoe){
                     g2.drawImage(hoe, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
@@ -414,37 +445,82 @@ class Canvas extends JPanel {
                 if(holding instanceof WateringCan){
                     g2.drawImage(wateringcan, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
                 }
+                // render durability of item
                 if(!(holding instanceof Hand)){
                     // black background + border
-                    g2.setColor(new Color(35, 35, 35));
+                    g2.setColor(black);
                     g2.fillRect((currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, GameGUI.TILE_HEIGHT, GameGUI.TILE_WIDTH, 10);
                     // white item durability
-                    g2.setColor(new Color(207, 198, 184));
+                    g2.setColor(white);
                     g2.fillRect((currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, GameGUI.TILE_HEIGHT, (int)durabilityBarValue, 10);
+                    
+                    g2.drawImage(playerPortrait, (currentLevel.getWidth()-2) * GameGUI.TILE_WIDTH, 0, null);
                 }
+                else{
+                    g2.drawImage(playerPortrait, (currentLevel.getWidth()-1) * GameGUI.TILE_WIDTH, 0, null);
+                }
+                
                 for(int i = 0; i < money.length(); i++){
                     char currentChar = money.charAt(i);
                     int digit = currentChar - '0';
                     
                     g2.drawImage(numerals[digit], (i+1) * GameGUI.TILE_WIDTH, 0, null);
                 }
-                String test = "WELCOME TO SUNMIST PLATEAU";
                 
-                drawText(g2, test, 4, 0);
+                if(p.getTalking()){
+                    
+                    
+                    drawEmptyMenu(g2, mMenuX, mMenuY, mMenuWidth, mMenuHeight);
+                    String test = "welcome farmer   try hitting the trees with axes and rocks with pickaxes";
+                    drawText(g2, test, mMenuX, mMenuY, mMenuWidth, mMenuHeight);
+                }
+                
+                if(welcomeMessageCounter <= 5){
+                    welcomeMessageCounter++;
+                    String test = "welcome to sunmist plateau";
+                    drawEmptyMenu(g2, 4*GameGUI.TILE_WIDTH, 50, 26*GameGUI.TILE_WIDTH, GameGUI.TILE_HEIGHT);
+                    drawText(g2, test, 4*GameGUI.TILE_WIDTH, 50, 9999, 9999);
+                }
             }
         }
         
         g2.drawImage(credits, 0, 0, null);
     }
     
+    public void drawEmptyMenu(Graphics g2, int x, int y, int width, int height){
+        g2.setColor(black);
+        g2.fillRect(x-5, y-5, width+10, height+10);
+        g2.setColor(purple);
+        g2.fillRect(x, y, width, height);
+    }
     
-    public void drawText(Graphics2D g2, String text, int x, int y){
+    public void drawText(Graphics2D g2, String text, int x, int y, int width, int height){
+        int row = 0;
+        int col = 0;
+        
         for(int i = 0; i < text.length(); i++){
-            char c = text.charAt(i);
-            int asciiPosition = (int)c;
+            char c = Character.toUpperCase(text.charAt(i));
+            
+            int cX = x + (col * GameGUI.TILE_WIDTH);
+            int cY = y + (row * GameGUI.TILE_HEIGHT);
+            
+            if((col+1) * GameGUI.TILE_WIDTH >= width){
+                row++;
+                col = 0;
+                if(c != ' '){
+                    g2.drawImage(dash, cX, cY, null);
+                }
+            }
+            
+            cX = x + (col * GameGUI.TILE_WIDTH);
+            cY = y + (row * GameGUI.TILE_HEIGHT);
+            
+            int asciiValue = (int)c;
             // System.out.println("Current char: " + c + " : " + asciiPosition);
-            if(asciiPosition == 32){continue;}
-            g2.drawImage(alphabet[asciiPosition-65], (i+x) * GameGUI.TILE_WIDTH, y, null);
+            if(c != ' '){
+                g2.drawImage(alphabet[asciiValue-65], cX, cY, null);
+            }
+            col++;
         }
     }
     

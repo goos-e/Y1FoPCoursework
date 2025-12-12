@@ -18,7 +18,6 @@ public class Player extends Entity {
     * Item object for what the player is holding
     */
     private Item holding;
-    
     private int money;
     
     private boolean talking;

@@ -42,7 +42,9 @@ public class Level {
         
     public void init(){
         fillRect(TileType.STONE_GROUND, new Vec2(), new Vec2(this.LEVEL_WIDTH, this.LEVEL_HEIGHT));
-        generateDirtPatch();
+        generateRandomCircles(TileType.GRASS, 10, 15, 0, 3);
+        generateRandomCircles(TileType.DIRT, 6, 12, 0, 5);
+        //generateDirtPatch();
     }
     /**
      * This method should add debris to the game in the form of Tree and Rock objects.
@@ -162,10 +164,11 @@ public class Level {
     
     /**
      * Creates new Tile objects of type t for each coordinate in a circle defined by
-     * the passed vector and integer arguments, mid-point and radius. 
-     * @param t
-     * @param mid
-     * @param rad 
+     * the passed vector and integer arguments, mid-point and radius. Draws each tile
+     * inside the circle and on the circumference.
+     * @param t the tiletype to draw to each tile 
+     * @param mid the midpoint of the circle
+     * @param rad the radius of the circle
      */
     public void fillCircle(TileType t, Vec2 mid, int rad){
         /*
@@ -181,15 +184,18 @@ public class Level {
         int a = mid.getX();
         int b = mid.getY();
         
+        // condition #2 via count control
         for(int i = a-rad; i <= a+rad; i++){
             for(int j = b-rad; j <= b+rad; j++){
                 Vec2 currentV = new Vec2(i, j);
                 
+                // condition #1
                 if(!isWithinLevel(currentV)){continue;}
                 
                 int dx = (i-a);
                 int dy = (j-b);
                 
+                // condition #3
                 if( dx*dx + dy*dy <= rad*rad){
                     fillTile(t, currentV);
                 }
@@ -415,21 +421,24 @@ public class Level {
         fillTile(TileType.PICKAXE_BOX, boxV.right());
     }
     
-
     /**
-     * Generates the dirt patch for generateEvenBetterFarm() and places the 
-     * hoe and seed box alongside
+     * Generates randomly sized+placed circles of passed tiletype on the level.
+     * Calls the fillCircle() method.
+     * @param type TileType of the tiles to be drawn 
+     * @param minCount minimum number of circles
+     * @param maxCount maximum number of circles
+     * @param minRadius minimum value to be taken for radius
+     * @param maxRadius maximum value to be taken for radius
      */
-    public void generateDirtPatch(){
+    public void generateRandomCircles(TileType type, int minCount, int maxCount, int minRadius, int maxRadius){
         // farm plot generation 
-        int dirtPatchCount = rng.nextInt(6, 12);
-        for (int i = 0; i <= dirtPatchCount; i++){
-            int radius = rng.nextInt(0, 5);
+        int count = rng.nextInt(minCount, maxCount);
+        for (int i = 0; i <= count; i++){
+            int radius = rng.nextInt(minRadius, maxRadius);
             int a = rng.nextInt(0, LEVEL_WIDTH);
             int b = rng.nextInt(0, LEVEL_HEIGHT);
-            fillCircle(TileType.DIRT, new Vec2(a,b), radius);
+            fillCircle(type, new Vec2(a,b), radius);
         }
-        
     }
     
     public Vec2 getGlobalPosition(){
